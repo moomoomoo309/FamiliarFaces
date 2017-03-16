@@ -2355,4 +2355,6 @@ function invert(color)
   return { 255 - r, 255 - g, 255 - b, a }
 end
 
+
+return gooi
 ------------------- Reusable elements for .alert and .confirm:
