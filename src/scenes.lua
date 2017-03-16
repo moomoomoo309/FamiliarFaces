@@ -10,7 +10,6 @@ scene = {
     currentScenes = {},
     printText2 = function(text, paddingX, paddingY, i)
         local y = (i - 1) * (fontHeight + paddingY) + paddingY
-        local transX,transY
         if y > love.graphics.getHeight() then
             transX, transY = transX, transX-(y - love.graphics.getHeight() - paddingY)
         end
@@ -47,7 +46,7 @@ scene = {
     end,
     clear = function(self, sceneName)
         sceneName = sceneName or self.name
-        for k, v in pairs(scene.scenes[sceneName]) do
+        for k, v in pairs(scene.scenes[sceneName] or {}) do
             if type(v) == "table" and k ~= "class" then
                 v.visible = false
             end
@@ -62,7 +61,7 @@ scene = {
     show = function(self, sceneName)
         scene:clear(sceneName or self.currentScene)
         scene.currentScenes = sceneName
-        for k, v in pairs(scene.scenes[scene.currentScenes]) do
+        for k, v in pairs(scene.scenes[scene.currentScenes] or {}) do
             if type(v) == "table" and k ~= "class" then
                 v.visible = true
             end

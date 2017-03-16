@@ -61,7 +61,6 @@ local transitions = {
     3,
     3
 }
-local transX, transY = 0, 0
 local buildingTranslations
 local camIndex = 1
 local deltaX, deltaY = 0, 0
@@ -78,6 +77,8 @@ local currentScene = "museum"
 local followingScene = { bathroom = "museum", museum = "building" }
 local previousScene = { building = "museum", museum = "bathroom" }
 local process
+local sceneTbl
+transX, transY = 0, 0
 
 
 local sndBnk = {}
@@ -179,9 +180,9 @@ local Menu = {
         if state == "exit" then
             mainTitle.visible = false
             guiHand.visible = false
-            local lblConfirm = suit.Label("Are you sure?", transX+width() / 2 - 40, transY+260)
-            local btnYes = suit.Button("Yes", transX+width() / 2 - 202, transY+height() / 2, 200, 30)
-            local btnNo = suit.Button("No", transX+width() / 2 + 2, transY+height() / 2, 200, 30)
+            local lblConfirm = suit.Label("Are you sure?", transX + width() / 2 - 40, transY + 260)
+            local btnYes = suit.Button("Yes", transX + width() / 2 - 202, transY + height() / 2, 200, 30)
+            local btnNo = suit.Button("No", transX + width() / 2 + 2, transY + height() / 2, 200, 30)
 
             if btnYes.hit then
                 love.event.quit()
@@ -500,7 +501,7 @@ function love.load()
     bathroom = Scenes:bathroom()
     building, buildingTranslations = Scenes:building()
     museum = Scenes:museum()
-    scenes = { bathroom = bathroom, building = building, museum = museum }
+    sceneTbl = { bathroom = bathroom, building = building, museum = museum }
 
     mainTitle = sprite { x = 25, y = 25, w = 750, h = 300, imagePath = "title.png", flipHorizontal = false }
     guiHand = sprite { x = width() / 2 + 130, y = height() / 2 + 55, w = 100, h = 25, imagePath = "hand.png", flipHorizontal = false }
@@ -522,9 +523,9 @@ local function moveNext()
         bathroom:clear()
     end
     if lastScene then
-        scenes[lastScene]:clear()
+        scene[lastScene]:clear()
     end
-    scenes[currentScene]:show()
+    scene[currentScene]:show()
     if currentScene == "building" then
         spaceLocked = false
         enterLocked = true
@@ -546,12 +547,12 @@ function love.keypressed(key, scancode, isrepeat)
     if key == "right" then
         local tbl
         if not process then
-            process,tbl = parser.process "Script" --proc is there because otherwise, tbl wouldn't be local.
+            process, tbl = parser.process "Script" --proc is there because otherwise, tbl wouldn't be local.
         end
         if coroutine.status(process) ~= "dead" then
-            print(coroutine.resume(process,tbl))
+            print(coroutine.resume(process, tbl))
         else
-            print"ded"
+            print "ded"
         end
     end
 end
