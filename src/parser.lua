@@ -1,10 +1,11 @@
 utils = utils or require "pl.utils"
 map = map or require "map"
 pretty = pretty or require "pl.pretty"
-scenes = scenes or require "scenes"
+scenes = scenes or require "scene"
 transX, transY = transX, transY --To tell IntelliJ this is intentional global "creation"
 
 local function promptPlayer(tbl)
+    --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
     local choices = {}
     for k in pairs(tbl) do
         choices[#choices + 1] = k
@@ -15,36 +16,40 @@ end
 
 local good = 0
 local commands = {
-    ["+1"]=function() good=good+1 end,
-    ["-1"]=function() good=good-1 end,
-
+    --TODO: Implement the rest of the parser commands!
+    ["+1"] = function() good = good + 1 end,
+    ["-1"] = function() good = good - 1 end,
+    new = function() scene:clearText() scene:printText("", true) end
 }
 
 local function processVal(tbl)
     if type(tbl) == "table" then
         for i = 1, #tbl do
-            print(i)
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
+                local findSpace = val:find(" ", nil, true)
                 local firstChar = val:sub(1, 1)
-                local firstWord = val:sub(0, val:find(" ", nil, true) or #val)
+                local firstWord = val:sub(0, findSpace and findSpace - 1 or #val)
                 if firstChar == "@" then
-                    local cmd = firstWord:sub(1)
+                    local cmd = firstWord:sub(2)
+                    print(("cmd=%s"):format(cmd))
                     if commands[cmd] then
                         commands[cmd]()
                     end
                 elseif firstWord:lower() == "*sfx" then
-                    local findSpace = val:find(" ", nil, true)
                     if findSpace then
-                        love.audio.play(val:sub(findSpace + 1))
+                        --TODO: Make the audio play. You'll probably want a file that handles audio BS for consistency.
+                        --love.audio.play(val:sub(findSpace + 1))
+                        print(("Audio: %s"):format(val:sub(findSpace + 1)))
                     end
                 elseif val:sub(0, 2) == "/r" then
-                    transX, transY = scenes:printText(val:sub(3), false)
-                else
+                    transX, transY = scenes:printText(val:sub(3), false, {255,0,0})
+                    coroutine.yield()
+                elseif #val > 0 then
                     transX, transY = scenes:printText(val, false)
+                    coroutine.yield()
                 end
-                coroutine.yield()
             elseif t == "table" then
                 local choice = promptPlayer(val)
                 processVal(val[choice])

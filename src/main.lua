@@ -1,12 +1,12 @@
 io.stdout:setvbuf "no"
 
 suit = require "suit"
-scene = scenes or require "scenes"
+scene = scene or require "scene"
 sprite = sprite or require "sprite"
-animation = animation or require "animation"
 tablex = tablex or require "tablex"
 pretty = pretty or require "pretty"
 parser = parser or require "parser"
+elevator = elevator or require "elevator"
 
 local width = love.graphics.getWidth
 local height = love.graphics.getHeight
@@ -22,60 +22,10 @@ local building
 local museum
 
 local extLight
-local updateFunctions = {}
-local transitions = {
-    12,
-    1,
-    10,
-    4,
-    2,
-    6,
-    2,
-    3,
-    2,
-    3,
-    2,
-    3,
-    5,
-    1,
-    5,
-    3,
-    3,
-    2,
-    2,
-    2,
-    8,
-    5,
-    2,
-    4,
-    3,
-    3,
-    1,
-    1,
-    3,
-    1,
-    1,
-    2,
-    1,
-    1,
-    3,
-    3
-}
-local buildingTranslations
-local camIndex = 1
-local deltaX, deltaY = 0, 0
-local i = 1
-local stopElevatorLight
-local t
-local currentTransition = {}
-local transitionIndex = 1
-local nextTarget
-local spaceLocked = false
-local nextDelta = 0
-local lastScene, enterLocked
+local lastScene
+local enterLocked = true
 local currentScene = "museum"
 local followingScene = { bathroom = "museum", museum = "building" }
-local previousScene = { building = "museum", museum = "bathroom" }
 local process
 local sceneTbl
 transX, transY = 0, 0
@@ -113,6 +63,7 @@ local Menu = {
             if btnStart.hit then
                 state = "start"
                 bathroom:show()
+                enterLocked = false
             end
             if btnSettings.hit then
                 state = "settings"
@@ -397,98 +348,6 @@ local Scenes = {
     end
 }
 
-local function lerp(start, stop, percent)
-    return (stop - start) * math.min(0, math.max(percent, 1)) + start
-end
-
-local function cerp(start, stop, percent)
-    local f = (1 - math.cos(percent * math.pi)) * .5
-    return start * (1 - f) + stop * f
-end
-
-local function moveElevatorLight()
-    if type(buildingTranslations[i]) == "table" then
-        extLight.x = extLight.x + buildingTranslations[i][1]
-        extLight.y = extLight.y + buildingTranslations[i][2]
-    elseif buildingTranslations[i] == "flipHorizontal" then
-        extLight.flipHorizontal = not extLight.flipHorizontal
-        i = i + 1
-        extLight.x = extLight.x + buildingTranslations[i][1]
-        extLight.y = extLight.y + buildingTranslations[i][2]
-    end
-    i = i + 1
-end
-
-local function elevatorRise(dt)
-    if #currentTransition > 0 then
-        transX = currentTransition[1] + cerp(currentTransition[1], currentTransition[2], t) - currentTransition[2]
-        transY = currentTransition[3] + cerp(currentTransition[3], currentTransition[4], t) - currentTransition[4]
-        local currNumSteps = -(currentTransition[5] - 1) * (currentTransition[2] - currentTransition[1] > 0 and (transX - currentTransition[1]) / (currentTransition[2] - currentTransition[1]) or (transY - currentTransition[3]) / (currentTransition[4] - currentTransition[3]))
-        if currNumSteps >= nextTarget and currNumSteps ~= 0 then
-            moveElevatorLight()
-            nextTarget = nextTarget + 1
-        end
-        t = t - dt / currentTransition[6]
-        if t <= 0 then
-            t = 1
-            moveElevatorLight()
-            stopElevatorLight()
-        end
-    end
-end
-
-function stopElevatorLight()
-    spaceLocked = transitionIndex >= #transitions
-    for k, v in pairs(updateFunctions) do
-        if v == elevatorRise then
-            table.remove(updateFunctions, k)
-        end
-    end
-    camIndex = camIndex + currentTransition[5]
-    transitionIndex = transitionIndex + 1
-    currentTransition = {}
-end
-
-local function startElevatorLight()
-    spaceLocked = true
-    if transitionIndex >= #transitions then
-        return
-    end
-    deltaX, deltaY = nextDelta, 0
-    nextDelta = 0
-    local i = camIndex
-    local offset = 0
-    while true do
-        if buildingTranslations[i] == "flipHorizontal" then
-            if transitionIndex == 25 or transitionIndex == 30 then
-                deltaX = deltaX + (extLight.flipHorizontal and 520 or -520)
-            end
-            if i - camIndex <= 3 then
-                print((extLight.flipHorizontal and 520 or -520))
-                nextDelta = extLight.flipHorizontal and 520 or -520
-            end
-            if i == camIndex + transitions[transitionIndex] + offset then
-                camIndex = camIndex + 1
-                break
-            end
-            i = i + 1
-            offset = offset + 1
-        end
-        deltaX = deltaX + buildingTranslations[i][1]
-        deltaY = deltaY + buildingTranslations[i][2]
-        if i == camIndex + transitions[transitionIndex] + offset then
-            deltaX = deltaX - buildingTranslations[i][1]
-            deltaY = deltaY - buildingTranslations[i][2]
-            break
-        end
-        i = i + 1
-    end
-    updateFunctions[#updateFunctions + 1] = elevatorRise
-    currentTransition = { transX, transX + deltaX, transY, transY + deltaY, transitions[transitionIndex], .25 + transitions[transitionIndex] / 8 }
-    nextTarget = 0
-    t = 1
-end
-
 function love.load()
     print("w = " .. width() .. ", h = " .. height())
 
@@ -499,7 +358,9 @@ function love.load()
     }
 
     bathroom = Scenes:bathroom()
-    building, buildingTranslations = Scenes:building()
+    local buildingTransitions
+    building, buildingTransitions = Scenes:building()
+    elevator.init(building, buildingTransitions)
     museum = Scenes:museum()
     sceneTbl = { bathroom = bathroom, building = building, museum = museum }
 
@@ -523,9 +384,9 @@ local function moveNext()
         bathroom:clear()
     end
     if lastScene then
-        scene[lastScene]:clear()
+        sceneTbl[lastScene]:clear()
     end
-    scene[currentScene]:show()
+    sceneTbl[currentScene]:show()
     if currentScene == "building" then
         spaceLocked = false
         enterLocked = true
@@ -535,19 +396,19 @@ local function moveNext()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    print(("Key=%s"):format(key))
+    --    print(("Key=%s"):format(key))
     if key == "return" and not enterLocked then
         moveNext()
     end
-    if building:visible() then
-        if key == "space" and not spaceLocked then
-            startElevatorLight()
+    if building:isVisible() then
+        if key == "space" and not spaceLocked then --It's global because it's set in elevator.lua.
+            elevator.start()
         end
     end
     if key == "right" then
         local tbl
         if not process then
-            process, tbl = parser.process "Script" --proc is there because otherwise, tbl wouldn't be local.
+            process, tbl = parser.process "Script"
         end
         if coroutine.status(process) ~= "dead" then
             print(coroutine.resume(process, tbl))
@@ -558,7 +419,7 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function love.draw()
-    love.graphics.translate(transX, transY)
+    love.graphics.translate(transX, transY + yOffset)
     sprite:drawSprites()
     suit.draw()
 end

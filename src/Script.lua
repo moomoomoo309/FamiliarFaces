@@ -1,3 +1,5 @@
+---TODO: Document table format?
+
 local script = {
     "*SFX bap_2.wav",
     "I’m standing by a lake",
@@ -7,11 +9,12 @@ local script = {
     "@eye opening to white background vignette shadows from edges",
     "I wake up",
     "@bathroom (art scene) give player ability to hinge move arm so they can kinda “ wave hello ”",
-    "Time to get ready for the day.I want to look nice.@gray and drab, blocky and drab, Attractive yet respectable",
+    "Time to get ready for the day.I want to look nice.",
+    "@gray and drab, blocky and drab, Attractive yet respectable",
     "@save type of outfit",
     "I slide on my (insert type of outfit here) outfit",
     "It feels rough against my skin.I proceed to my bathroom and look at my reflection.",
-    "My reflection judges me from its",
+    "My reflection judges me from the mirror.",
     "@(insert type of outfit here) outfit.",
     "My reflection can be very judgemental.",
     "I don't think it sleeps enough.",
