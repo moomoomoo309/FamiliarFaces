@@ -144,8 +144,7 @@ end
 local elevator = {
     init = init,
     start = startElevatorLight,
-    stop = stopElevatorLight,
-    iter = elevatorRise
+    stop = stopElevatorLight
 }
 
 return elevator

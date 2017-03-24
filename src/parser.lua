@@ -2,6 +2,8 @@ utils = utils or require "pl.utils"
 map = map or require "map"
 pretty = pretty or require "pl.pretty"
 scenes = scenes or require "scene"
+audioHandler = audioHandler or require "audioHandler"
+
 transX, transY = transX, transY --To tell IntelliJ this is intentional global "creation"
 
 local function promptPlayer(tbl)
@@ -39,9 +41,7 @@ local function processVal(tbl)
                     end
                 elseif firstWord:lower() == "*sfx" then
                     if findSpace then
-                        --TODO: Make the audio play. You'll probably want a file that handles audio BS for consistency.
-                        --love.audio.play(val:sub(findSpace + 1))
-                        print(("Audio: %s"):format(val:sub(findSpace + 1)))
+                        audioHandler.play(val:sub(findSpace + 1))
                     end
                 elseif val:sub(0, 2) == "/r" then
                     transX, transY = scenes:printText(val:sub(3), false, {255,0,0})

@@ -7,9 +7,7 @@ tablex = tablex or require "tablex"
 pretty = pretty or require "pretty"
 parser = parser or require "parser"
 elevator = elevator or require "elevator"
-
-local width = love.graphics.getWidth
-local height = love.graphics.getHeight
+audioHandler = audioHandler or require "audioHandler"
 
 local state = "main"
 local mainTitle
@@ -30,35 +28,16 @@ local process
 local sceneTbl
 transX, transY = 0, 0
 
-
-local sndBnk = {}
-
-local snd = {
-    ["air_raid_siren"] = ".wav",
-    ["bap_1"] = ".wav",
-    ["bap_2"] = ".wav",
-    ["bap_3"] = ".wav",
-    ["bap_distressed"] = ".wav",
-    ["face_reassembly"] = ".wav",
-    ["gross_blink"] = ".mp3",
-    ["head_bang"] = ".mp3",
-    ["Lick"] = ".mp3"
-}
-
-for k, v in pairs(snd) do
-    sndBnk[k] = love.audio.newSource(k .. v, "static")
-end
-
 local Menu = {
     checkMain = function(self, dt)
         if state == "main" then
             mainTitle.visible = true
             guiHand.visible = true
 
-            local btnStart = suit.Button("Start", transX + width() / 2 - 100, height() / 2 + 45, 200, 30)
-            local btnSettings = suit.Button("Settings", transX + width() / 2 - 100, transY + height() / 2 + 85, 200, 30)
-            local btnCredits = suit.Button("Credits", transX + width() / 2 - 100, transY + height() / 2 + 125, 200, 30)
-            local btnExit = suit.Button("Exit", transX + width() / 2 - 100, transY + height() / 2 + 165, 200, 30)
+            local btnStart = suit.Button("Start", transX + love.graphics.getWidth() / 2 - 100, love.graphics.getHeight() / 2 + 45, 200, 30)
+            local btnSettings = suit.Button("Settings", transX + love.graphics.getWidth() / 2 - 100, transY + love.graphics.getHeight() / 2 + 85, 200, 30)
+            local btnCredits = suit.Button("Credits", transX + love.graphics.getWidth() / 2 - 100, transY + love.graphics.getHeight() / 2 + 125, 200, 30)
+            local btnExit = suit.Button("Exit", transX + love.graphics.getWidth() / 2 - 100, transY + love.graphics.getHeight() / 2 + 165, 200, 30)
 
             if btnStart.hit then
                 state = "start"
@@ -76,13 +55,13 @@ local Menu = {
             end
 
             if btnStart.hovered then
-                guiHand.y = height() / 2 + 55 + transY
+                guiHand.y = love.graphics.getHeight() / 2 + 55 + transY
             elseif btnSettings.hovered then
-                guiHand.y = height() / 2 + 95 + transY
+                guiHand.y = love.graphics.getHeight() / 2 + 95 + transY
             elseif btnCredits.hovered then
-                guiHand.y = height() / 2 + 135 + transY
+                guiHand.y = love.graphics.getHeight() / 2 + 135 + transY
             elseif btnExit.hovered then
-                guiHand.y = height() / 2 + 175 + transY
+                guiHand.y = love.graphics.getHeight() / 2 + 175 + transY
             end
         end
     end,
@@ -99,31 +78,31 @@ local Menu = {
             local btnLick = suit.Button("Lick", 10, 90, 150, 30)
 
             if btnAirRaidSiren.hit then
-                sndBnk["air_raid_siren"]:play()
+                audioHandler["air_raid_siren"]:play()
             end
             if btnBap1.hit then
-                sndBnk["bap_1"]:play()
+                audioHandler["bap_1"]:play()
             end
             if btnBap2.hit then
-                sndBnk["bap_2"]:play()
+                audioHandler["bap_2"]:play()
             end
             if btnBap3.hit then
-                sndBnk["bap_3"]:play()
+                audioHandler["bap_3"]:play()
             end
             if btnBapDistressed.hit then
-                sndBnk["bap_distressed"]:play()
+                audioHandler["bap_distressed"]:play()
             end
             if btnFaceReassembly.hit then
-                sndBnk["face_reassembly"]:play()
+                audioHandler["face_reassembly"]:play()
             end
             if btnGrossBlink.hit then
-                sndBnk["gross_blink"]:play()
+                audioHandler["gross_blink"]:play()
             end
             if btnHeadBang.hit then
-                sndBnk["head_bang"]:play()
+                audioHandler["head_bang"]:play()
             end
             if btnLick.hit then
-                sndBnk["Lick"]:play()
+                audioHandler["Lick"]:play()
             end
         end
     end,
@@ -131,9 +110,9 @@ local Menu = {
         if state == "exit" then
             mainTitle.visible = false
             guiHand.visible = false
-            local lblConfirm = suit.Label("Are you sure?", transX + width() / 2 - 40, transY + 260)
-            local btnYes = suit.Button("Yes", transX + width() / 2 - 202, transY + height() / 2, 200, 30)
-            local btnNo = suit.Button("No", transX + width() / 2 + 2, transY + height() / 2, 200, 30)
+            local lblConfirm = suit.Label("Are you sure?", transX + love.graphics.getWidth() / 2 - 40, transY + 260)
+            local btnYes = suit.Button("Yes", transX + love.graphics.getWidth() / 2 - 202, transY + love.graphics.getHeight() / 2, 200, 30)
+            local btnNo = suit.Button("No", transX + love.graphics.getWidth() / 2 + 2, transY + love.graphics.getHeight() / 2, 200, 30)
 
             if btnYes.hit then
                 love.event.quit()
@@ -147,7 +126,7 @@ local Menu = {
         if state ~= "main" and state ~= "exit" then
             mainTitle.visible = false
             guiHand.visible = false
-            if suit.Button("Back", 10, height() - 42, 200, 30).hit then
+            if suit.Button("Back", 10, love.graphics.getHeight() - 42, 200, 30).hit then
                 bathroom:clear()
                 state = "main"
             end
@@ -165,10 +144,10 @@ local Scenes = {
             visible = false
         })
         scene:add("bathroom", "Character", sprite {
-            x = width() / 2 - 280,
+            x = love.graphics.getWidth() / 2 - 280,
             w = 510,
             h = 740,
-            imagePath = "mc13.png",
+            imagePath = "mc.png",
             visible = false
         })
         scene:add("bathroom", "Sink", sprite {
@@ -182,8 +161,8 @@ local Scenes = {
     museum = function(self)
         scene:new "museum"
         scene:add("museum", "appleGuy", sprite {
-            x = width() / 2 - 130,
-            y = height() / 2 - 100,
+            x = love.graphics.getWidth() / 2 - 130,
+            y = love.graphics.getHeight() / 2 - 100,
             w = 275,
             h = 220,
             imagePath = "museum_apple_guy.png",
@@ -349,7 +328,7 @@ local Scenes = {
 }
 
 function love.load()
-    print("w = " .. width() .. ", h = " .. height())
+    print("w = " .. love.graphics.getWidth() .. ", h = " .. love.graphics.getHeight())
 
     suit.theme.color = {
         normal = { bg = { 140, 145, 145, 170 }, fg = { 255, 255, 255 } },
@@ -365,7 +344,7 @@ function love.load()
     sceneTbl = { bathroom = bathroom, building = building, museum = museum }
 
     mainTitle = sprite { x = 25, y = 25, w = 750, h = 300, imagePath = "title.png", flipHorizontal = false }
-    guiHand = sprite { x = width() / 2 + 130, y = height() / 2 + 55, w = 100, h = 25, imagePath = "hand.png", flipHorizontal = false }
+    guiHand = sprite { x = love.graphics.getWidth() / 2 + 130, y = love.graphics.getHeight() / 2 + 55, w = 100, h = 25, imagePath = "hand.png", flipHorizontal = false }
 end
 
 function love.update(dt)
