@@ -1,7 +1,7 @@
 utils = utils or require "pl.utils"
 map = map or require "map"
 pretty = pretty or require "pl.pretty"
-scenes = scenes or require "scene"
+scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
 
 transX, transY = transX, transY --To tell IntelliJ this is intentional global "creation"
@@ -44,10 +44,10 @@ local function processVal(tbl)
                         audioHandler.play(val:sub(findSpace + 1))
                     end
                 elseif val:sub(0, 2) == "/r" then
-                    transX, transY = scenes:printText(val:sub(3), false, {255,0,0})
+                    transX, transY = scene:printText(val:sub(3), false, {255,0,0})
                     coroutine.yield()
                 elseif #val > 0 then
-                    transX, transY = scenes:printText(val, false)
+                    transX, transY = scene:printText(val, false)
                     coroutine.yield()
                 end
             elseif t == "table" then

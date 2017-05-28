@@ -1,21 +1,10 @@
-local function cerp(start, stop, percent)
-    local f = (1 - math.cos(percent * math.pi)) * .5
-    return start * (1 - f) + stop * f
-end
-
-local currentTransition = {}
-local transitionIndex = 1
-local nextDelta = 0
-local camIndex = 1
-local deltaX, deltaY = 0, 0
 local extLight
 local building
 local stopElevatorLight
-local t
-updateFunctions = {}
-local nextTarget
+camera = camera or require "camera"
 spaceLocked = true
-transX, transY = 0, 0
+local transitionIndex = 1
+
 local transitions = {
     12,
     1,
@@ -37,7 +26,8 @@ local transitions = {
     2,
     2,
     2,
-    8,
+    5,
+    3,
     5,
     2,
     4,
@@ -46,93 +36,58 @@ local transitions = {
     2,
     3,
     1,
-    2,
-    1,
-    1,
-    1,
     3,
-    0
+    2,
+    3
 }
+
 local buildingTranslations
-local i = 1
+local translationIndex = 1
 
 local function moveElevatorLight()
-    if type(buildingTranslations[i]) == "table" then
-        extLight.x = extLight.x + buildingTranslations[i][1]
-        extLight.y = extLight.y + buildingTranslations[i][2]
-    elseif buildingTranslations[i] == "flipHorizontal" then
+    --- Moves the light by one window, flipping it if flipHorizontal appears.
+    if type(buildingTranslations[translationIndex]) == "table" then
+        extLight.x = extLight.x + buildingTranslations[translationIndex][1]
+        extLight.y = extLight.y + buildingTranslations[translationIndex][2]
+    elseif buildingTranslations[translationIndex] == "flipHorizontal" then
+        local offset = extLight.flipHorizontal and 520 or -520
         extLight.flipHorizontal = not extLight.flipHorizontal
-        i = i + 1
-        extLight.x = extLight.x + buildingTranslations[i][1]
-        extLight.y = extLight.y + buildingTranslations[i][2]
+        extLight.x = extLight.x - offset
     end
-    i = i + 1
-end
-
-local function elevatorRise(dt)
-    if #currentTransition > 0 then
-        transX = currentTransition[1] + cerp(currentTransition[1], currentTransition[2], t) - currentTransition[2]
-        transY = currentTransition[3] + cerp(currentTransition[3], currentTransition[4], t) - currentTransition[4]
-        local currNumSteps = -(currentTransition[5] - 1) * (currentTransition[2] - currentTransition[1] > 0 and (transX - currentTransition[1]) / (currentTransition[2] - currentTransition[1]) or (transY - currentTransition[3]) / (currentTransition[4] - currentTransition[3]))
-        if currNumSteps >= nextTarget and currNumSteps ~= 0 then
-            moveElevatorLight()
-            nextTarget = nextTarget + 1
-        end
-        t = t - dt / currentTransition[6]
-        if t <= 0 then
-            t = 1
-            moveElevatorLight()
-            stopElevatorLight()
-        end
-    end
-end
-
-function stopElevatorLight()
-    spaceLocked = transitionIndex >= #transitions
-    for k, v in pairs(updateFunctions) do
-        if v == elevatorRise then
-            table.remove(updateFunctions, k)
-        end
-    end
-    camIndex = camIndex + currentTransition[5]
-    transitionIndex = transitionIndex + 1
-    currentTransition = {}
+    translationIndex = translationIndex + 1
 end
 
 local function startElevatorLight()
-    spaceLocked = true
-    if transitionIndex >= #transitions then
+    --- Makes the elevator light and the camera start moving.
+    if transitionIndex > #transitions then
+        print"At the top"
         return
     end
-    deltaX, deltaY = nextDelta or 0, 0
-    nextDelta = 0
-    local i = camIndex
-    while true do
-        if transitionIndex == 27 then
-            deltaX = deltaX
-            break
+    local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
+    local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
+    for transIndex = 1, transitions[transitionIndex] do
+        if buildingTranslations[translationIndex + transIndex - 1] ~= "flipHorizontal" then
+            totalDx = totalDx + buildingTranslations[translationIndex + transIndex - 1][1]
+            totalDy = totalDy + buildingTranslations[translationIndex + transIndex - 1][2]
+        else
+            local offset = extLight.flipHorizontal and 520 or -520
+            totalDx = totalDx
         end
-        if buildingTranslations[i] == "flipHorizontal" then
-            nextDelta = extLight.flipHorizontal and deltaX + extLight.w or deltaX - extLight.w
-            camIndex = camIndex + 1
-            break
-        end
-        if not buildingTranslations[i] then
-            break
-        end
-        deltaX = deltaX + buildingTranslations[i][1]
-        deltaY = deltaY + buildingTranslations[i][2]
-        if i == camIndex + transitions[transitionIndex] then
-            deltaX = deltaX - buildingTranslations[i][1]
-            deltaY = deltaY - buildingTranslations[i][2]
-            break
-        end
-        i = i + 1
     end
-    updateFunctions[#updateFunctions + 1] = elevatorRise
-    currentTransition = { transX, transX + deltaX, transY, transY + deltaY, transitions[transitionIndex], .25 + transitions[transitionIndex] / 8 }
-    nextTarget = 0
-    t = 1
+    local startX, startY = cam.x, cam.y
+    local currentOffset = 0
+    local lastOffset = 0
+    local panFct = function(self, percentProgress)
+        currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex-1]))
+        if currentOffset ~= lastOffset then
+            lastOffset = currentOffset
+            moveElevatorLight()
+        end
+        spaceLocked = percentProgress < 1
+    end
+    cam:pan(startX - totalDx, startY - totalDy, .5+.125*(transitions[transitionIndex]-1), "cos", panFct)
+    moveElevatorLight()
+    transitionIndex = transitionIndex + 1
 end
 
 local init = function(BuildingScene, BuildingTranslations)

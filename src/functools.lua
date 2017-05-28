@@ -30,7 +30,7 @@ end
 function functools.reduce(f, numArgs, ...) --Apply function of two arguments cumulatively to the args, from left to right,
     --so as to reduce the iterable to a single value.
     local result = f(...)
-    for i = numArgs, select("#", ...), numArgs do
+    for i = numArgs - 1, select("#", ...), numArgs - 1 do
         result = f(result, select(i - 1, ...))
     end
     return result
