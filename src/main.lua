@@ -1,7 +1,6 @@
 io.stdout:setvbuf "no"
 
 camera = camera or require "camera"
-suit = require "suit"
 scene = scene or require "scene"
 scenes = scenes or require "scenes"
 sprite = sprite or require "sprite"
@@ -13,13 +12,6 @@ audioHandler = audioHandler or require "audioHandler"
 GUI = GUI or require "GUI"
 functools = functools or require "functools"
 
-local mainTitle
-local guiHand
-
-local bathroom
-local building
-local museum
-
 local lastScene
 local enterLocked = true
 currentScene = "museum"
@@ -28,22 +20,13 @@ local process
 local sceneTbl
 updateFunctions = {}
 transX, transY = 0, 0
-local cam = camera:new{
-    w=love.graphics.getWidth(),
-    h=love.graphics.getHeight(),
-}
+local cam = camera:new()
 cam.x = -cam.w/2
 cam.y = -cam.h/2
 
 
 function love.load()
     print("w = " .. love.graphics.getWidth() .. ", h = " .. love.graphics.getHeight())
-
-    suit.theme.color = {
-        normal = { bg = { 140, 145, 145, 170 }, fg = { 255, 255, 255 } },
-        hovered = { bg = { 160, 160, 160 }, fg = { 255, 255, 255 } },
-        active = { bg = { 80, 80, 80 }, fg = { 225, 225, 225 } }
-    }
 
     bathroom = scenes:bathroom()
     local buildingTransitions
@@ -52,28 +35,12 @@ function love.load()
     museum = scenes:museum()
     sceneTbl = { bathroom = bathroom, building = building, museum = museum }
 
-    mainTitle = sprite {
-        x = 25,
-        y = 25,
-        w = 750,
-        h = 300,
-        imagePath = "assets/title.png",
-        flipHorizontal = false
-    }
-    guiHand = sprite {
-        x = love.graphics.getWidth() / 2 + 130,
-        y = love.graphics.getHeight() / 2 + 55,
-        w = 100,
-        h = 25,
-        imagePath = "assets/hand.png",
-        flipHorizontal = false,
-    }
-    GUI.addSprites { mainTitle = mainTitle, guiHand = guiHand }
     GUI.actions.showBathroom = function()
         bathroom:show()
         enterLocked = false
     end
     GUI.actions.clearBathroom = functools.partial(bathroom.clear, bathroom)
+    GUI.init()
 end
 
 function love.update(dt)
@@ -123,11 +90,32 @@ function love.keypressed(key, scancode, isrepeat)
             print "ded"
         end
     end
+    GUI.keypressed(key, scancode, isrepeat)
+end
+
+function love.keyreleased(key, scancode)
+    GUI.keyreleased(key, scancode)
 end
 
 function love.draw()
     cam:draw()
     sprite:drawAll()
     love.graphics.pop()
-    suit.draw()
+    GUI.draw()
+end
+
+function love.mousepressed(x,y,button)
+    GUI.mousepressed(x,y,button)
+end
+
+function love.mousereleased(x,y,button)
+    GUI.mousereleased(x,y,button)
+end
+
+function love.textinput(text)
+    GUI.textinput(text)
+end
+
+function love.mousemoved(x,y)
+    GUI.mousemoved(x,y)
 end

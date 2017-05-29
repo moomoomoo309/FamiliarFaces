@@ -4,8 +4,6 @@ pretty = pretty or require "pl.pretty"
 scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
 
-transX, transY = transX, transY --To tell IntelliJ this is intentional global "creation"
-
 local function promptPlayer(tbl)
     --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
     local choices = {}
@@ -19,9 +17,16 @@ end
 local good = 0
 local commands = {
     --TODO: Implement the rest of the parser commands!
-    ["+1"] = function() good = good + 1 end,
-    ["-1"] = function() good = good - 1 end,
-    new = function() scene:clearText() scene:printText("", true) end
+    ["+1"] = function()
+        good = good + 1
+    end,
+    ["-1"] = function()
+        good = good - 1
+    end,
+    new = function()
+        scene:clearText()
+        scene:printText("", true)
+    end
 }
 
 local function processVal(tbl)
@@ -44,10 +49,10 @@ local function processVal(tbl)
                         audioHandler.play(val:sub(findSpace + 1))
                     end
                 elseif val:sub(0, 2) == "/r" then
-                    transX, transY = scene:printText(val:sub(3), false, {255,0,0})
+                    scene:printText(val:sub(3), false, { 255, 0, 0 })
                     coroutine.yield()
                 elseif #val > 0 then
-                    transX, transY = scene:printText(val, false)
+                    scene:printText(val, false)
                     coroutine.yield()
                 end
             elseif t == "table" then

@@ -3,7 +3,7 @@
 local script = {
     "*SFX bap_2",
     "I’m standing by a lake",
-    "Or maybe more of a wide river that’s moving really slowl",
+    "Or maybe more of a wide river that’s moving really slowly",
     "Everything is a little out of focus",
     "*SFX air_raid_siren",
     "@eye opening to white background vignette shadows from edges",

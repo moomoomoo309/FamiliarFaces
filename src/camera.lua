@@ -22,7 +22,7 @@ camera = {
     },
     new = function(_, args)
         if not args then
-            args = _
+            args = _ or {}
         end
         local obj = object {
             x = args.x or 0,
