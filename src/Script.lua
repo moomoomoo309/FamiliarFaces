@@ -1,4 +1,6 @@
 --[===[
+Prelude:
+    The script is valid lua code. You can run any code through the script you want.
 
 Script format:
 
@@ -103,6 +105,7 @@ Script format:
 ]===]
 local script
 script = {
+    vars = {good=0},
     "@SFX bap_2",
     "I’m standing by a lake",
     "Or maybe more of a wide river that’s moving really slowly",
@@ -236,8 +239,8 @@ script = {
             "/rThank you",
         }
     },
-    function(good)
-        return good <= 1 and {
+    function(val, tbl)
+        return tbl.vars.good <= 1 and {
             "@walking on street scene, arrow keys to walk arrive at building, space to enter",
             "@new",
             "I feel a pressure on my arm",
@@ -267,8 +270,8 @@ script = {
             "@(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.@SFX banging noise* 5 seconds after sitting down fade to black)",
         }
     end,
-    function(good)
-        return good >= 1 and {
+    function(val, tbl)
+        return tbl.vars.good >= 1 and {
             "/r..all im saying is that this elevator seems arbitrarily convoluted.",
             "*I laugh heartily",
             "Yes, i suppose it is",
@@ -289,8 +292,8 @@ script = {
     "but I can’t seem to make out their face",
     "@SFX air_raid_siren",
     "@eye opening to white background vignette shadows from edges",
-    function(good)
-        return good >= 1 and {
+    function(val, tbl)
+        return tbl.vars.good >= 1 and {
             "/rGood morning sleeping beauty",
             "Uhh…",
             "Good morning?",
@@ -383,8 +386,8 @@ script = {
             }
         }
     },
-    function(good)
-        return good >= 2 and {
+    function(val, tbl)
+        return tbl.vars.good >= 2 and {
             ["Go to work"] = {
                 "I'm going to work.",
                 "/r*sigh",
@@ -471,8 +474,8 @@ script = {
         }
     end,
     "@cut to museum",
-    function(good)
-        return good >= 3 and {
+    function(val, tbl)
+        return tbl.vars.good >= 3 and {
             "@museum apple guy painting, show scene for like 3 or 4 seconds",
             "@black text frame",
             "I think I’ve seen that one before",

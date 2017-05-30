@@ -63,7 +63,8 @@ local prefixes = {
     end,
     ["@"] = function(val, tbl)
         local findSpace = val:find(" ", nil, true)
-        local cmd = firstWord:sub(2, findSpace - 1):lower()
+        local firstWord = val:sub(1, findSpace and findSpace - 1 or #val)
+        local cmd = firstWord:sub(2):lower()
         print(("cmd=%s"):format(cmd))
         if commands[cmd] then
             commands[cmd](val, tbl)
@@ -73,20 +74,28 @@ local prefixes = {
 
 local function processVal(tbl)
     if type(tbl) == "table" then
+        tbl.vars = tbl.vars or {}
         for i = 1, #tbl do
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
+                local prefixed = false
                 for k, v in pairs(prefixes) do
-                    if val:sub(1,#k) == k then
+                    if val:sub(1, #k) == k then
                         v(val, tbl)
+                        prefixed = true
+                        break
                     end
+                end
+                if not prefixed then --No prefix was recognized, so just put the text on the screen.
+                    scene:printText(val, false)
+                    coroutine.yield()
                 end
             elseif t == "table" then
                 local choice = promptPlayer(val)
                 processVal(val[choice])
             elseif t == "function" then
-                processVal(val(good))
+                processVal(val(val, tbl))
             end
         end
     end
