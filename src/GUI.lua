@@ -3,6 +3,10 @@ tablex = tablex or require "pl.tablex"
 audioHandler = audioHandler or require "audioHandler"
 scene = scene or require "scene"
 
+component.style.bgColor = {140, 145, 145, 170}
+
+
+
 local GUI
 GUI = GUI or {
     actions = {},
@@ -65,7 +69,7 @@ GUI = GUI or {
 
                 self.widgets.btnExit = gooi.newButton("Exit", w / 2 - 100, h / 2 + 165, 200, 30)
                 :onRelease(function()
-                    GUI.changeMenu "exit"
+                    gooi.confirm("Are you sure?", love.event.quit)
                 end)
                 :onHover(function()
                     self.sprites.guiHand.y = love.graphics.getHeight() / 2 + 175
@@ -114,41 +118,6 @@ GUI = GUI or {
                 end)
             end
         },
-        exit = {
-            widgets = {},
-            sprites = {},
-            init = function()
-                if GUI.currentMenu == "exit" then
-                    GUI.sprites.mainTitle.visible = false
-                    GUI.sprites.guiHand.visible = false
-                    local lblConfirm = suit.Label("Are you sure?", love.graphics.getWidth() / 2 - 40, 260)
-                    local btnYes = suit.Button("Yes", love.graphics.getWidth() / 2 - 202, love.graphics.getHeight() / 2, 200, 30)
-                    local btnNo = suit.Button("No", love.graphics.getWidth() / 2 + 2, love.graphics.getHeight() / 2, 200, 30)
-
-                    if btnYes.hit then
-                        love.event.quit()
-                    end
-                    if btnNo.hit then
-                        GUI.changeMenu "main"
-                    end
-                end
-            end,
-        },
-        back = {
-            widgets = {},
-            sprites = {},
-            init = function(self, dt)
-                if GUI.currentMenu ~= "main" and GUI.currentMenu ~= "exit" then
-                    GUI.sprites.mainTitle.visible = false
-                    GUI.sprites.guiHand.visible = false
-                    if suit.Button("Back", 10, love.graphics.getHeight() - 42, 200, 30).hit then
-                        scene.clearAll()
-                        GUI.changeMenu "main"
-                        currentScene = "museum"
-                    end
-                end
-            end,
-        },
         credits = {
             widgets = {},
             sprites = {},
@@ -161,6 +130,13 @@ GUI = GUI or {
             sprites = {},
             init = function()
                 --Start the game
+            end
+        },
+        pause = {
+            widgets = {},
+            sprites = {},
+            init = function()
+                --TODO: Pause menu
             end
         }
     },
@@ -188,7 +164,7 @@ GUI = GUI or {
         end
         GUI.currentMenu = menuName
         local newMenu = GUI.menus[menuName]
-        assert(GUI.menus[menuName],("Menu name \"%s\" not found."):format(menuName))
+        assert(GUI.menus[menuName], ("Menu name \"%s\" not found."):format(menuName))
         if next(newMenu.widgets) or next(newMenu.sprites) then
             for _, v in pairs(newMenu.widgets) do
                 v.visible = true
@@ -212,7 +188,6 @@ GUI = GUI or {
     end,
     textinput = gooi.textinput,
     keypressed = gooi.keypressed,
-    keyreleased = gooi.keyreleased,
     mousemoved = gooi.mousemoved
 }
 

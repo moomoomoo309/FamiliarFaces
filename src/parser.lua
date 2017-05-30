@@ -3,6 +3,7 @@ map = map or require "map"
 pretty = pretty or require "pl.pretty"
 scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
+stringx = stringx or require "pl.stringx"
 
 local function promptPlayer(tbl)
     --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
@@ -14,18 +15,59 @@ local function promptPlayer(tbl)
     return choices[1]
 end
 
-local good = 0
 local commands = {
     --TODO: Implement the rest of the parser commands!
-    ["+1"] = function()
-        good = good + 1
+    ["+"] = function(val, tbl)
+        local args = stringx.split(val:sub(3))
+        assert(#args==2, ("+ requires two arguments, got %d."):format(#args))
+        tbl.vars = tbl.vars or {}
+        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] + tonumber(args[1]) or tonumber(args[1])
     end,
-    ["-1"] = function()
-        good = good - 1
+    ["-"] = function(val, tbl)
+        local args = stringx.split(val:sub(3))
+        assert(#args==2, ("- requires two arguments, got %d."):format(#args))
+        tbl.vars = tbl.vars or {}
+        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] - tonumber(args[1]) or -tonumber(args[1])
+    end,
+    ["/"] = function(val, tbl)
+        local args = stringx.split(val:sub(3))
+        assert(#args==2, ("/ requires two arguments, got %d."):format(#args))
+        tbl.vars = tbl.vars or {}
+        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] / tonumber(args[1]) or 0
+    end,
+    ["*"] = function(val, tbl)
+        local args = stringx.split(val:sub(3))
+        assert(#args==2, ("* requires two arguments, got %d."):format(#args))
+        tbl.vars = tbl.vars or {}
+        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] * tonumber(args[1]) or 0
+    end,
+    ["%"] = function(val, tbl)
+        local args = stringx.split(val:sub(3))
+        assert(#args==2, ("% requires two arguments, got %d."):format(#args))
+        tbl.vars = tbl.vars or {}
+        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] % tonumber(args[1]) or 0
     end,
     new = function()
         scene:clearText()
         scene:printText("", true)
+    end,
+    sfx = function(val)
+        audioHandler.play(val:sub(5))
+    end
+}
+
+local prefixes = {
+    ["/r"] = function(val)
+        scene:printText(val:sub(3), false, { 255, 0, 0 })
+        coroutine.yield()
+    end,
+    ["@"] = function(val, tbl)
+        local findSpace = val:find(" ", nil, true)
+        local cmd = firstWord:sub(2, findSpace - 1):lower()
+        print(("cmd=%s"):format(cmd))
+        if commands[cmd] then
+            commands[cmd](val, tbl)
+        end
     end
 }
 
@@ -35,25 +77,10 @@ local function processVal(tbl)
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
-                local findSpace = val:find(" ", nil, true)
-                local firstChar = val:sub(1, 1)
-                local firstWord = val:sub(0, findSpace and findSpace - 1 or #val)
-                if firstChar == "@" then
-                    local cmd = firstWord:sub(2)
-                    print(("cmd=%s"):format(cmd))
-                    if commands[cmd] then
-                        commands[cmd]()
+                for k, v in pairs(prefixes) do
+                    if val:sub(1,#k) == k then
+                        v(val, tbl)
                     end
-                elseif firstWord:lower() == "*sfx" then
-                    if findSpace then
-                        audioHandler.play(val:sub(findSpace + 1))
-                    end
-                elseif val:sub(0, 2) == "/r" then
-                    scene:printText(val:sub(3), false, { 255, 0, 0 })
-                    coroutine.yield()
-                elseif #val > 0 then
-                    scene:printText(val, false)
-                    coroutine.yield()
                 end
             elseif t == "table" then
                 local choice = promptPlayer(val)

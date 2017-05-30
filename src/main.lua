@@ -93,10 +93,6 @@ function love.keypressed(key, scancode, isrepeat)
     GUI.keypressed(key, scancode, isrepeat)
 end
 
-function love.keyreleased(key, scancode)
-    GUI.keyreleased(key, scancode)
-end
-
 function love.draw()
     cam:draw()
     sprite:drawAll()
