@@ -98,14 +98,13 @@ Script format:
         A few commands:
             @new resets the text, clearing the text on the screen and starting back at the top of the screen. ("@new")
             @SFX plays the sound with the given name. ("@SFX explosion")
-            @+ adds to a variable ("@+ 1 variableName")
 
         Any message starting with /r will have red text.
 
 ]===]
 local script
 script = {
-    vars = {good=0},
+    vars = { good = 0 },
     "@SFX bap_2",
     "I’m standing by a lake",
     "Or maybe more of a wide river that’s moving really slowly",
@@ -205,7 +204,9 @@ script = {
     "/rI'm not terribly fond of the dark.",
     {
         Refuse = {
-            "@- 1 good",
+            function(val, tbl)
+                script.vars.good = script.vars.good - 1
+            end,
             "Look I can’t go to work with someone else’s facial features on my arm.",
             "@SFX bap_2",
             "/rIm afraid I cannot read lips, and I’ve no ear on your body but please just don’t cover me.",
@@ -233,14 +234,16 @@ script = {
             "/rPlease.",
         },
         ["“Accept”"] = {
-            "@+ 1 good",
+            function(val, tbl)
+                script.vars.good = script.vars.good + 1
+            end,
             "*I nod",
             "Okay.",
             "/rThank you",
         }
     },
     function(val, tbl)
-        return tbl.vars.good <= 1 and {
+        return script.vars.good <= 1 and {
             "@walking on street scene, arrow keys to walk arrive at building, space to enter",
             "@new",
             "I feel a pressure on my arm",
@@ -249,13 +252,17 @@ script = {
             "I wince slightly as I hear what sounds like a muffled groan escape the lips on my arm.",
             {
                 ["Uncover them"] = {
-                    "@+ 1 good",
+                    function(val, tbl)
+                        script.vars.good = script.vars.good + 1
+                    end,
                     "I slide the glove off my arm and remove the cotton balls from the mouth",
                     "/rThank you.",
                     "You're welcome now what are you on about? ",
                 },
                 ["Silence them"] = {
-                    "@- 1 good",
+                    function(val, tbl)
+                        script.vars.good = script.vars.good - 1
+                    end,
                     "@SFX bap_distressed",
                     "I silence them",
                     "forcibly",
@@ -271,7 +278,7 @@ script = {
         }
     end,
     function(val, tbl)
-        return tbl.vars.good >= 1 and {
+        return script.vars.good >= 1 and {
             "/r..all im saying is that this elevator seems arbitrarily convoluted.",
             "*I laugh heartily",
             "Yes, i suppose it is",
@@ -293,7 +300,7 @@ script = {
     "@SFX air_raid_siren",
     "@eye opening to white background vignette shadows from edges",
     function(val, tbl)
-        return tbl.vars.good >= 1 and {
+        return script.vars.good >= 1 and {
             "/rGood morning sleeping beauty",
             "Uhh…",
             "Good morning?",
@@ -312,7 +319,9 @@ script = {
     "/rAll of my remaining facial features have manifested on your body",
     {
         ["Express Grievances"] = {
-            "@- 1 good",
+            function(val, tbl)
+                script.vars.good = script.vars.good - 1
+            end,
             "This is terrible",
             "/rIs it?",
             "Yes. This simply isn’t normal.",
@@ -335,7 +344,9 @@ script = {
             }
         },
         ["Express excitement"] = {
-            "@+ 1 good",
+            function(val, tbl)
+                script.vars.good = script.vars.good + 1
+            end,
             "At this point, the more the merrier I suppose.",
             "But what should we do now?",
             "/rIm afraid I don't know.",
@@ -387,7 +398,7 @@ script = {
         }
     },
     function(val, tbl)
-        return tbl.vars.good >= 2 and {
+        return script.vars.good >= 2 and {
             ["Go to work"] = {
                 "I'm going to work.",
                 "/r*sigh",
@@ -407,11 +418,15 @@ script = {
                 "/rIf you want.",
                 {
                     Yes = {
-                        "@+ 1 good",
+                        function(val, tbl)
+                            script.vars.good = script.vars.good + 1
+                        end,
                         "We shall"
                     },
                     ["We shan't"] = {
-                        "@- 1 good",
+                        function(val, tbl)
+                            script.vars.good = script.vars.good - 1
+                        end,
                         "Let's see where things go"
                     }
                 }
@@ -432,7 +447,9 @@ script = {
                 "/rAt least now you can finally take a well-deserved work from break",
                 {
                     No = {
-                        "@- 1 good",
+                        function(val, tbl)
+                            script.vars.good = script.vars.good - 1
+                        end,
                         "I can’t take a break. I’ve worked every day",
                         "And will work everyday",
                         "But now I can’t",
@@ -449,7 +466,9 @@ script = {
                         "@cut to walking scene. The office should be closed while the museum is open",
                     },
                     Yes = {
-                        "@+ 1 good",
+                        function(val, tbl)
+                            script.vars.good = script.vars.good + 1
+                        end,
                         "You may be right.",
                         "I want to go to that museum.",
                         "/rHehe",
@@ -458,11 +477,15 @@ script = {
                         "/rShall we call it a date?",
                         {
                             ["We shall"] = {
-                                "@+ 1 good",
+                                function(val, tbl)
+                                    script.vars.good = script.vars.good + 1
+                                end,
                                 "I would like that"
                             },
                             ["We shan't"] = {
-                                "@- 1 good",
+                                function(val, tbl)
+                                    script.vars.good = script.vars.good - 1
+                                end,
                                 "I’d really rather not",
                                 "/rThat’s quite alright.",
                                 "/rActually I’d prefer you forget I asked",
@@ -475,7 +498,7 @@ script = {
     end,
     "@cut to museum",
     function(val, tbl)
-        return tbl.vars.good >= 3 and {
+        return script.vars.good >= 3 and {
             "@museum apple guy painting, show scene for like 3 or 4 seconds",
             "@black text frame",
             "I think I’ve seen that one before",

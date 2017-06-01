@@ -8,45 +8,40 @@ stringx = stringx or require "pl.stringx"
 local function promptPlayer(tbl)
     --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
     local choices = {}
-    for k in pairs(tbl) do
-        choices[#choices + 1] = k
+    for k, v in pairs(tbl) do
+        if v then
+            choices[k] = v
+        end
     end
-    print(choices[1])
-    return choices[1]
+    local buttons = {}
+    local function clearButtons()
+        for i = 1, #buttons do
+            buttons[i].visible = false
+            buttons[i] = nil
+        end
+        buttons = nil
+    end
+    local choice
+    for k in pairs(choices) do
+        buttons[#buttons + 1] = gooi.newButton(k,
+        love.graphics.getWidth() / 2 - 50,
+        love.graphics.getHeight() / 2 - 10 - 25 * (#buttons - #choices / 2),
+        100,
+        20)
+        :onRelease(function(self)
+            choice = choices[self.text]
+            pretty.dump(choice)
+            clearButtons()
+        end)
+    end
+    repeat
+        coroutine.yield()
+    until choice
+    return choice
 end
 
 local commands = {
     --TODO: Implement the rest of the parser commands!
-    ["+"] = function(val, tbl)
-        local args = stringx.split(val:sub(3))
-        assert(#args==2, ("+ requires two arguments, got %d."):format(#args))
-        tbl.vars = tbl.vars or {}
-        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] + tonumber(args[1]) or tonumber(args[1])
-    end,
-    ["-"] = function(val, tbl)
-        local args = stringx.split(val:sub(3))
-        assert(#args==2, ("- requires two arguments, got %d."):format(#args))
-        tbl.vars = tbl.vars or {}
-        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] - tonumber(args[1]) or -tonumber(args[1])
-    end,
-    ["/"] = function(val, tbl)
-        local args = stringx.split(val:sub(3))
-        assert(#args==2, ("/ requires two arguments, got %d."):format(#args))
-        tbl.vars = tbl.vars or {}
-        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] / tonumber(args[1]) or 0
-    end,
-    ["*"] = function(val, tbl)
-        local args = stringx.split(val:sub(3))
-        assert(#args==2, ("* requires two arguments, got %d."):format(#args))
-        tbl.vars = tbl.vars or {}
-        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] * tonumber(args[1]) or 0
-    end,
-    ["%"] = function(val, tbl)
-        local args = stringx.split(val:sub(3))
-        assert(#args==2, ("% requires two arguments, got %d."):format(#args))
-        tbl.vars = tbl.vars or {}
-        tbl.vars[args[2]] = tbl.vars[args[2]] and tbl.vars[args[2]] % tonumber(args[1]) or 0
-    end,
     new = function()
         scene:clearText()
         scene:printText("", true)
@@ -87,13 +82,14 @@ local function processVal(tbl)
                         break
                     end
                 end
-                if not prefixed then --No prefix was recognized, so just put the text on the screen.
+                if not prefixed then
+                    --No prefix was recognized, so just put the text on the screen.
                     scene:printText(val, false)
                     coroutine.yield()
                 end
             elseif t == "table" then
                 local choice = promptPlayer(val)
-                processVal(val[choice])
+                processVal(choice)
             elseif t == "function" then
                 processVal(val(val, tbl))
             end
