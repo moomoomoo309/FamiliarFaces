@@ -5,7 +5,7 @@ scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
 stringx = stringx or require "pl.stringx"
 
-local function promptPlayer(tbl)
+local function promptPlayer(tbl, process)
     --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
     local choices = {}
     for k, v in pairs(tbl) do
@@ -30,12 +30,12 @@ local function promptPlayer(tbl)
         20)
         :onRelease(function(self)
             choice = choices[self.text]
-            pretty.dump(choice)
             clearButtons()
+            coroutine.resume(process)
         end)
     end
     repeat
-        coroutine.yield()
+        coroutine.yield() -- Until a choice is picked, don't go back to processVal.
     until choice
     return choice
 end
@@ -48,6 +48,9 @@ local commands = {
     end,
     sfx = function(val)
         audioHandler.play(val:sub(5))
+    end,
+    ["end"] = function()
+        --TODO: Implement end command
     end
 }
 
@@ -67,7 +70,8 @@ local prefixes = {
     end
 }
 
-local function processVal(tbl)
+local function processVal(tbl, process)
+    pretty.dump(tbl)
     if type(tbl) == "table" then
         tbl.vars = tbl.vars or {}
         for i = 1, #tbl do
@@ -88,16 +92,15 @@ local function processVal(tbl)
                     coroutine.yield()
                 end
             elseif t == "table" then
-                local choice = promptPlayer(val)
-                processVal(choice)
+                processVal(promptPlayer(val, process), process)
             elseif t == "function" then
-                processVal(val(val, tbl))
+                processVal(val(val, tbl), process)
             end
         end
     end
 end
 
-local process = function(path)
+local process = function(path, process)
     local processTbl = require(path)
     if type(processTbl) == "table" then
         return coroutine.create(processVal), processTbl

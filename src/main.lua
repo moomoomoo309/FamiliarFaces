@@ -18,8 +18,6 @@ currentScene = "museum"
 local followingScene = { bathroom = "museum", museum = "building" }
 local process
 local sceneTbl
-updateFunctions = {}
-transX, transY = 0, 0
 local cam = camera:new()
 cam.x = -cam.w/2
 cam.y = -cam.h/2
@@ -47,9 +45,6 @@ function love.update(dt)
     cam:update()
     GUI.update(dt)
 
-    for _, v in pairs(updateFunctions) do
-        v(dt)
-    end
 end
 
 local function moveNext()
@@ -82,10 +77,10 @@ function love.keypressed(key, scancode, isrepeat)
     if key == "right" then
         local tbl
         if not process then
-            process, tbl = parser.process "Script"
+            process, tbl = parser.process("Script", process)
         end
         if coroutine.status(process) ~= "dead" then
-            print(coroutine.resume(process, tbl))
+            print(coroutine.resume(process, tbl, process))
         else
             print "ded"
         end

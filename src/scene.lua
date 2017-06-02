@@ -13,7 +13,7 @@ local function printText2(text, paddingX, paddingY, i, color)
     local localYOffset = (i - 1) * (fontHeight + paddingY) + paddingY
     local yOffset = 0
     if localYOffset > love.graphics.getHeight() then
-        yOffset = love.graphics.getHeight() - localYOffset
+        yOffset = love.graphics.getHeight() - localYOffset - fontHeight - paddingY
     end
     local img = love.graphics.newText(font, text)
     if color then

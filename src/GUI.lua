@@ -15,8 +15,7 @@ GUI = GUI or {
         main = {
             widgets = {},
             sprites = {},
-            init = function()
-                local self = GUI.menus.main
+            init = function(self)
                 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
                 self.sprites.mainTitle = sprite {
                     x = 25,
@@ -51,9 +50,9 @@ GUI = GUI or {
                     self.sprites.guiHand.y = love.graphics.getHeight() / 2 + 55
                 end)
 
-                self.widgets.btnSettings = gooi.newButton("Settings", w / 2 - 100, h / 2 + 85, 200, 30)
+                self.widgets.btnSettings = gooi.newButton("Soundboard", w / 2 - 100, h / 2 + 85, 200, 30)
                 :onRelease(function()
-                    GUI.changeMenu "settings"
+                    GUI.changeMenu "soundboard"
                 end)
                 :onHover(function()
                     self.sprites.guiHand.y = love.graphics.getHeight() / 2 + 95
@@ -75,11 +74,10 @@ GUI = GUI or {
                     self.sprites.guiHand.y = love.graphics.getHeight() / 2 + 175
                 end)
             end,
-        }, settings = {
+        }, soundboard = {
             widgets = {},
             sprites = {},
-            init = function()
-                local self = GUI.menus.settings
+            init = function(self)
                 self.widgets.btnAirRaidSiren = gooi.newButton("Air Raid Siren", 10, 10, 150, 30)
                 :onRelease(function()
                     audioHandler["air_raid_siren"]:play()
@@ -116,27 +114,28 @@ GUI = GUI or {
                 :onRelease(function()
                     audioHandler["lick"]:play()
                 end)
+                self.widgets.btnBack = gooi.newButton("Back", 10, love.graphics.getHeight() - 40, 150, 30)
+                :onRelease(function()
+                    GUI.changeMenu "main"
+                end)
             end
         },
         credits = {
             widgets = {},
             sprites = {},
-            init = function()
+            init = function(self)
                 --TODO: Credits
+                self.widgets.btnBack = gooi.newButton("Back", 10, love.graphics.getHeight() - 40, 150, 30)
+                :onRelease(function()
+                    GUI.changeMenu "main"
+                end)
             end
         },
         game = {
             widgets = {},
             sprites = {},
             init = function()
-                --Start the game
-            end
-        },
-        pause = {
-            widgets = {},
-            sprites = {},
-            init = function()
-                --TODO: Pause menu
+                --TODO: Start the game
             end
         }
     },
@@ -173,7 +172,7 @@ GUI = GUI or {
                 v.visible = true
             end
         else
-            GUI.menus[menuName].init()
+            GUI.menus[menuName].init(GUI.menus[menuName])
         end
     end,
     init = function()
