@@ -41,7 +41,6 @@ local function promptPlayer(tbl, process)
 end
 
 local commands = {
-    --TODO: Implement the rest of the parser commands!
     new = function()
         scene:clearText()
         scene:printText("", true)
@@ -100,7 +99,7 @@ local function processVal(tbl, process)
     end
 end
 
-local process = function(path, process)
+local process = function(path)
     local processTbl = require(path)
     if type(processTbl) == "table" then
         return coroutine.create(processVal), processTbl

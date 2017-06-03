@@ -5,7 +5,7 @@ scene = scene or require "scene"
 
 component.style.bgColor = {140, 145, 145, 170}
 
-
+--TODO: Pause menu
 
 local GUI
 GUI = GUI or {

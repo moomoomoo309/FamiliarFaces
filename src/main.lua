@@ -11,6 +11,7 @@ elevator = elevator or require "elevator"
 audioHandler = audioHandler or require "audioHandler"
 GUI = GUI or require "GUI"
 functools = functools or require "functools"
+baton = baton or require "baton"
 
 local lastScene
 local enterLocked = true
@@ -70,14 +71,14 @@ function love.keypressed(key, scancode, isrepeat)
     end
     if building:isVisible() then
         if key == "space" and not spaceLocked then
-            --It's global because it's set in elevator.lua.
+            --spaceLocked is global because it's set in elevator.lua.
             elevator.start()
         end
     end
     if key == "right" then
         local tbl
         if not process then
-            process, tbl = parser.process("Script", process)
+            process, tbl = parser.process "Script"
         end
         if coroutine.status(process) ~= "dead" then
             print(coroutine.resume(process, tbl, process))

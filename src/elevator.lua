@@ -2,8 +2,124 @@ local extLight
 local building
 local stopElevatorLight
 camera = camera or require "camera"
+local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
 spaceLocked = true
 local transitionIndex = 1
+
+local lightOffsets = {
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 69, 41 },
+    "flipHorizontal",
+    { 69, -40 },
+    { 70, -41 },
+    { 69, -40 },
+    { 70, -41 },
+    { 69, -40 },
+    { 69, -40 },
+    { 69, -40 },
+    { 70, -41 },
+    { 69, -40 },
+    { 0, -79 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { -69, 40 },
+    { -70, 41 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { -69, 40 },
+    { -70, 41 },
+    "flipHorizontal",
+    { -69, -40 },
+    { -69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { -69, -40 },
+    { -69, -40 },
+    { -69, -40 },
+    { 0, 80 },
+    { 0, 80 },
+    { -70, -41 },
+    { -70, -40 },
+    { -69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 69, 40 },
+    "flipHorizontal",
+    { 70, -40 },
+    { 69, -40 },
+    { 69, -40 },
+    { 69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { -70, 40 },
+    { -69, 40 },
+    { -69, 40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 70, -40 },
+    { 69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { -70, 41 },
+    { -70, 40 },
+    { -69, 40 },
+    { -69, 40 },
+    { -69, 40 },
+    { -69, 120 },
+    { -69, 40 },
+    { -70, 40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 70, -40 },
+    { 69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { -69, 40 },
+    { -70, 40 },
+    "flipHorizontal",
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    "flipHorizontal",
+    { 70, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+    { -69, 40 },
+    "flipHorizontal",
+    { 0, -80 },
+    { 0, -80 },
+    "flipHorizontal",
+    { 69, -40 },
+    { 0, -80 },
+    { 0, -80 },
+    { 0, -80 },
+}
 
 local transitions = {
     12,
@@ -41,15 +157,14 @@ local transitions = {
     3
 }
 
-local buildingTranslations
 local translationIndex = 1
 
 local function moveElevatorLight()
     --- Moves the light by one window, flipping it if flipHorizontal appears.
-    if type(buildingTranslations[translationIndex]) == "table" then
-        extLight.x = extLight.x + buildingTranslations[translationIndex][1]
-        extLight.y = extLight.y + buildingTranslations[translationIndex][2]
-    elseif buildingTranslations[translationIndex] == "flipHorizontal" then
+    if type(lightOffsets[translationIndex]) == "table" then
+        extLight.x = extLight.x + lightOffsets[translationIndex][1]
+        extLight.y = extLight.y + lightOffsets[translationIndex][2]
+    elseif lightOffsets[translationIndex] == "flipHorizontal" then
         local offset = extLight.flipHorizontal and 520 or -520
         extLight.flipHorizontal = not extLight.flipHorizontal
         extLight.x = extLight.x - offset
@@ -63,15 +178,11 @@ local function startElevatorLight()
         print"At the top"
         return
     end
-    local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
     local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
     for transIndex = 1, transitions[transitionIndex] do
-        if buildingTranslations[translationIndex + transIndex - 1] ~= "flipHorizontal" then
-            totalDx = totalDx + buildingTranslations[translationIndex + transIndex - 1][1]
-            totalDy = totalDy + buildingTranslations[translationIndex + transIndex - 1][2]
-        else
-            local offset = extLight.flipHorizontal and 520 or -520
-            totalDx = totalDx
+        if lightOffsets[translationIndex + transIndex - 1] ~= "flipHorizontal" then
+            totalDx = totalDx + lightOffsets[translationIndex + transIndex - 1][1]
+            totalDy = totalDy + lightOffsets[translationIndex + transIndex - 1][2]
         end
     end
     local startX, startY = cam.x, cam.y
@@ -90,8 +201,7 @@ local function startElevatorLight()
     transitionIndex = transitionIndex + 1
 end
 
-local init = function(BuildingScene, BuildingTranslations)
-    buildingTranslations = BuildingTranslations
+local init = function(BuildingScene)
     building = BuildingScene
     extLight = BuildingScene.ElevatorLight
 end
