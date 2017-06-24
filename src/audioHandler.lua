@@ -1,3 +1,5 @@
+timer = timer or require "timer"
+
 local audioHandler
 
 local function addFromAudioObject(audioObj, name)
@@ -42,11 +44,16 @@ audioHandler = {
         audioHandler.audioObjs[fileName] = nil
         audioHandler.filePriorities[fileName] = nil
     end,
-    play = function(fileName)
+    play = function(fileName, callback)
         --- Plays the audio object with the given name from the audio handler, if it exists.
         local audioObj = audioHandler.audioObjs[fileName]
         if audioObj then
             love.audio.play(audioObj)
+        else
+            error(("No audio file with filename %s found."):format(fileName))
+        end
+        if type(callback) == "function" then
+            timer.when(function() return audioObj:isStopped() end, callback)
         end
     end,
     stop = function(fileName)

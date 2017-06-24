@@ -47,7 +47,8 @@ local commands = {
         scene:printText("", true)
     end,
     sfx = function(val)
-        audioHandler.play(val:sub(6))
+        parser.lock()
+        audioHandler.play(val:sub(6),parser.unlock)
     end,
     ["end"] = function()
         --TODO: Implement end command

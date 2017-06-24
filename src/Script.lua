@@ -67,7 +67,7 @@ script = {
     "The eye on my neck pulsates",
     "…presumably in reciprocation",
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
-    "@SFX head_band",
+    "@SFX head_bang",
     "5 seconds after sitting down fade to black)",
     "Again. Again there is a river",
     "Again flowing slowly",

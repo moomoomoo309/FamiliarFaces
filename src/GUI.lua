@@ -252,16 +252,17 @@ GUI = GUI or {
                 effects.blur:set("radius_h", blurRadius * percentProgress)
                 effects.blur:set("radius_v", blurRadius * percentProgress)
                 effects.vignette:set("opacity", percentProgress)
-            end)
+            end,nil,"GUI")
             cancelFct2 = timer.after(blurTime, function()
                 effects.blur:set("radius_h", blurRadius)
                 effects.blur:set("radius_v", blurRadius)
                 effects.vignette:set("opacity", 1)
-            end)
+            end,"GUI")
             cancelPause = function()
                 cancelFct1()
                 cancelFct2()
             end
+            timer.pause"default"
         end
     end,
     unpause = function()
@@ -279,12 +280,12 @@ GUI = GUI or {
             effects.blur:set("radius_h", blurRadius * percentProgress)
             effects.blur:set("radius_v", blurRadius * percentProgress)
             effects.vignette:set("opacity", percentProgress)
-        end)
+        end,nil,"GUI")
         timer.after(blurTime, function()
             effects.blur:set("radius_h", 0)
             effects.blur:set("radius_v", 0)
             effects.vignette:set("opacity", 0)
-        end)
+        end,"GUI")
     end,
     paused = function()
         return paused

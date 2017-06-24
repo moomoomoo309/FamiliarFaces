@@ -2,10 +2,10 @@
 
 local timer
 timer = {
-    paused = false,
-    pauseTime = 0,
-    pauseStartTime = -1,
-    lastTime = -1,
+    paused = {},
+    pauseTime = {},
+    pauseStartTime = {},
+    lastTime = {},
     functions = {},
     sleep = function(seconds)
         --- Sleeps the running coroutine until seconds has passed. Will not work on the main thread.
@@ -18,65 +18,115 @@ timer = {
         --Actually sleep
         love.timer.sleep(seconds)
     end,
-    after = function(seconds, fct)
-        --- Run fct after seconds with ... as parameters to fct. Returns a function which cancels this function.
+    after = function(seconds, fct, group)
+        --- Run fct after seconds has passed. Returns a function which cancels this function.
         assert(type(fct)=="function", ("Function expected, got %s."):format(type(fct)))
         local startTime = love.timer.getTime()
-        local index = #timer.functions+1
-        timer.functions[index] = function(currentTime)
+        group = group or "default"
+        timer.functions[group] = timer.functions[group] or {}
+        local index = #timer.functions[group] + 1
+        timer.functions[group][index] = function(currentTime)
             if currentTime - startTime >= seconds then
                 fct()
-                timer.functions[index] = nil
+                timer.functions[group][index] = nil
             end
         end
         return function()
-            if timer.functions[index] then
-                timer.functions[index] = nil
+            if timer.functions[group][index] then
+                timer.functions[group][index] = nil
             end
         end
     end,
-    before = function(seconds, fct, cancelFct)
-        --- Run fct until seconds with ... as parameters to fct. Returns a function which cancels this function.
+    before = function(seconds, fct, cancelFct, group)
+        --- Run fct until seconds has passed. Returns a function which cancels this function.
         assert(type(fct)=="function", ("Function expected, got %s."):format(type(fct)))
         local startTime = love.timer.getTime()
-        local index = #timer.functions + 1
-        timer.functions[index] = function(currentTime)
+        group = group or "default"
+        timer.functions[group] = timer.functions[group] or {}
+        local index = #timer.functions[group] + 1
+        timer.functions[group][index] = function(currentTime)
             if currentTime - startTime >= seconds then
-                timer.functions[index] = nil
+                timer.functions[group][index] = nil
             else
                 fct(currentTime)
             end
         end
         return function()
-            if timer.functions[index] then
-                timer.functions[index] = nil
+            if timer.functions[group][index] then
+                timer.functions[group][index] = nil
                 if type(cancelFct) == "function" then
                     cancelFct()
                 end
             end
         end
     end,
-    pause = function()
-        timer.paused = true
-        timer.pauseStartTime = love.timer.getTime()
+    ["until"] = function(conditionFct, fct, cancelFct, group)
+        --- Runs fct until conditionFct returns a truthy value or the function returned is called.
+        assert(type(fct)=="function", ("Function expected, got %s."):format(type(fct)))
+        assert(type(conditionFct)=="function", ("Function expected, got %s."):format(type(conditionFct)))
+        local done = conditionFct()
+        group = group or "default"
+        timer.functions[group] = timer.functions[group] or {}
+        local index = #timer.functions[group] + 1
+        timer.functions[group][index] = function()
+            if done then
+                timer.functions[group][index] = nil
+                return
+            end
+            fct()
+            done = done or conditionFct()
+        end
+        return function()
+            done = true
+            if type(cancelFct) == "function" then
+                cancelFct()
+            end
+        end
     end,
-    resume = function()
-        timer.paused = false
-        timer.pauseTime = timer.pauseTime + love.timer.getTime() - timer.pauseStartTime
-        timer.pauseStartTime = -1
+    when = function(conditionFct, fct, cancelFct, group)
+        --- Runs fct when conditionFct returns a truthy value or the function returned is called.
+        assert(type(fct)=="function", ("Function expected, got %s."):format(type(fct)))
+        assert(type(conditionFct)=="function", ("Function expected, got %s."):format(type(conditionFct)))
+        local done = conditionFct()
+        group = group or "default"
+        timer.functions[group] = timer.functions[group] or {}
+        local index = #timer.functions[group] + 1
+        timer.functions[group][index] = function()
+            if done then
+                fct()
+                timer.functions[group][index] = nil
+                return
+            end
+            done = done or conditionFct()
+        end
+        return function()
+            done = true
+            if type(cancelFct) == "function" then
+                cancelFct()
+            end
+        end
+    end,
+    pause = function(group)
+        timer.paused[group] = true
+        timer.pauseStartTime[group] = love.timer.getTime()
+    end,
+    resume = function(group)
+        timer.paused[group] = false
+        timer.pauseTime[group] = timer.pauseTime[group] + love.timer.getTime() - timer.pauseStartTime[group]
+        timer.pauseStartTime[group] = -1
     end,
     update = function()
-        timer.lastTime = love.timer.getTime()
-        local index = next(timer.functions, nil)
-        if not timer.functions[index] or timer.paused then
-            return
-        end
-        while true do
-            local fct = timer.functions[index]
-            fct(timer.lastTime - timer.pauseTime)
-            index = next(timer.functions, index)
-            if index == nil then
-                break
+        for group,fcts in pairs(timer.functions) do
+            if not timer.paused[group] then
+                timer.lastTime[group] = love.timer.getTime()
+                for _,fct in pairs(fcts) do
+                    if not timer.lastTime[group] or not timer.pauseTime[group] then
+                        fct(timer.lastTime[group])
+                        timer.pauseTime[group] = 0
+                    else
+                        fct(timer.lastTime[group] - timer.pauseTime[group])
+                    end
+                end
             end
         end
     end
