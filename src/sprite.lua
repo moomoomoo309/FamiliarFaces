@@ -11,8 +11,8 @@ sprite = sprite or {
     class = sprite,
     currentId = 1,
     sprites = setmetatable({}, { __mode = "v" }), --Make sure the sprites can be garbage collected!
-    spriteKeys = {},
     batches = {},
+    groups = {},
     Id = function()
         --- Returns the next available numeric id for a sprite.
         while sprite.sprites[sprite.currentId] do
@@ -30,6 +30,7 @@ sprite = sprite or {
             Id = (args.Id and not sprite.sprites[args.Id]) and args.Id or sprite.Id(),
             imagePath = args.imagePath or false,
             image = args.image,
+            group = args.group or "default",
             animations = args.animations or {},
             animating = false,
             visible = args.visible == nil and true or args.visible,
@@ -51,6 +52,8 @@ sprite = sprite or {
         }
         obj.class = sprite --Update the class (This does call the callback in object!)
         obj.sprite = sprite --Give a reference to sprite, which may be needed for children.
+        obj.group = obj.group or "default" --Make sure it has a group
+        sprite.groups[obj.group] = sprite.groups[obj.group] or {keys={}}
         if obj.imagePath then
             obj:setImagePath(obj.imagePath) --When the class was changed, so was the metatable, making its __index point to sprite.
         end
@@ -61,20 +64,21 @@ sprite = sprite or {
             --Give each animation a pointer to its sprite.
             animation.sprite = obj
         end
-        --Insert the sprite into sprite.sprites and sprite.spriteKeys.
-        --sprite.spriteKeys remains sorted so that draw order is based on a sprite's Id.
+        --Insert the sprite into sprite.sprites and into it's group's keys.
+        --The keys for a given group remains sorted so that draw order is based on a sprite's Id.
         sprite.sprites[obj.Id] = obj
+        local keys = sprite.groups[obj.group].keys
         local inserted = false
-        for k in ipairs(sprite.spriteKeys) do
+        for k in ipairs(keys) do
             if k >= obj.Id then
                 --Yay, insertion sort!
                 inserted = true
-                table.insert(sprite.spriteKeys, k, obj.Id)
+                table.insert(keys, k, obj.Id)
                 break
             end
         end
         if not inserted then
-            sprite.spriteKeys[#sprite.spriteKeys + 1] = obj.Id
+            keys[#keys + 1] = obj.Id
         end
         return obj
     end,
@@ -142,6 +146,7 @@ sprite = sprite or {
             local _, _, quadWidth, quadHeight = quad:getViewport()
             self.sx = self.w / quadWidth --X scale
             self.sy = self.h / quadHeight --Y scale
+
             love.graphics.draw(img,
             quad,
             self.flipHorizontal and self.x + self.w - self.sx / self.w or self.x,
@@ -154,6 +159,7 @@ sprite = sprite or {
         else
             self.sx = self.w / img:getWidth() --X scale
             self.sy = self.h / img:getHeight() --Y scale
+
             love.graphics.draw(img,
             self.flipHorizontal and self.x + self.image:getWidth() or self.x,
             self.flipVertical and self.y + self.image:getHeight() or self.y,
@@ -168,10 +174,24 @@ sprite = sprite or {
         end
     end,
     drawAll = function()
-        for i = 1, #sprite.spriteKeys do
-            local v = sprite.spriteKeys[i]
-            if sprite.sprites[v] and sprite.sprites[v].visible then
-                sprite.sprites[v]:draw()
+        for _, v in pairs(sprite.groups) do
+            for i = 1, #v.keys do
+                local key = v.keys[i]
+                if sprite.sprites[key] and sprite.sprites[key].visible then
+                    sprite.sprites[key]:draw()
+                end
+            end
+        end
+    end,
+    drawGroup = function(group)
+        local group = sprite.groups[group]
+        if not group then
+            return
+        end
+        for i = 1, #group.keys do
+            local key = group.keys[i]
+            if sprite.sprites[key] and sprite.sprites[key].visible then
+                sprite.sprites[key]:draw()
             end
         end
     end,
@@ -188,7 +208,7 @@ sprite = sprite or {
         self.image = self.image or spriteSheet --If it was user-overridden, keep it!
         assert(self.imagePath, "No imagePath found for sprite!")
         local success, metaFile = false, nil
-        if self.animPath and io.open(self.animPath,"r") then
+        if self.animPath and io.open(self.animPath, "r") then
             success, metaFile = pcall(function()
                 return dofile(self.animPath)
             end) --Try to read the file...

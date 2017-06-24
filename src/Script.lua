@@ -1,7 +1,8 @@
 --TODO: Eye animation
 --TODO: Bathroom wave scene
 --TODO: Allow user to pick type of outfit?
---TODO: Scene switches? Command?
+--TODO: Scene switching command
+--TODO: Scene transitions?
 --TODO: Arm covering eye scene
 --TODO: Walking on street scene
 --TODO: Office scene walking to desk
@@ -10,6 +11,8 @@
 
 --TODO: Needed assets: Walking to office, faceless woman, office walking to desk, at desk
 
+parser = parser or require "parser"
+timer = timer or require "timer"
 
 local script
 script = {
@@ -42,7 +45,7 @@ script = {
     "Groan. Comb hair. Apply foundation. And of course…",
     --cut to her in bathroom looking into mirror with eye close no scarf sprite
     "@SFX gross_blink",
-    "@eye flutters open",
+    --eye flutters open",
     "I cover the eye protruding from my neck.",
     --animation arm covers eye on neck with scarf, only rotates as player holds arrow key
     "The eye undulates slightly under the my scarf.I groan again.And so completes my morning routine.",
@@ -71,9 +74,12 @@ script = {
     "I attempt to turn away",
     "@SFX air_raid_siren",
     --eye opening to white background vignette shadows from edges
-    "Again I wake up.Again I proceed with my normal routine.Again I cover the eye protruding from my neck.@animation arm covers eye on neck with scarf, only rotates as player holds arrow key",
+    "Again I wake up.",
+    "Again I proceed with my normal routine.",
+    "Again I cover the eye protruding from my neck.",
+    --animation arm covers eye on neck with scarf, only rotates as player holds arrow key",
     "As I walk to work I feel the eye throbbing under my scarf.",
-    "@walking on street scene, arrow keys to walk arrive at building, space to enter",
+    --walking on street scene, arrow keys to walk arrive at building, space to enter
     "@new",
     "Again I groan before entering the elevator.",
     "Another, another day another, another dollar.",
@@ -144,7 +150,7 @@ script = {
             "/rPlease.",
         },
         ["“Accept”"] = {
-            function(val, tbl)
+            function()
                 script.vars.good = script.vars.good + 1
             end,
             "*I nod",
@@ -162,7 +168,7 @@ script = {
             "I wince slightly as I hear what sounds like a muffled groan escape the lips on my arm.",
             {
                 ["Uncover them"] = {
-                    function(val, tbl)
+                    function()
                         script.vars.good = script.vars.good + 1
                     end,
                     "I slide the glove off my arm and remove the cotton balls from the mouth",
@@ -170,7 +176,7 @@ script = {
                     "You're welcome now what are you on about? ",
                 },
                 ["Silence them"] = {
-                    function(val, tbl)
+                    function()
                         script.vars.good = script.vars.good - 1
                     end,
                     "@SFX bap_distressed",
@@ -199,7 +205,14 @@ script = {
         } or false
     end,
     --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
-    --"@SFX banging noise* 5 seconds after sitting down fade to black)",
+    function()
+        parser.lock()
+        --fade to black
+        timer.after(5, function()
+            parser.processLine"@SFX head_bang" --Same as "@SFX head_bang" outside of the function.
+            parser.unlock()
+        end)
+    end,
     "Again the river",
     "Again I approach the water",
     "Again I gaze at my reflection in the distorting flow",
@@ -210,7 +223,7 @@ script = {
     "but I can’t seem to make out their face",
     "@SFX air_raid_siren",
     --eye opening to white background vignette shadows from edges",
-    function(val, tbl)
+    function()
         return script.vars.good >= 1 and {
             "/rGood morning sleeping beauty",
             "Uhh…",
@@ -230,7 +243,7 @@ script = {
     "/rAll of my remaining facial features have manifested on your body",
     {
         ["Express Grievances"] = {
-            function(val, tbl)
+            function()
                 script.vars.good = script.vars.good - 1
             end,
             "This is terrible",
@@ -255,7 +268,7 @@ script = {
             }
         },
         ["Express excitement"] = {
-            function(val, tbl)
+            function()
                 script.vars.good = script.vars.good + 1
             end,
             "At this point, the more the merrier I suppose.",
@@ -308,7 +321,7 @@ script = {
             }
         }
     },
-    function(val, tbl)
+    function()
         return script.vars.good >= 2 and {
             ["Go to work"] = {
                 "I'm going to work.",
@@ -329,13 +342,13 @@ script = {
                 "/rIf you want.",
                 {
                     Yes = {
-                        function(val, tbl)
+                        function()
                             script.vars.good = script.vars.good + 1
                         end,
                         "We shall"
                     },
                     ["We shan't"] = {
-                        function(val, tbl)
+                        function()
                             script.vars.good = script.vars.good - 1
                         end,
                         "Let's see where things go"
@@ -358,7 +371,7 @@ script = {
                 "/rAt least now you can finally take a well-deserved work from break",
                 {
                     No = {
-                        function(val, tbl)
+                        function()
                             script.vars.good = script.vars.good - 1
                         end,
                         "I can’t take a break. I’ve worked every day",
@@ -374,10 +387,10 @@ script = {
                         "…",
                         "@new",
                         "I decided to go for a walk.",
-                        "@cut to walking scene. The office should be closed while the museum is open",
+                        --cut to walking scene. The office should be closed while the museum is open",
                     },
                     Yes = {
-                        function(val, tbl)
+                        function()
                             script.vars.good = script.vars.good + 1
                         end,
                         "You may be right.",
@@ -388,13 +401,13 @@ script = {
                         "/rShall we call it a date?",
                         {
                             ["We shall"] = {
-                                function(val, tbl)
+                                function()
                                     script.vars.good = script.vars.good + 1
                                 end,
                                 "I would like that"
                             },
                             ["We shan't"] = {
-                                function(val, tbl)
+                                function()
                                     script.vars.good = script.vars.good - 1
                                 end,
                                 "I’d really rather not",
@@ -408,7 +421,7 @@ script = {
         }
     end,
     --cut to museum
-    function(val, tbl)
+    function()
         return script.vars.good >= 3 and {
             --museum apple guy painting, show scene for like 3 or 4 seconds
             --black text frame
@@ -441,7 +454,7 @@ script = {
             --display faceless woman for 5 seconds",
             --black text frame",
             "/rIt’s nice to meet you face to face after all this time.",
-            --"@fade to black
+            --fade to black
             "@end",
         } or {
             --museum sisyphus painting, show scene for like 3 or 4 seconds
@@ -459,10 +472,11 @@ script = {
             "/rIt's a pleasure  to finally meet you face to face.",
             "/rWell, I suppose this isn’t quite face to face.",
             "@SFX gross_blink",
-            "@display faceless woman with facial features for 2 seconds",
+            --display faceless woman with facial features for 2 seconds
             "/rThats better.",
             "/rI suppose this is goodbye.",
-            "@new black frame",
+            "@new",
+            --black frame
             "…",
             "They left me.",
             "…",

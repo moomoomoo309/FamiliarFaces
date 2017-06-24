@@ -1,6 +1,9 @@
 io.stdout:setvbuf "no"
-
+--TODO: Rewrite all of the IO to use love-loader
 camera = camera or require "camera"
+local cam = camera:new()
+cam.x = -cam.w / 2
+cam.y = -cam.h / 2
 scene = scene or require "scene"
 scenes = scenes or require "scenes"
 sprite = sprite or require "sprite"
@@ -11,7 +14,9 @@ elevator = elevator or require "elevator"
 audioHandler = audioHandler or require "audioHandler"
 GUI = GUI or require "GUI"
 functools = functools or require "functools"
-baton = baton or require "baton"
+baton = baton or require "baton.baton"
+timer = timer or require "timer"
+shine = shine or require "shine"
 
 local lastScene
 local enterLocked = true
@@ -19,10 +24,8 @@ currentScene = "museum"
 local followingScene = { bathroom = "museum", museum = "building" }
 local process
 local sceneTbl
-local cam = camera:new()
-cam.x = -cam.w/2
-cam.y = -cam.h/2
-
+local building
+effects = {}
 
 function love.load()
     print("w = " .. love.graphics.getWidth() .. ", h = " .. love.graphics.getHeight())
@@ -33,19 +36,27 @@ function love.load()
     elevator.init(building, buildingTransitions)
     museum = scenes:museum()
     sceneTbl = { bathroom = bathroom, building = building, museum = museum }
+    effects.blur = shine.boxblur()
+    effects.blur.radius_v, effects.blur.radius_h = 0, 0
 
-    GUI.actions.showBathroom = function()
+    effects.vignette = shine.vignette()
+    effects.vignette:set("radius", .95)
+    effects.vignette:set("softness", .5)
+    effects.vignette:set("opacity", 0)
+
+    effects.pause = effects.blur:chain(effects.vignette)
+
+    GUI.startGame = function()
         bathroom:show()
         enterLocked = false
     end
-    GUI.actions.clearBathroom = functools.partial(bathroom.clear, bathroom)
     GUI.init()
 end
 
 function love.update(dt)
     cam:update()
     GUI.update(dt)
-
+    timer.update(dt)
 end
 
 local function moveNext()
@@ -65,7 +76,7 @@ local function moveNext()
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    --    print(("Key=%s"):format(key))
+    print(("Key=%s"):format(key))
     if key == "return" and not enterLocked then
         moveNext()
     end
@@ -80,34 +91,53 @@ function love.keypressed(key, scancode, isrepeat)
         if not process then
             process, tbl = parser.process "Script"
         end
-        if coroutine.status(process) ~= "dead" then
-            print(coroutine.resume(process, tbl, process))
+        if not parser.locked() then
+            if coroutine.status(process) ~= "dead" then
+                local msg = coroutine.resume(process, tbl, process)
+                if msg ~= true then
+                    print(msg)
+                end
+            else
+                print "ded"
+            end
+        end
+    elseif key == "escape" then
+        if GUI.paused() then
+            GUI.unpause()
         else
-            print "ded"
+            GUI.pause()
         end
     end
     GUI.keypressed(key, scancode, isrepeat)
 end
 
 function love.draw()
-    cam:draw()
-    sprite:drawAll()
-    love.graphics.pop()
+    if effects.blur.radius_h > 1.0e-6 or effects.blur.radius_v > 1.0e-6 then
+        effects.pause:draw(function()
+            cam:draw()
+            sprite.drawGroup"default"
+        end)
+    else
+        cam:draw()
+        sprite.drawGroup"default"
+    end
+    love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
+    sprite.drawGroup"GUI"
     GUI.draw()
 end
 
-function love.mousepressed(x,y,button)
-    GUI.mousepressed(x,y,button)
+function love.mousepressed(x, y, button)
+    GUI.mousepressed(x, y, button)
 end
 
-function love.mousereleased(x,y,button)
-    GUI.mousereleased(x,y,button)
+function love.mousereleased(x, y, button)
+    GUI.mousereleased(x, y, button)
 end
 
 function love.textinput(text)
     GUI.textinput(text)
 end
 
-function love.mousemoved(x,y)
-    GUI.mousemoved(x,y)
+function love.mousemoved(x, y)
+    GUI.mousemoved(x, y)
 end

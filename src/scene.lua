@@ -43,7 +43,6 @@ scene = {
         end
         yOffset = printText2(text, defaultPaddingX, defaultPaddingY, i, color)
         if yOffset ~= lastYOffset then
-            print(yOffset)
             camera.inst:pan(camera.inst.x, camera.inst.y + yOffset - lastYOffset, 0)
             lastYOffset = yOffset
         end

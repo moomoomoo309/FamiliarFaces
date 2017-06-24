@@ -5,8 +5,9 @@ scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
 stringx = stringx or require "pl.stringx"
 
+local locked = false
+
 local function promptPlayer(tbl, process)
-    --TODO: Implement promptPlayer properly! I pick the first choice automatically right now!
     local choices = {}
     for k, v in pairs(tbl) do
         if v then
@@ -46,12 +47,13 @@ local commands = {
         scene:printText("", true)
     end,
     sfx = function(val)
-        audioHandler.play(val:sub(5))
+        audioHandler.play(val:sub(6))
     end,
     ["end"] = function()
         --TODO: Implement end command
     end
 }
+
 
 local prefixes = {
     ["/r"] = function(val)
@@ -62,34 +64,37 @@ local prefixes = {
         local findSpace = val:find(" ", nil, true)
         local firstWord = val:sub(1, findSpace and findSpace - 1 or #val)
         local cmd = firstWord:sub(2):lower()
-        print(("cmd=%s"):format(cmd))
         if commands[cmd] then
             commands[cmd](val, tbl)
         end
     end
 }
 
+local function processLine(val, tbl)
+    assert(type(val) == "string", ("Expected string, got %s."):format(type(val)))
+    local prefixed = false
+    for k, v in pairs(prefixes) do
+        if val:sub(1, #k) == k then
+            v(val, tbl)
+            prefixed = true
+            break
+        end
+    end
+    if not prefixed then
+        --No prefix was recognized, so just put the text on the screen.
+        scene:printText(val, false)
+        coroutine.yield()
+    end
+end
+
 local function processVal(tbl, process)
-    pretty.dump(tbl)
     if type(tbl) == "table" then
         tbl.vars = tbl.vars or {}
         for i = 1, #tbl do
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
-                local prefixed = false
-                for k, v in pairs(prefixes) do
-                    if val:sub(1, #k) == k then
-                        v(val, tbl)
-                        prefixed = true
-                        break
-                    end
-                end
-                if not prefixed then
-                    --No prefix was recognized, so just put the text on the screen.
-                    scene:printText(val, false)
-                    coroutine.yield()
-                end
+                processLine(val)
             elseif t == "table" then
                 processVal(promptPlayer(val, process), process)
             elseif t == "function" then
@@ -97,6 +102,18 @@ local function processVal(tbl, process)
             end
         end
     end
+end
+
+local lock = function()
+    locked = true
+end
+
+local unlock = function()
+    locked = false
+end
+
+local locked = function()
+    return locked
 end
 
 local process = function(path)
@@ -108,4 +125,4 @@ local process = function(path)
     end
 end
 
-return { process = process }
+return { process = process, processLine = processLine, lock = lock, unlock = unlock, locked = locked }
