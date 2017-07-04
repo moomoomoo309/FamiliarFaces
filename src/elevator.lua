@@ -1,7 +1,8 @@
 local extLight
-local building
+local elevator
 local stopElevatorLight
 camera = camera or require "camera"
+scene = scene or require "scene"
 local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
 spaceLocked = true
 local transitionIndex = 1
@@ -194,16 +195,19 @@ local function startElevatorLight()
             lastOffset = currentOffset
             moveElevatorLight()
         end
-        spaceLocked = percentProgress < 1
     end
     cam:pan(startX - totalDx, startY - totalDy, .5+.125*(transitions[transitionIndex]-1), "cos", panFct)
+    spaceLocked = true
+    scheduler.after(.5+.125*(transitions[transitionIndex]-1), function()
+        spaceLocked = false
+    end)
     moveElevatorLight()
     transitionIndex = transitionIndex + 1
 end
 
-local init = function(BuildingScene)
-    building = BuildingScene
-    extLight = BuildingScene.ElevatorLight
+local init = function()
+    local elevator = scene.load"elevator"
+    extLight = elevator.elevatorLight
 end
 
 local elevator = {

@@ -12,7 +12,7 @@
 --TODO: Needed assets: Walking to office, faceless woman, office walking to desk, at desk
 
 parser = parser or require "parser"
-timer = timer or require "timer"
+scheduler = scheduler or require "scheduler"
 
 local script
 script = {
@@ -208,7 +208,7 @@ script = {
     function()
         parser.lock()
         --fade to black
-        timer.after(5, function()
+        scheduler.after(5, function()
             parser.processLine"@SFX head_bang" --Same as "@SFX head_bang" outside of the function.
             parser.unlock()
         end)

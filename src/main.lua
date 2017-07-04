@@ -5,7 +5,6 @@ local cam = camera:new()
 cam.x = -cam.w / 2
 cam.y = -cam.h / 2
 scene = scene or require "scene"
-scenes = scenes or require "scenes"
 sprite = sprite or require "sprite"
 tablex = tablex or require "tablex"
 pretty = pretty or require "pretty"
@@ -13,29 +12,28 @@ parser = parser or require "parser"
 elevator = elevator or require "elevator"
 audioHandler = audioHandler or require "audioHandler"
 GUI = GUI or require "GUI"
-functools = functools or require "functools"
 baton = baton or require "baton.baton"
-timer = timer or require "timer"
+scheduler = scheduler or require "scheduler"
 shine = shine or require "shine"
 
 local lastScene
 local enterLocked = true
 currentScene = "museum"
-local followingScene = { bathroom = "museum", museum = "building" }
+local followingScene = { bathroom = "museum", museum = "elevator" }
 local process
 local sceneTbl
-local building
+local elevatorScene
 effects = {}
 
 function love.load()
     print("w = " .. love.graphics.getWidth() .. ", h = " .. love.graphics.getHeight())
 
-    bathroom = scenes:bathroom()
-    local buildingTransitions
-    building, buildingTransitions = scenes:building()
-    elevator.init(building, buildingTransitions)
-    museum = scenes:museum()
-    sceneTbl = { bathroom = bathroom, building = building, museum = museum }
+    bathroom = scene.load"bathroom"
+    local elevatorTransitions
+    elevatorScene = scene.load"elevator"
+    elevator.init()
+    local museum = scene.load"museum"
+    sceneTbl = { bathroom = bathroom, elevator = elevatorScene, museum = museum }
     effects.blur = shine.boxblur()
     effects.blur.radius_v, effects.blur.radius_h = 0, 0
 
@@ -54,9 +52,8 @@ function love.load()
 end
 
 function love.update(dt)
-    cam:update()
     GUI.update(dt)
-    timer.update(dt)
+    scheduler.update(dt)
 end
 
 local function moveNext()
@@ -67,7 +64,7 @@ local function moveNext()
         sceneTbl[lastScene]:clear()
     end
     sceneTbl[currentScene]:show()
-    if currentScene == "building" then
+    if currentScene == "elevator" then
         spaceLocked = false
         enterLocked = true
     end
@@ -80,7 +77,7 @@ function love.keypressed(key, scancode, isrepeat)
     if key == "return" and not enterLocked then
         moveNext()
     end
-    if building:isVisible() then
+    if elevatorScene:isVisible() then
         if key == "space" and not spaceLocked then
             --spaceLocked is global because it's set in elevator.lua.
             elevator.start()
@@ -116,13 +113,13 @@ function love.draw()
         effects.pause:draw(function()
             cam:draw()
             sprite.drawGroup"default"
+            love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
         end)
     else
         cam:draw()
         sprite.drawGroup"default"
+        love.graphics.pop()
     end
-    love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
-    sprite.drawGroup"GUI"
     GUI.draw()
 end
 

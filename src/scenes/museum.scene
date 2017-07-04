@@ -1,0 +1,19 @@
+local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+local museum
+museum = {
+    {
+        name = "appleGuy",
+        x = w * .3375,
+        y = h / 3,
+        w = w * .34375,
+        h = h * .36666666,
+        imagePath = "assets/museum_apple_guy.png",
+    },
+    {
+        name = "Museum",
+        w = w,
+        h = h,
+        imagePath = "assets/Museum.png",
+    }
+}
+return museum

@@ -2,7 +2,7 @@ require "gooi"
 tablex = tablex or require "pl.tablex"
 audioHandler = audioHandler or require "audioHandler"
 scene = scene or require "scene"
-timer = timer or require "timer"
+scheduler = scheduler or require "scheduler"
 
 component.style.bgColor = { 140, 145, 145, 170 }
 
@@ -242,18 +242,16 @@ GUI = GUI or {
         if GUI.currentMenu == "game" then
             GUI.showMenu"pause"
             paused = true
-            local startTime = love.timer.getTime()
             local blurTime = .25
             local blurRadius = 5
             local cancelFct1, cancelFct2
-            cancelFct1 = timer.before(blurTime, function(currentTime)
-                local timeElapsed = currentTime - startTime
+            cancelFct1 = scheduler.before(blurTime, function(timeElapsed)
                 local percentProgress = timeElapsed / blurTime
                 effects.blur:set("radius_h", blurRadius * percentProgress)
                 effects.blur:set("radius_v", blurRadius * percentProgress)
                 effects.vignette:set("opacity", percentProgress)
             end,nil,"GUI")
-            cancelFct2 = timer.after(blurTime, function()
+            cancelFct2 = scheduler.after(blurTime, function()
                 effects.blur:set("radius_h", blurRadius)
                 effects.blur:set("radius_v", blurRadius)
                 effects.vignette:set("opacity", 1)
@@ -262,7 +260,8 @@ GUI = GUI or {
                 cancelFct1()
                 cancelFct2()
             end
-            timer.pause"default"
+            scheduler.pause"default"
+            scheduler.pause"camera"
         end
     end,
     unpause = function()
@@ -271,26 +270,29 @@ GUI = GUI or {
         if type(cancelPause) == "function" then
             cancelPause()
         end
-        local startTime = love.timer.getTime()
         local blurTime = .1
         local blurRadius = 5
-        timer.before(blurTime, function(currentTime)
-            local timeElapsed = currentTime - startTime
+        scheduler.before(blurTime, function(timeElapsed)
             local percentProgress = 1 - timeElapsed / blurTime
             effects.blur:set("radius_h", blurRadius * percentProgress)
             effects.blur:set("radius_v", blurRadius * percentProgress)
             effects.vignette:set("opacity", percentProgress)
         end,nil,"GUI")
-        timer.after(blurTime, function()
+        scheduler.after(blurTime, function()
             effects.blur:set("radius_h", 0)
             effects.blur:set("radius_v", 0)
             effects.vignette:set("opacity", 0)
         end,"GUI")
+        scheduler.resume"default"
+        scheduler.resume"camera"
     end,
     paused = function()
         return paused
     end,
-    draw = gooi.draw,
+    draw = function()
+        sprite.drawGroup"GUI"
+        gooi.draw()
+    end,
     mousepressed = function()
         gooi.pressed()
     end,

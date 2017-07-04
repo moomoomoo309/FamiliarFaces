@@ -1,0 +1,29 @@
+local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+local elevator
+elevator = {
+    {
+        name = "building",
+        x = -700 - 26,
+        y = -4500,
+        w = 2460,
+        h = 5120,
+        imagePath = "assets/OfficeExterior.png",
+    },
+    {
+        name = "exteriorLight",
+        x = -102,
+        y = 340,
+        w = 520,
+        h = 400,
+        imagePath = "assets/OfficeEntranceLighting.png",
+    },
+    {
+        name = "elevatorLight",
+        x = -33,
+        y = 260,
+        w = 450,
+        h = 280,
+        imagePath = "assets/OfficeElevatorLighting.png",
+    }
+}
+return elevator

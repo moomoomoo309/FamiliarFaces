@@ -1,0 +1,24 @@
+local bathroom
+local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+bathroom = {
+    {
+        name = "SinkBackground",
+        w = w,
+        h = h,
+        imagePath = "assets/SinkBackground.png",
+    },
+    {
+        name = "Character",
+        x = w * .15,
+        w = w * .6375,
+        h = h * 1.234,
+        imagePath = "assets/mc.png",
+    },
+    {
+        name = "Sink",
+        w = w,
+        h = h,
+        imagePath = "assets/Sink.png",
+    }
+}
+return bathroom

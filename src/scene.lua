@@ -99,7 +99,7 @@ scene = {
     end,
     clearAll = function()
         --- Clears all scenes.
-        for _,scene in pairs(scene.currentScenes) do
+        for _, scene in pairs(scene.currentScenes) do
             scene:clear()
         end
     end,
@@ -112,6 +112,25 @@ scene = {
         return scene.scenes[self.name] and ({ next(scene.scenes[self.name]) })[2].visible
         --The right side of the "and" gets the first sprite in the scene and checks if it's visible.
         --The [2] is because next returns the key and the value.
+    end,
+    load = function(self, sceneName)
+        if not sceneName then
+            sceneName = self
+        end
+        self = scene
+        if not self.scenes[sceneName] then
+            local sceneTbl = dofile("scenes/"..sceneName..".scene")
+            local newScene = self:new(sceneName)
+            for _,item in pairs(sceneTbl) do
+                local itemName = item.name
+                item.name = nil
+                local itemSprite = sprite(item)
+                itemSprite.visible = false
+                newScene:add(sceneName, itemName, itemSprite)
+            end
+            self.scenes[sceneName] = newScene
+        end
+        return self.scenes[sceneName]
     end
 }
 

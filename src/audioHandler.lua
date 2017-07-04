@@ -1,4 +1,4 @@
-timer = timer or require "timer"
+scheduler = scheduler or require "scheduler"
 
 local audioHandler
 
@@ -45,15 +45,42 @@ audioHandler = {
         audioHandler.filePriorities[fileName] = nil
     end,
     play = function(fileName, callback)
-        --- Plays the audio object with the given name from the audio handler, if it exists.
+        --- Plays the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
         local audioObj = audioHandler.audioObjs[fileName]
         if audioObj then
-            love.audio.play(audioObj)
+            audioObj:play()
         else
             error(("No audio file with filename %s found."):format(fileName))
         end
+        local cancelFct
         if type(callback) == "function" then
-            timer.when(function() return audioObj:isStopped() end, callback)
+            cancelFct = scheduler.when(function()
+                return audioObj:isStopped()
+            end, type(callback)=="function" and callback or nil)
+        end
+        return function(runCallback)
+            cancelFct()
+            if runCallback and type(callback) == "function" then
+                callback()
+            end
+            audioObj:stop()
+        end
+    end,
+    loop = function(fileName, callback)
+        --- Loops the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
+        local audioObj = audioHandler.audioObjs[fileName]
+        if audioObj then
+            audioObj:play()
+        else
+            error(("No audio file with filename %s found."):format(fileName))
+        end
+        local cancelFct = scheduler.everyCondition(function() return audioObj:isStopped() end, function() audioObj:play() end, function() audioObj:stop() end)
+        return function(runCallback)
+            cancelFct()
+            if runCallback and type(callback) == "function" then
+                callback()
+            end
+            audioObj:stop()
         end
     end,
     stop = function(fileName)
