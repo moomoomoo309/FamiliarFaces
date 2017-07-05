@@ -8,12 +8,14 @@ museum = {
         w = w * .34375,
         h = h * .36666666,
         imagePath = "assets/museum_apple_guy.png",
+        type = sprite
     },
     {
         name = "Museum",
         w = w,
         h = h,
         imagePath = "assets/Museum.png",
+        type = sprite
     }
 }
 return museum

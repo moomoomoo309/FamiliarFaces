@@ -136,7 +136,7 @@ scheduler = {
         end
     end,
     everyCondition = function(conditionFct, fct, cancelFct, group)
-        --- Runs fct every seconds seconds.
+        --- Runs fct every time conditionFct returns a truthy value.
         assert(type(fct)=="function", ("Function expected, got %s."):format(type(fct)))
         assert(type(conditionFct)=="function", ("Function expected, got %s."):format(type(conditionFct)))
         group = group or "default"

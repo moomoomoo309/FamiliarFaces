@@ -1,3 +1,4 @@
+sprite = sprite or require "sprite"
 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
 local elevator
 elevator = {
@@ -8,6 +9,7 @@ elevator = {
         w = 2460,
         h = 5120,
         imagePath = "assets/OfficeExterior.png",
+        type = sprite
     },
     {
         name = "exteriorLight",
@@ -16,6 +18,7 @@ elevator = {
         w = 520,
         h = 400,
         imagePath = "assets/OfficeEntranceLighting.png",
+        type = sprite
     },
     {
         name = "elevatorLight",
@@ -24,6 +27,7 @@ elevator = {
         w = 450,
         h = 280,
         imagePath = "assets/OfficeElevatorLighting.png",
+        type = sprite
     }
 }
 return elevator

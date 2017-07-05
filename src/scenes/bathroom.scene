@@ -1,3 +1,4 @@
+sprite = sprite or require "sprite"
 local bathroom
 local w,h = love.graphics.getWidth(), love.graphics.getHeight()
 bathroom = {
@@ -6,6 +7,7 @@ bathroom = {
         w = w,
         h = h,
         imagePath = "assets/SinkBackground.png",
+        type = sprite
     },
     {
         name = "Character",
@@ -13,12 +15,14 @@ bathroom = {
         w = w * .6375,
         h = h * 1.234,
         imagePath = "assets/mc.png",
+        type = sprite
     },
     {
         name = "Sink",
         w = w,
         h = h,
         imagePath = "assets/Sink.png",
+        type = sprite
     }
 }
 return bathroom

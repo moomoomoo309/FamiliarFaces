@@ -18,7 +18,7 @@ shine = shine or require "shine"
 
 local lastScene
 local enterLocked = true
-currentScene = "museum"
+local currentScene = "bathroom"
 local followingScene = { bathroom = "museum", museum = "elevator" }
 local process
 local sceneTbl
@@ -26,64 +26,69 @@ local elevatorScene
 effects = {}
 
 function love.load()
-    print("w = " .. love.graphics.getWidth() .. ", h = " .. love.graphics.getHeight())
-
-    bathroom = scene.load"bathroom"
-    local elevatorTransitions
-    elevatorScene = scene.load"elevator"
-    elevator.init()
-    local museum = scene.load"museum"
+    --Load scenes
+    local bathroom = scene.load "bathroom"
+    elevatorScene = scene.load "elevator"
+    local museum = scene.load "museum"
     sceneTbl = { bathroom = bathroom, elevator = elevatorScene, museum = museum }
+
+    --Initialize the elevator
+    elevator.init()
+
+    --Initialize post-processing effects
     effects.blur = shine.boxblur()
     effects.blur.radius_v, effects.blur.radius_h = 0, 0
-
     effects.vignette = shine.vignette()
-    effects.vignette:set("radius", .95)
-    effects.vignette:set("softness", .5)
-    effects.vignette:set("opacity", 0)
+    effects.desaturate = shine.desaturate()
+    effects.pause = effects.desaturate:chain(effects.blur):chain(effects.vignette)
 
-    effects.pause = effects.blur:chain(effects.vignette)
-
+    --Tell the GUI how to start the game
     GUI.startGame = function()
         bathroom:show()
         enterLocked = false
     end
+
+    --Initialize the GUI
     GUI.init()
 end
 
 function love.update(dt)
-    GUI.update(dt)
     scheduler.update(dt)
+    GUI.update(dt)
 end
 
 local function moveNext()
-    if currentScene == "museum" then
-        bathroom:clear()
-    end
+    --Advance the scene
+    lastScene = currentScene
+    currentScene = followingScene[currentScene]
+
+    --Clear the old scene
     if lastScene then
         sceneTbl[lastScene]:clear()
     end
+
+    --Show the new scene
     sceneTbl[currentScene]:show()
+
+    --If you switched to the elevator, unlock the spacebar so you can move the elevator.
     if currentScene == "elevator" then
         spaceLocked = false
-        enterLocked = true
     end
-    lastScene = currentScene
-    currentScene = followingScene[currentScene]
 end
 
 function love.keypressed(key, scancode, isrepeat)
+    --TODO: Move controls into baton
     print(("Key=%s"):format(key))
-    if key == "return" and not enterLocked then
+    if not GUI.paused() and key == "return" and not enterLocked then
         moveNext()
     end
-    if elevatorScene:isVisible() then
+    if not GUI.paused() and elevatorScene:isVisible() then
+        --spaceLocked is global because it's set in elevator.lua.
         if key == "space" and not spaceLocked then
-            --spaceLocked is global because it's set in elevator.lua.
             elevator.start()
         end
     end
-    if key == "right" then
+    if not GUI.paused() and key == "right" then
         local tbl
         if not process then
             process, tbl = parser.process "Script"
@@ -108,17 +113,17 @@ function love.keypressed(key, scancode, isrepeat)
     GUI.keypressed(key, scancode, isrepeat)
 end
 
+local function drawGame()
+    cam:draw()
+    sprite.drawGroup "default"
+    love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
+end
+
 function love.draw()
-    if effects.blur.radius_h > 1.0e-6 or effects.blur.radius_v > 1.0e-6 then
-        effects.pause:draw(function()
-            cam:draw()
-            sprite.drawGroup"default"
-            love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
-        end)
+    if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then
+        effects.pause:draw(drawGame)
     else
-        cam:draw()
-        sprite.drawGroup"default"
-        love.graphics.pop()
+        drawGame()
     end
     GUI.draw()
 end

@@ -124,7 +124,8 @@ scene = {
             for _,item in pairs(sceneTbl) do
                 local itemName = item.name
                 item.name = nil
-                local itemSprite = sprite(item)
+                local type = item.type
+                local itemSprite = type(item)
                 itemSprite.visible = false
                 newScene:add(sceneName, itemName, itemSprite)
             end
