@@ -1,10 +1,9 @@
-local extLight
 local elevator
-local stopElevatorLight
 camera = camera or require "camera"
 scene = scene or require "scene"
+local elevatorScene = scene.load"elevator"
 local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
-spaceLocked = true
+local locked = true
 local transitionIndex = 1
 
 local lightOffsets = {
@@ -163,57 +162,57 @@ local translationIndex = 1
 local function moveElevatorLight()
     --- Moves the light by one window, flipping it if flipHorizontal appears.
     if type(lightOffsets[translationIndex]) == "table" then
-        extLight.x = extLight.x + lightOffsets[translationIndex][1]
-        extLight.y = extLight.y + lightOffsets[translationIndex][2]
+        elevatorScene.light.x = elevatorScene.light.x + lightOffsets[translationIndex][1]
+        elevatorScene.light.y = elevatorScene.light.y + lightOffsets[translationIndex][2]
     elseif lightOffsets[translationIndex] == "flipHorizontal" then
-        local offset = extLight.flipHorizontal and 520 or -520
-        extLight.flipHorizontal = not extLight.flipHorizontal
-        extLight.x = extLight.x - offset
+        local offset = elevatorScene.light.flipHorizontal and 520 or -520
+        elevatorScene.light.flipHorizontal = not elevatorScene.light.flipHorizontal
+        elevatorScene.light.x = elevatorScene.light.x - offset
     end
     translationIndex = translationIndex + 1
 end
 
-local function startElevatorLight()
-    --- Makes the elevator light and the camera start moving.
-    if transitionIndex > #transitions then
-        print"At the top"
-        return
-    end
-    local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
-    for transIndex = 1, transitions[transitionIndex] do
-        if lightOffsets[translationIndex + transIndex - 1] ~= "flipHorizontal" then
-            totalDx = totalDx + lightOffsets[translationIndex + transIndex - 1][1]
-            totalDy = totalDy + lightOffsets[translationIndex + transIndex - 1][2]
+elevator = {
+    start = function()
+        --- Makes the elevator light and the camera start moving.
+        if transitionIndex > #transitions then
+            print"At the top"
+            return
         end
-    end
-    local startX, startY = cam.x, cam.y
-    local currentOffset = 0
-    local lastOffset = 0
-    local panFct = function(self, percentProgress)
-        currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex-1]))
-        if currentOffset ~= lastOffset then
-            lastOffset = currentOffset
-            moveElevatorLight()
+        local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
+        for transIndex = 1, transitions[transitionIndex] do
+            if lightOffsets[translationIndex + transIndex - 1] ~= "flipHorizontal" then
+                totalDx = totalDx + lightOffsets[translationIndex + transIndex - 1][1]
+                totalDy = totalDy + lightOffsets[translationIndex + transIndex - 1][2]
+            end
         end
+        local startX, startY = cam.x, cam.y
+        local currentOffset = 0
+        local lastOffset = 0
+        local panFct = function(self, percentProgress)
+            currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex-1]))
+            if currentOffset ~= lastOffset then
+                lastOffset = currentOffset
+                moveElevatorLight()
+            end
+        end
+        cam:pan(startX - totalDx, startY - totalDy, .5+.125*(transitions[transitionIndex]-1), "cos", panFct)
+        locked = true
+        scheduler.after(.5+.125*(transitions[transitionIndex]-1), function()
+            locked = false
+        end)
+        moveElevatorLight()
+        transitionIndex = transitionIndex + 1
+    end,
+    locked = function()
+        return locked
+    end,
+    lock = function()
+        locked = true
+    end,
+    unlock = function()
+        locked = false
     end
-    cam:pan(startX - totalDx, startY - totalDy, .5+.125*(transitions[transitionIndex]-1), "cos", panFct)
-    spaceLocked = true
-    scheduler.after(.5+.125*(transitions[transitionIndex]-1), function()
-        spaceLocked = false
-    end)
-    moveElevatorLight()
-    transitionIndex = transitionIndex + 1
-end
-
-local init = function()
-    local elevator = scene.load"elevator"
-    extLight = elevator.elevatorLight
-end
-
-local elevator = {
-    init = init,
-    start = startElevatorLight,
-    stop = stopElevatorLight
 }
 
 return elevator

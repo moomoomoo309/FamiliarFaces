@@ -34,6 +34,9 @@ scene = {
     scenes = {},
     currentScenes = {},
     printText = function(self, text, reset, color)
+        if not color then
+            text, reset, color = self, text, reset
+        end
         --- Print the given text on the screen, moving the camera down when the text gets off screen.
         --- Make reset true to move the text back to the top of the screen.
         local yOffset
@@ -89,13 +92,16 @@ scene = {
     show = function(self, sceneName)
         --- Shows the scene with the given name, or self if called with a scene.
         scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
+        local foundScene = false
         for i = 1, #scene.currentScenes do
             for k, v in pairs(scene.scenes[scene.currentScenes[i].name]) do
                 if type(v) == "table" and k ~= "class" then
+                    foundScene = true
                     v.visible = true
                 end
             end
         end
+        assert(foundScene, ("No scene with name %s found."):format(sceneName))
     end,
     clearAll = function()
         --- Clears all scenes.
@@ -121,12 +127,12 @@ scene = {
         if not self.scenes[sceneName] then
             local sceneTbl = dofile("scenes/"..sceneName..".scene")
             local newScene = self:new(sceneName)
-            for _,item in pairs(sceneTbl) do
+            for _, item in pairs(sceneTbl) do
                 local itemName = item.name
                 item.name = nil
-                local type = item.type
-                local itemSprite = type(item)
-                itemSprite.visible = false
+                item.visible = false
+                local itemType = item.type
+                local itemSprite = itemType(item)
                 newScene:add(sceneName, itemName, itemSprite)
             end
             self.scenes[sceneName] = newScene

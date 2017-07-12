@@ -4,7 +4,11 @@ camera = camera or require "camera"
 local cam = camera:new()
 cam.x = -cam.w / 2
 cam.y = -cam.h / 2
+loadingAssets = true
+loadingCallbacks = {}
+local loadingProgress = 0
 scene = scene or require "scene"
+loader = loader or require"love-loader.love-loader"
 sprite = sprite or require "sprite"
 tablex = tablex or require "tablex"
 pretty = pretty or require "pretty"
@@ -32,9 +36,6 @@ function love.load()
     local museum = scene.load "museum"
     sceneTbl = { bathroom = bathroom, elevator = elevatorScene, museum = museum }
 
-    --Initialize the elevator
-    elevator.init()
-
     --Initialize post-processing effects
     effects.blur = shine.boxblur()
     effects.blur.radius_v, effects.blur.radius_h = 0, 0
@@ -48,11 +49,20 @@ function love.load()
         enterLocked = false
     end
 
-    --Initialize the GUI
-    GUI.init()
+    loader.start(function()
+        loadingAssets = false
+        for _,v in pairs(loadingCallbacks) do
+            v()
+        end
+        --Initialize the GUI
+        GUI.init()
+    end)
 end
 
 function love.update(dt)
+    if loadingAssets then
+        loader.update(dt)
+    end
     scheduler.update(dt)
     GUI.update(dt)
 end
@@ -72,7 +82,7 @@ local function moveNext()
 
     --If you switched to the elevator, unlock the spacebar so you can move the elevator.
     if currentScene == "elevator" then
-        spaceLocked = false
+        elevator.unlock()
     end
 end
 
@@ -84,7 +94,7 @@ function love.keypressed(key, scancode, isrepeat)
     end
     if not GUI.paused() and elevatorScene:isVisible() then
         --spaceLocked is global because it's set in elevator.lua.
-        if key == "space" and not spaceLocked then
+        if key == "space" and not elevator.locked() then
             elevator.start()
         end
     end
@@ -114,18 +124,29 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 local function drawGame()
-    cam:draw()
-    sprite.drawGroup "default"
+    cam:draw() --Push game transformations using the camera
+    sprite.drawGroup "default" --Draw all of the normal sprites.
     love.graphics.pop() --Pops any game transformations so the GUI can be drawn normally.
 end
 
 function love.draw()
-    if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then
-        effects.pause:draw(drawGame)
+    if loadingAssets then
+        local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+        local percentLoaded = loader.loadedCount / loader.resourceCount
+        local r,g,b,a = love.graphics.getColor()
+        love.graphics.setColor(128,128,128,255)
+        love.graphics.rectangle("fill",w*.1,h*.45,w*.8, h*.1)
+        love.graphics.setColor(255,0,0,255)
+        love.graphics.rectangle("fill",w*.1125,h*.4625,w*.75*percentLoaded,h*.0775)
+        love.graphics.setColor(r,g,b,a)
     else
-        drawGame()
+        if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then
+            effects.pause:draw(drawGame)
+        else
+            drawGame()
+        end
+        GUI.draw()
     end
-    GUI.draw()
 end
 
 function love.mousepressed(x, y, button)

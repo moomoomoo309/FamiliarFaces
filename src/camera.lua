@@ -3,19 +3,19 @@ scheduler = scheduler or require "scheduler"
 local camera
 
 camera = {
+    cancelFcts = {},
     interpolations = {
         linear = function(start, stop, percentProgress)
-            return start + (stop - start) * (1-percentProgress)
+            return start + (stop - start) * (1 - percentProgress)
         end,
         cos = function(start, stop, percentProgress)
-            local f = (1-math.cos((1-percentProgress) * math.pi)) / 2
-            return start * (1-f) + stop * f
+            local f = (1 - math.cos((1 - percentProgress) * math.pi)) / 2
+            return start * (1 - f) + stop * f
         end
     },
     new = function(_, args)
-        if not args then
-            args = _ or {}
-        end
+        assert(camera.inst == nil, "Camera instance already exists! Camera is a singleton!")
+        args = args or _ or {}
         local obj = object {
             x = args.x or 0,
             y = args.y or 0,
@@ -24,7 +24,6 @@ camera = {
             viewport = args.viewport or love.graphics.getDimensions(),
             zoom = args.zoom or 1,
             rotation = args.rotation or 0,
-            updateFcts = {},
             followFct = nil,
             inst = nil
         }
@@ -45,9 +44,6 @@ camera = {
             end
         end)
         obj.class = camera
-        if camera.inst then
-            error "Camera instance already exists! Camera is a singleton!"
-        end
         camera.inst = obj
         return obj
     end,
@@ -78,6 +74,12 @@ camera = {
         return (x - self.w/2) / self.zoom, (y-self.h/2) / self.zoom
     end,
     transition = function(self, time, interpolation, values, key, fct)
+        ---Transitions the values in values using the interpolation provided in the time provided, running fct.
+        ---key can be used to make sure it cancels the function with the given key, and fct will run on each iteration.
+        key = key or "default"
+        if self.cancelFcts[key] then
+            self.cancelFcts[key]()
+        end
         local interFct = camera.interpolations[interpolation] or camera.interpolations.cos --How it should interpolate
         local endValues, startValues, keys = {}, {}, {}
         for k, v in pairs(values) do
@@ -100,7 +102,7 @@ camera = {
         local cam = camera.inst
         transitionFct = function(timeElapsed)
             local percentProgress = timeElapsed / time
-            percentProgress = percentProgress > 1 and 1 or percentProgress --Make sure the progress doesn't exceed one
+            percentProgress = percentProgress > 1 and 1 or percentProgress < 0 and 0 or percentProgress --Ensure it stays between 0 and 1
             local deltas, interValues = {}, {}
             for i = 1, #endValues do
                 interValues[i] = interFct(0, startValues[i] - endValues[i], percentProgress)
@@ -121,15 +123,19 @@ camera = {
                 fct(cam, percentProgress)
             end
         end
-        cam.updateFcts[key or #cam.updateFcts+1] = transitionFct --Add the above function to the list of update functions.
-        scheduler.before(time, transitionFct)
-        scheduler.after(time, function()
+        local cancelFct1 = scheduler.before(time, transitionFct)
+        local cancelFct2 = scheduler.after(time, function()
             for i = 1, #keys do
                 if values[i] ~= nil then
                     cam[keys[i]] = values[i] --Make sure the camera values end up being where they should be.
                 end
             end
+            self.cancelFcts[key] = nil
         end)
+        self.cancelFcts[key] = function()
+            cancelFct1()
+            cancelFct2()
+        end
     end,
     pan = function(self, x, y, time, interpolation, fct)
         self:transition(time, interpolation, { x = x, y = y }, "pan", fct)

@@ -48,10 +48,17 @@ local commands = {
     end,
     sfx = function(val)
         parser.lock()
-        audioHandler.play(val:sub(6),parser.unlock)
+        audioHandler.play(val:sub(6), parser.unlock)
     end,
     ["end"] = function()
         --TODO: Implement end command
+    end,
+    scene = function(scenes)
+        scenes = stringx.split(scenes:sub(8), ",")
+        scene:clearAll()
+        for i = 1, #scenes do
+            scene:show(scenes[i])
+        end
     end
 }
 

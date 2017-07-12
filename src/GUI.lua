@@ -236,6 +236,10 @@ GUI = GUI or {
         GUI.showMenu(menuName)
     end,
     init = function()
+        for k,v in pairs(GUI.menus) do
+            v:init()
+            GUI.hideMenu(k)
+        end
         GUI.changeMenu(GUI.currentMenu)
     end,
     pause = function()
@@ -251,13 +255,13 @@ GUI = GUI or {
                 effects.blur:set("radius_v", blurRadius * percentProgress)
                 effects.vignette:set("opacity", percentProgress)
                 effects.desaturate:set("strength", percentProgress / 4)
-            end,nil,"GUI")
+            end, nil, "GUI")
             cancelFct2 = scheduler.after(blurTime, function()
                 effects.blur:set("radius_h", blurRadius)
                 effects.blur:set("radius_v", blurRadius)
                 effects.vignette:set("opacity", 1)
                 effects.desaturate:set("strength", .25)
-            end,"GUI")
+            end, "GUI")
             cancelPause = function()
                 cancelFct1()
                 cancelFct2()
@@ -279,12 +283,14 @@ GUI = GUI or {
             effects.blur:set("radius_h", blurRadius * percentProgress)
             effects.blur:set("radius_v", blurRadius * percentProgress)
             effects.vignette:set("opacity", percentProgress)
-        end,nil,"GUI")
+            effects.desaturate:set("strength", percentProgress / 4)
+        end, nil, "GUI")
         scheduler.after(blurTime, function()
             effects.blur:set("radius_h", 0)
             effects.blur:set("radius_v", 0)
             effects.vignette:set("opacity", 0)
-        end,"GUI")
+            effects.desaturate:set("strength", 0)
+        end, "GUI")
         scheduler.resume"default"
         scheduler.resume"camera"
     end,

@@ -4,28 +4,28 @@ local elevator
 elevator = {
     {
         name = "building",
-        x = -700 - 26,
-        y = -4500,
-        w = 2460,
-        h = 5120,
+        x = w * -.9075,
+        y = h * -7.5,
+        w = w * 3.075,
+        h = h * 8.533333333,
         imagePath = "assets/OfficeExterior.png",
         type = sprite
     },
     {
-        name = "exteriorLight",
-        x = -102,
-        y = 340,
-        w = 520,
-        h = 400,
+        name = "frontLight",
+        x = w * -.1275,
+        y = h * .5666666666,
+        w = w * .65,
+        h = h * .6666666666,
         imagePath = "assets/OfficeEntranceLighting.png",
         type = sprite
     },
     {
-        name = "elevatorLight",
-        x = -33,
-        y = 260,
-        w = 450,
-        h = 280,
+        name = "light",
+        x = w * -.04125,
+        y = h * .4333333333,
+        w = w * .5625,
+        h = h * .4666666666,
         imagePath = "assets/OfficeElevatorLighting.png",
         type = sprite
     }

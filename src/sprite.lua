@@ -53,12 +53,9 @@ sprite = sprite or {
         obj.class = sprite --Update the class (This does call the callback in object!)
         obj.sprite = sprite --Give a reference to sprite, which may be needed for children.
         obj.group = obj.group or "default" --Make sure it has a group
-        sprite.groups[obj.group] = sprite.groups[obj.group] or {keys={}}
+        sprite.groups[obj.group] = sprite.groups[obj.group] or { keys = {} }
         if obj.imagePath then
             obj:setImagePath(obj.imagePath) --When the class was changed, so was the metatable, making its __index point to sprite.
-        end
-        if obj.image.setFilter then
-            obj.image:setFilter(obj.filterMin, obj.filterMax, obj.anisotropy) --If for some reason, nearest isn't wanted.
         end
         for _, animation in pairs(obj.animations) do
             --Give each animation a pointer to its sprite.
@@ -201,17 +198,39 @@ sprite = sprite or {
     end,
     setImagePath = function(self, imagePath)
         self.imagePath = imagePath
-        local spriteSheet = love.graphics.newImage(self.imagePath)
-        if spriteSheet.setFilter then
-            spriteSheet:setFilter(self.filterMin, self.filterMax, self.anisotropy) --If for some reason, nearest isn't wanted.
+        local spriteSheet
+        local fakeSpriteSheet = setmetatable({}, { __newindex = function(_, __, v)
+            spriteSheet = v
+        end })
+        if loadingAssets then
+            --It takes a table and a key, and since I don't want to use debug.getLocal, I have to use metatables.
+            loader.newImage(fakeSpriteSheet, "?", self.imagePath)
+            loadingCallbacks[#loadingCallbacks+1] = function()
+                if not self.image then
+                    self.image = spriteSheet
+                end
+                if spriteSheet.setFilter then
+                    spriteSheet:setFilter(self.filterMin, self.filterMax, self.anisotropy) --If for some reason, nearest isn't wanted.
+                end
+            end
+        else
+            spriteSheet = love.graphics.newImage(self.imagePath)
+            if spriteSheet.setFilter then
+                spriteSheet:setFilter(self.filterMin, self.filterMax, self.anisotropy) --If for some reason, nearest isn't wanted.
+            end
         end
         self.image = self.image or spriteSheet --If it was user-overridden, keep it!
         assert(self.imagePath, "No imagePath found for sprite!")
         local success, metaFile = false, nil
-        if self.animPath and io.open(self.animPath, "r") then
-            success, metaFile = pcall(function()
-                return dofile(self.animPath)
-            end) --Try to read the file...
+        if self.animPath then
+            if io.open(self.animPath, "r") then
+                success, metaFile = pcall(function()
+                    return dofile(self.animPath)
+                end) --Try to read the file...
+            else
+                self.animPath = nil
+                return
+            end
         else
             return
         end
@@ -245,26 +264,26 @@ sprite = sprite or {
             if type(anim.frames) == "string" or #anim.frames > 0 then
                 local frames = {}
                 if type(anim.frames) == "string" then
-                    frames = { love.graphics.newImage(anim.frames) }
+                    frames = { (loadingAssets and loader or love.graphics).newImage(anim.frames) }
                 elseif type(anim.frames) == "table" and #anim.frames == 2 and type(anim.frames[1]) == "number" and type(anim.frames[2]) == "number" then
                     --It's in the format of {x,y} for a quad.
                     frames = {
-                        love.graphics.newQuad(map(tonumber, 1,
-                        anim.frames[1],
-                        anim.frames[2],
-                        frameSize[1][1],
-                        frameSize[1][2],
-                        spriteSheet:getDimensions()))
+                        love.graphics.newQuad(
+                        tonumber(anim.frames[1]),
+                        tonumber(anim.frames[2]),
+                        tonumber(frameSize[1][1]),
+                        tonumber(frameSize[1][2]),
+                        spriteSheet:getDimensions())
                     }
                 elseif type(anim.frames) == "table" then
                     for k, frame in pairs(anim.frames) do
                         if tonumber(frame[1]) then
-                            frames[#frames + 1] = love.graphics.newQuad(map(tonumber, 1,
-                            frame[1],
-                            frame[2],
-                            frameSize[k % #frameSize + 1][1],
-                            frameSize[k % #frameSize + 1][2],
-                            spriteSheet:getDimensions()))
+                            frames[#frames + 1] = love.graphics.newQuad(
+                            tonumber(frame[1]),
+                            tonumber(frame[2]),
+                            tonumber(frameSize[k % #frameSize + 1][1]),
+                            tonumber(frameSize[k % #frameSize + 1][2]),
+                            spriteSheet:getDimensions())
                         elseif type(frame) == "string" then
                             frames[#frames + 1] = love.graphics.newImage(frame)
                         end

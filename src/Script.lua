@@ -1,6 +1,5 @@
---TODO: Eye animation
+--TODO: Eye animation, eye asset, figure out how to do animation
 --TODO: Bathroom wave scene
---TODO: Allow user to pick type of outfit?
 --TODO: Scene switching command
 --TODO: Scene transitions?
 --TODO: Arm covering eye scene
@@ -13,6 +12,19 @@
 
 parser = parser or require "parser"
 scheduler = scheduler or require "scheduler"
+scene = scene or require "scene"
+
+local function fadeToBlack(seconds)
+    scheduler.before(seconds, function(timePassed)
+        local r, g, b, a = love.graphics.getColor()
+        love.graphics.setColor(r, g, b, 255-timePassed/seconds)
+    end)
+    scheduler.after(seconds, function()
+        scene.clearAll()
+        local r, g, b, a = love.graphics.getColor()
+        love.graphics.setColor(r, g, b, 255)
+    end)
+end
 
 local script
 script = {
@@ -26,11 +38,20 @@ script = {
     "I wake up",
     --bathroom (art scene) give player ability to hinge move arm so they can kinda “ wave hello ”
     "Time to get ready for the day.",
-    "I want to look nice.",
-    "gray and drab, blocky and drab, Attractive yet respectable",
+    {
+        ["I want to look nice."] = function()
+            script.vars.outfit = "nice"
+        end,
+        ["gray and drab, blocky and drab, Attractive yet respectable"] = function()
+            script.vars.outfit = "boring"
+        end,
+    },
     --save type of outfit
-    "I slide on my (insert type of outfit here) outfit",
-    "It feels rough against my skin.I proceed to my bathroom and look at my reflection.",
+    function()
+        parser.processLine(("I slide on my %s outfit."):format(script.vars.outfit))
+    end,
+    "It feels rough against my skin.",
+    "I proceed to my bathroom and look at my reflection.",
     "My reflection judges me from the mirror.",
     --(insert type of outfit here) outfit.
     "My reflection can be very judgemental.",
@@ -48,9 +69,12 @@ script = {
     --eye flutters open",
     "I cover the eye protruding from my neck.",
     --animation arm covers eye on neck with scarf, only rotates as player holds arrow key
-    "The eye undulates slightly under the my scarf.I groan again.And so completes my morning routine.",
+    "The eye undulates slightly under the my scarf.",
+    "I groan again.",
+    "And so completes my morning routine.",
     "@new",
-    "As I walk to work I feel the eye throbbing under my scarf.It's hot on my neck",
+    "As I walk to work I feel the eye throbbing under my scarf.",
+    "It's hot on my neck",
     "It blinks on every third step",
     "I don’t know whose eye it is",
     "I don’t have any control over it",
@@ -68,7 +92,13 @@ script = {
     "…presumably in reciprocation",
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
     "@SFX head_bang",
-    "5 seconds after sitting down fade to black)",
+    function()
+        parser.lock()
+        scheduler.after(5, function()
+            parser.unlock()
+            --fade to black
+        end)
+    end,
     "Again. Again there is a river",
     "Again flowing slowly",
     "I attempt to turn away",
@@ -83,7 +113,7 @@ script = {
     "@new",
     "Again I groan before entering the elevator.",
     "Another, another day another, another dollar.",
-    --(elevator sequence arrow key controls to move elevator from point to point on the tower)
+    "@scene elevator",
     "I groan as I exit the elevator.The eye on my neck pulsates",
     "…presumably in reciprocation.",
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.

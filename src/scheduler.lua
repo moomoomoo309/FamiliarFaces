@@ -47,7 +47,7 @@ scheduler = {
             if timeElapsed >= seconds then
                 scheduler.functions[group][index] = nil
             else
-                fct(timeElapsed)
+                fct(timeElapsed, dt)
             end
         end
         return function()
