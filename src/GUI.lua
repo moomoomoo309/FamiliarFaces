@@ -164,7 +164,6 @@ GUI = GUI or {
             widgets = {},
             sprites = {},
             init = function()
-                --TODO: Start the game
             end
         },
         pause = {

@@ -36,7 +36,11 @@ audioHandler = {
                 return
             end
         end
-        audioHandler.audioObjs[fileName or name] = love.audio.newSource(filePath, "static")
+        if loadingAssets then
+            loader.newSource(audioHandler.audioObjs,fileName or name,filePath, "static")
+        else
+            audioHandler.audioObjs[fileName or name] = love.audio.newSource(filePath, "static")
+        end
         audioHandler.filePriorities[fileName or name] = audioHandler.extensionPriorities[extension] or 0
     end,
     remove = function(fileName)

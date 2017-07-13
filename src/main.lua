@@ -1,12 +1,10 @@
 io.stdout:setvbuf "no"
---TODO: Rewrite all of the IO to use love-loader
 camera = camera or require "camera"
 local cam = camera:new()
 cam.x = -cam.w / 2
 cam.y = -cam.h / 2
 loadingAssets = true
 loadingCallbacks = {}
-local loadingProgress = 0
 scene = scene or require "scene"
 loader = loader or require"love-loader.love-loader"
 sprite = sprite or require "sprite"
@@ -40,6 +38,7 @@ function love.load()
     effects.blur = shine.boxblur()
     effects.blur.radius_v, effects.blur.radius_h = 0, 0
     effects.vignette = shine.vignette()
+    effects.vignette.opacity = 0
     effects.desaturate = shine.desaturate()
     effects.pause = effects.desaturate:chain(effects.blur):chain(effects.vignette)
 
@@ -51,7 +50,7 @@ function love.load()
 
     loader.start(function()
         loadingAssets = false
-        for _,v in pairs(loadingCallbacks) do
+        for _, v in pairs(loadingCallbacks) do
             v()
         end
         --Initialize the GUI
@@ -98,15 +97,15 @@ function love.keypressed(key, scancode, isrepeat)
             elevator.start()
         end
     end
-    if not GUI.paused() and key == "right" then
+    if key == "right" and not GUI.paused() then
         local tbl
         if not process then
             process, tbl = parser.process "Script"
         end
         if not parser.locked() then
             if coroutine.status(process) ~= "dead" then
-                local msg = coroutine.resume(process, tbl, process)
-                if msg ~= true then
+                local success,msg = coroutine.resume(process, tbl, process)
+                if not success then
                     print(msg)
                 end
             else
@@ -131,17 +130,20 @@ end
 
 function love.draw()
     if loadingAssets then
-        local w,h = love.graphics.getWidth(), love.graphics.getHeight()
+        --TODO: Better looking loading bar?
+        local w, h = love.graphics.getWidth(), love.graphics.getHeight()
         local percentLoaded = loader.loadedCount / loader.resourceCount
-        local r,g,b,a = love.graphics.getColor()
-        love.graphics.setColor(128,128,128,255)
-        love.graphics.rectangle("fill",w*.1,h*.45,w*.8, h*.1)
-        love.graphics.setColor(255,0,0,255)
-        love.graphics.rectangle("fill",w*.1125,h*.4625,w*.75*percentLoaded,h*.0775)
-        love.graphics.setColor(r,g,b,a)
+        local r, g, b = love.graphics.getColor()
+        love.graphics.setColor(128, 128, 128)
+        love.graphics.rectangle("fill", w*.1, h*.45, w*.8, h*.1)
+        love.graphics.setColor(255, 0, 0)
+        love.graphics.rectangle("fill", w*.11, h*.4625, w*.78*percentLoaded, h*.0775)
+        love.graphics.setColor(r, g, b)
     else
         if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then
             effects.pause:draw(drawGame)
+        elseif effects.vignette.opacity > 0 then
+            effects.vignette:draw(drawGame)
         else
             drawGame()
         end

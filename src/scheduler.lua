@@ -4,6 +4,7 @@ local scheduler
 scheduler = {
     paused = {},
     functions = {},
+    groups = {},
     sleep = function(seconds)
         --- Sleeps the running coroutine until seconds has passed. Will not work on the main thread.
 

@@ -14,18 +14,6 @@ parser = parser or require "parser"
 scheduler = scheduler or require "scheduler"
 scene = scene or require "scene"
 
-local function fadeToBlack(seconds)
-    scheduler.before(seconds, function(timePassed)
-        local r, g, b, a = love.graphics.getColor()
-        love.graphics.setColor(r, g, b, 255-timePassed/seconds)
-    end)
-    scheduler.after(seconds, function()
-        scene.clearAll()
-        local r, g, b, a = love.graphics.getColor()
-        love.graphics.setColor(r, g, b, 255)
-    end)
-end
-
 local script
 script = {
     vars = { good = 0 }, --Easier to declare the variables beforehand so you don't have to check if they exist later.
@@ -93,11 +81,7 @@ script = {
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
     "@SFX head_bang",
     function()
-        parser.lock()
-        scheduler.after(5, function()
-            parser.unlock()
-            --fade to black
-        end)
+        scene.fadeToBlack(5)
     end,
     "Again. Again there is a river",
     "Again flowing slowly",
@@ -220,7 +204,9 @@ script = {
         } or {
             "Another, another, another day another, another, another dollar",
             --(elevator sequence arrow key controls to move elevator from point to point on the tower)
-            --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.@SFX banging noise* 5 seconds after sitting down fade to black)
+            --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
+            "@SFX banging noise"
+            --* 5 seconds after sitting down fade to black)
         }
     end,
     function(val, tbl)

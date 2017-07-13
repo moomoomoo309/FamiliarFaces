@@ -52,6 +52,7 @@ end,
 set = function(self, key, value)
 	if key == "radius" or key == "softness" or key == "opacity" then
 		self.shader:send(key, math.max(0, tonumber(value) or 0))
+		rawset(self,key,math.max(0, tonumber(value) or 0))
 	else
 		error("Unknown property: " .. tostring(key))
 	end

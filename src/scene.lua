@@ -15,18 +15,21 @@ local function printText2(text, paddingX, paddingY, i, color)
     if localYOffset > love.graphics.getHeight() then
         yOffset = love.graphics.getHeight() - localYOffset - fontHeight - paddingY
     end
-    local img = love.graphics.newText(font, text)
+    local textObj = love.graphics.newText(font, text)
     if color then
-        img:addf({ color, text }, love.graphics.getWidth() - 2 * paddingX, "left", 0, 0)
+        textObj:addf({ color, text }, love.graphics.getWidth() - 2 * paddingX, "left", 0, 0)
     end
-    img:setFont(font)
-    visibleText[#visibleText + 1] = sprite {
+    textObj:setFont(font)
+    local text = sprite {
         x = paddingX,
         y = localYOffset,
-        w = img:getWidth(),
-        h = img:getHeight(),
-        image = img
+        w = textObj:getWidth(),
+        h = textObj:getHeight(),
+        group = "GUI",
+        image = textObj,
+        visible = true
     }
+    visibleText[#visibleText + 1] = text
     return yOffset
 end
 
@@ -34,9 +37,6 @@ scene = {
     scenes = {},
     currentScenes = {},
     printText = function(self, text, reset, color)
-        if not color then
-            text, reset, color = self, text, reset
-        end
         --- Print the given text on the screen, moving the camera down when the text gets off screen.
         --- Make reset true to move the text back to the top of the screen.
         local yOffset
@@ -64,15 +64,15 @@ scene = {
         scene.scenes[name] = scene.scenes[name] or { class = scene, name = name }
         return setmetatable(scene.scenes[name], { __index = scene.scenes[name].class })
     end,
-    add = function(self, name, sceneName, additionalScene)
+    set = function(self, name, sceneName, sprite)
         --- Adds a sprite to the given scene.
-        if not additionalScene then
-            name, sceneName, additionalScene = self, name, sceneName
+        if not sprite then
+            name, sceneName, sprite = self, name, sceneName
         end
         if not scene.scenes[name] then
             scene:new(name)
         end
-        scene.scenes[name][sceneName] = additionalScene
+        scene.scenes[name][sceneName] = sprite
     end,
     clear = function(self, sceneName)
         --- Clears the scene with the given name, or self if called with a scene.
@@ -133,11 +133,26 @@ scene = {
                 item.visible = false
                 local itemType = item.type
                 local itemSprite = itemType(item)
-                newScene:add(sceneName, itemName, itemSprite)
+                newScene:set(sceneName, itemName, itemSprite)
             end
             self.scenes[sceneName] = newScene
         end
         return self.scenes[sceneName]
+    end,
+    fadeToBlack = function(seconds)
+        parser.lock()
+        scheduler.before(seconds, function(timePassed)
+            effects.vignette:set("opacity", timePassed / seconds)
+            effects.vignette:set("softness", timePassed / seconds)
+            effects.vignette:set("radius", 1-timePassed / seconds)
+        end)
+        scheduler.after(seconds, function()
+            parser.unlock()
+            scene.clearAll()
+            effects.vignette:set("radius", .25)
+            effects.vignette:set("opacity", 0)
+            effects.vignette:set("softness", .45)
+        end)
     end
 }
 
