@@ -16,7 +16,7 @@ scene = scene or require "scene"
 
 local script
 script = {
-    vars = { good = 0 }, --Easier to declare the variables beforehand so you don't have to check if they exist later.
+    vars = { good = 0, outfit = "nice" }, --Easier to declare the variables beforehand so you don't have to check if they exist later.
     "@SFX bap_2",
     "I’m standing by a lake",
     "Or maybe more of a wide river that’s moving really slowly",
@@ -27,18 +27,32 @@ script = {
     --bathroom (art scene) give player ability to hinge move arm so they can kinda “ wave hello ”
     "Time to get ready for the day.",
     {
-        ["I want to look nice."] = function()
-            script.vars.outfit = "nice"
-        end,
-        ["gray and drab, blocky and drab, Attractive yet respectable"] = function()
-            script.vars.outfit = "boring"
-        end,
+        ["I want to look nice"] = {
+            function()
+                script.vars.outfit = "nice"
+            end
+        },
+        ["Gray and drab"] = {
+            function()
+                script.vars.outfit = "gray"
+            end
+        },
+        ["Blocky and drab"] = {
+            function()
+                script.vars.outfit = "blocky"
+            end
+        },
+        ["Attractive yet respectable"] = {
+            function()
+                script.vars.outfit = "attractive"
+            end
+        }
     },
-    --save type of outfit
     function()
         parser.processLine(("I slide on my %s outfit."):format(script.vars.outfit))
     end,
     "It feels rough against my skin.",
+    "@scene bathroom",
     "I proceed to my bathroom and look at my reflection.",
     "My reflection judges me from the mirror.",
     --(insert type of outfit here) outfit.
@@ -67,13 +81,14 @@ script = {
     "I don’t know whose eye it is",
     "I don’t have any control over it",
     "I feel every movement",
-    "Uncomfortable as it is , I'm used to it.",
+    "Uncomfortable as it is, I'm used to it.",
     "I stopped trying to figure out who it belongs a while ago",
     "Cover it up and go about my business.",
     "That's my motto.",
     --walking on street scene , arrow keys to walk arrive at building, space to enter
     "@new",
-    "I groan before entering the elevator.Another day another dollar.",
+    "I groan before entering the elevator.",
+    "Another day another dollar.",
     --(elevator sequence arrow key controls to move elevator from point to point on the tower)
     "I groan as I exit the elevator",
     "The eye on my neck pulsates",
@@ -98,7 +113,9 @@ script = {
     "Again I groan before entering the elevator.",
     "Another, another day another, another dollar.",
     "@scene elevator",
-    "I groan as I exit the elevator.The eye on my neck pulsates",
+    "I groan as I exit the elevator.",
+    "The eye on my neck pulsates",
+    --"@scene office",
     "…presumably in reciprocation.",
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
     "@SFX head_bang",
@@ -203,10 +220,12 @@ script = {
             }
         } or {
             "Another, another, another day another, another, another dollar",
-            --(elevator sequence arrow key controls to move elevator from point to point on the tower)
+            "@scene elevator",
             --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
-            "@SFX banging noise"
-            --* 5 seconds after sitting down fade to black)
+            "@SFX banging noise",
+            function()
+                scene.fadeToBlack(5)
+            end,
         }
     end,
     function(val, tbl)
@@ -222,12 +241,7 @@ script = {
     end,
     --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
     function()
-        parser.lock()
-        --fade to black
-        scheduler.after(5, function()
-            parser.processLine"@SFX head_bang" --Same as "@SFX head_bang" outside of the function.
-            parser.unlock()
-        end)
+        scene.fadeToBlack(5)
     end,
     "Again the river",
     "Again I approach the water",
@@ -255,7 +269,7 @@ script = {
     "/rThe good news is I can hear you now",
     "/rAs for the bad news…",
     --bathroom scene Show version of sprite with all features for 1 second (have eye blink a few times)",
-    --black screen",
+    "@new",
     "/rAll of my remaining facial features have manifested on your body",
     {
         ["Express Grievances"] = {

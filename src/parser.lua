@@ -24,16 +24,15 @@ local function promptPlayer(tbl, process)
     end
     local choice
     for k in pairs(choices) do
-        buttons[#buttons + 1] = gooi.newButton(k,
-        love.graphics.getWidth() / 2 - 50,
-        love.graphics.getHeight() / 2 - 10 - 25 * (#buttons - #choices / 2),
-        100,
-        20)
+        local btn = gooi.newButton(k)
         :onRelease(function(self)
             choice = choices[self.text]
             clearButtons()
             coroutine.resume(process)
         end)
+        btn.x = love.graphics.getWidth() / 2 - btn.w / 2
+        btn.y = love.graphics.getHeight() / 2 - btn.h * 1.05 * (#buttons - #choices / 2)
+        buttons[#buttons + 1] = btn
     end
     repeat
         coroutine.yield() -- Until a choice is picked, don't go back to processVal.

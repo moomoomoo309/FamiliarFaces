@@ -1,7 +1,7 @@
 sprite = sprite or require "sprite"
 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-local elevator
-elevator = {
+local elevatorScene
+elevatorScene = {
     {
         name = "building",
         x = w * -.9075,
@@ -28,6 +28,12 @@ elevator = {
         h = h * .4666666666,
         imagePath = "assets/OfficeElevatorLighting.png",
         type = sprite
-    }
+    },
+    onShow = function()
+        elevator.unlock()
+    end,
+    onClear = function()
+        elevator.lock()
+    end
 }
-return elevator
+return elevatorScene

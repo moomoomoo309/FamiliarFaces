@@ -77,13 +77,17 @@ scene = {
     clear = function(self, sceneName)
         --- Clears the scene with the given name, or self if called with a scene.
         sceneName = sceneName or self.name
-        for k, v in pairs(scene.scenes[sceneName] or {}) do
+        local thisScene = scene.scenes[sceneName]
+        if thisScene.onClear then
+            thisScene:onClear()
+        end
+        for k, v in pairs(thisScene or {}) do
             if type(v) == "table" and k ~= "class" then
                 v.visible = false
             end
         end
         for i = 1, #scene.currentScenes do
-            if scene.currentScenes[i] == scene.scenes[sceneName] then
+            if scene.currentScenes[i] == thisScene then
                 table.remove(scene.currentScenes, i)
                 break
             end
@@ -94,7 +98,11 @@ scene = {
         scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
         local foundScene = false
         for i = 1, #scene.currentScenes do
-            for k, v in pairs(scene.scenes[scene.currentScenes[i].name]) do
+            local currentScene = scene.scenes[scene.currentScenes[i].name]
+            if currentScene.onShow then
+                currentScene:onShow()
+            end
+            for k, v in pairs(currentScene) do
                 if type(v) == "table" and k ~= "class" then
                     foundScene = true
                     v.visible = true
@@ -115,7 +123,13 @@ scene = {
     end,
     isVisible = function(self)
         --- Returns if self is visible.
-        return scene.scenes[self.name] and ({ next(scene.scenes[self.name]) })[2].visible
+        assert(scene.scenes[self.name], ("No scene by the name %s exists."):format(self.name))
+        for k,v in pairs(scene.scenes[self.name]) do
+            assert(v, ("Scene %s contains no elements!"):format(self.name))
+            if type(v) == "table" then
+                return v.visible
+            end
+        end
         --The right side of the "and" gets the first sprite in the scene and checks if it's visible.
         --The [2] is because next returns the key and the value.
     end,
@@ -127,13 +141,17 @@ scene = {
         if not self.scenes[sceneName] then
             local sceneTbl = dofile("scenes/"..sceneName..".scene")
             local newScene = self:new(sceneName)
-            for _, item in pairs(sceneTbl) do
-                local itemName = item.name
-                item.name = nil
-                item.visible = false
-                local itemType = item.type
-                local itemSprite = itemType(item)
-                newScene:set(sceneName, itemName, itemSprite)
+            for k, item in pairs(sceneTbl) do
+                if type(item) == "table" then
+                    local itemName = item.name
+                    item.name = nil
+                    item.visible = false
+                    local itemType = item.type
+                    local itemSprite = itemType(item)
+                    newScene:set(sceneName, itemName, itemSprite)
+                else
+                    newScene[k] = item
+                end
             end
             self.scenes[sceneName] = newScene
         end

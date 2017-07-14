@@ -6,7 +6,7 @@ cam.y = -cam.h / 2
 loadingAssets = true
 loadingCallbacks = {}
 scene = scene or require "scene"
-loader = loader or require"love-loader.love-loader"
+loader = loader or require "love-loader.love-loader"
 sprite = sprite or require "sprite"
 tablex = tablex or require "tablex"
 pretty = pretty or require "pretty"
@@ -25,7 +25,16 @@ local followingScene = { bathroom = "museum", museum = "elevator" }
 local process
 local sceneTbl
 local elevatorScene
+local player
 effects = {}
+
+local defaultControls = {
+    advanceScript = { "key:right", "button:a" },
+    moveRight = { "key:right", "key:d", "button:dpright", "axis:leftx+" },
+    moveLeft = { "key:left", "key:a", "button:dpleft", "axis:leftx-" },
+    moveElevator = { "key:space", "key:return", "button:a" },
+    pause = { "key:escape", "button:start" }
+}
 
 function love.load()
     --Load scenes
@@ -56,20 +65,17 @@ function love.load()
         --Initialize the GUI
         GUI.init()
     end)
-end
-
-function love.update(dt)
-    if loadingAssets then
-        loader.update(dt)
-    end
-    scheduler.update(dt)
-    GUI.update(dt)
+    --Set up the controls
+    player = baton.new(defaultControls, love.joystick.getJoysticks()[1])
 end
 
 local function moveNext()
     --Advance the scene
     lastScene = currentScene
     currentScene = followingScene[currentScene]
+    if not currentScene then
+        return
+    end
 
     --Clear the old scene
     if lastScene then
@@ -78,48 +84,57 @@ local function moveNext()
 
     --Show the new scene
     sceneTbl[currentScene]:show()
-
-    --If you switched to the elevator, unlock the spacebar so you can move the elevator.
-    if currentScene == "elevator" then
-        elevator.unlock()
-    end
 end
 
-function love.keypressed(key, scancode, isrepeat)
-    --TODO: Move controls into baton
-    print(("Key=%s"):format(key))
-    if not GUI.paused() and key == "return" and not enterLocked then
-        moveNext()
-    end
-    if not GUI.paused() and elevatorScene:isVisible() then
-        --spaceLocked is global because it's set in elevator.lua.
-        if key == "space" and not elevator.locked() then
-            elevator.start()
-        end
-    end
-    if key == "right" and not GUI.paused() then
-        local tbl
-        if not process then
-            process, tbl = parser.process "Script"
-        end
-        if not parser.locked() then
-            if coroutine.status(process) ~= "dead" then
-                local success,msg = coroutine.resume(process, tbl, process)
-                if not success then
-                    print(msg)
-                end
-            else
-                print "ded"
-            end
-        end
-    elseif key == "escape" then
+local function checkControls()
+    if player:pressed"pause" then
         if GUI.paused() then
             GUI.unpause()
         else
             GUI.pause()
         end
     end
+    if not GUI.paused() then
+        if elevatorScene:isVisible() then
+            if player:pressed"moveElevator" and not elevator.locked() then
+                elevator.start()
+            end
+        end
+        if player:pressed"advanceScript" then
+            local tbl
+            if not process then
+                process, tbl = parser.process "Script"
+            end
+            if not parser.locked() then
+                if coroutine.status(process) ~= "dead" then
+                    local success, msg = coroutine.resume(process, tbl, process)
+                    if not success then
+                        print(msg)
+                    end
+                else
+                    print "ded"
+                end
+            end
+        end
+    end
+end
+
+function love.update(dt)
+    if loadingAssets then
+        loader.update(dt)
+    end
+    player:update(dt)
+    scheduler.update(dt)
+    GUI.update(dt)
+    checkControls()
+end
+
+function love.keypressed(key, scancode, isrepeat)
+    print(("Key=%s"):format(key))
     GUI.keypressed(key, scancode, isrepeat)
+    if not GUI.paused() and key == "return" and not enterLocked then
+        moveNext()
+    end
 end
 
 local function drawGame()
@@ -135,9 +150,9 @@ function love.draw()
         local percentLoaded = loader.loadedCount / loader.resourceCount
         local r, g, b = love.graphics.getColor()
         love.graphics.setColor(128, 128, 128)
-        love.graphics.rectangle("fill", w*.1, h*.45, w*.8, h*.1)
+        love.graphics.rectangle("fill", w * .1, h * .45, w * .8, h * .1)
         love.graphics.setColor(255, 0, 0)
-        love.graphics.rectangle("fill", w*.11, h*.4625, w*.78*percentLoaded, h*.0775)
+        love.graphics.rectangle("fill", w * .11, h * .4625, w * .78 * percentLoaded, h * .0775)
         love.graphics.setColor(r, g, b)
     else
         if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then

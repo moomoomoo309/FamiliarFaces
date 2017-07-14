@@ -267,6 +267,7 @@ GUI = GUI or {
             end
             scheduler.pause"default"
             scheduler.pause"camera"
+            audioHandler.pauseAll()
         end
     end,
     unpause = function()
@@ -292,6 +293,7 @@ GUI = GUI or {
         end, "GUI")
         scheduler.resume"default"
         scheduler.resume"camera"
+        audioHandler.resumeAll()
     end,
     paused = function()
         return paused

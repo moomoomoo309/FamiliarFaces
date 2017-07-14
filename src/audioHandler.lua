@@ -11,6 +11,7 @@ local audioDir = "/assets"
 audioHandler = {
     audioObjs = {},
     filePriorities = {},
+    playing = {},
     extensionPriorities = {
         wav = 0,
         aac = 1,
@@ -37,7 +38,7 @@ audioHandler = {
             end
         end
         if loadingAssets then
-            loader.newSource(audioHandler.audioObjs,fileName or name,filePath, "static")
+            loader.newSource(audioHandler.audioObjs, fileName or name, filePath, "static")
         else
             audioHandler.audioObjs[fileName or name] = love.audio.newSource(filePath, "static")
         end
@@ -51,24 +52,28 @@ audioHandler = {
     play = function(fileName, callback)
         --- Plays the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
         local audioObj = audioHandler.audioObjs[fileName]
+        assert(audioObj, ("No audio file with filename %s found."):format(fileName))
         if audioObj then
             audioObj:play()
-        else
-            error(("No audio file with filename %s found."):format(fileName))
         end
         local cancelFct
-        if type(callback) == "function" then
-            cancelFct = scheduler.when(function()
-                return audioObj:isStopped()
-            end, type(callback)=="function" and callback or nil)
-        end
-        return function(runCallback)
+        cancelFct = scheduler.when(function()
+            return audioObj:isStopped()
+        end, function()
+            audioHandler.playing[fileName] = nil
+            if type(callback) == "function" then
+                callback()
+            end
+        end)
+        local cancel = function(runCallback)
             cancelFct()
             if runCallback and type(callback) == "function" then
                 callback()
             end
             audioObj:stop()
         end
+        audioHandler.playing[fileName] = cancel
+        return cancel
     end,
     loop = function(fileName, callback)
         --- Loops the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
@@ -78,21 +83,50 @@ audioHandler = {
         else
             error(("No audio file with filename %s found."):format(fileName))
         end
-        local cancelFct = scheduler.everyCondition(function() return audioObj:isStopped() end, function() audioObj:play() end, function() audioObj:stop() end)
-        return function(runCallback)
+        local cancelFct = scheduler.everyCondition(function()
+            return audioObj:isStopped()
+        end, function()
+            audioObj:play()
+        end, function()
+            audioObj:stop()
+            audioHandler.playing[fileName] = nil
+        end)
+        local cancel = function(runCallback)
             cancelFct()
             if runCallback and type(callback) == "function" then
                 callback()
             end
-            audioObj:stop()
+        end
+        audioHandler.playing[fileName] = cancel
+        return cancel
+    end,
+    pauseAll = function()
+        for k,_ in pairs(audioHandler.playing) do
+            audioHandler.pause(k)
+        end
+    end,
+    resumeAll = function()
+        for k,_ in pairs(audioHandler.playing) do
+            audioHandler.resume(k)
         end
     end,
     stop = function(fileName)
         --- Stops playing the audio object with the given name from the audio handler, if it exists.
         local audioObj = audioHandler.audioObjs[fileName]
-        if audioObj then
-            love.audio.stop(audioObj)
-        end
+        assert(audioObj, ("No audio object with name %s found."):format(fileName))
+        love.audio.stop(audioObj)
+    end,
+    pause = function(fileName)
+        --- Pauses the audio object with the given name from the audio handler, if it exists.
+        local audioObj = audioHandler.audioObjs[fileName]
+        assert(audioObj, ("No audio object with name %s found."):format(fileName))
+        audioObj:pause()
+    end,
+    resume = function(fileName)
+        --- Resumes the audio object with the given name from the audio handler, if it exists.
+        local audioObj = audioHandler.audioObjs[fileName]
+        assert(audioObj, ("No audio object with name %s found."):format(fileName))
+        audioObj:resume()
     end
 }
 
