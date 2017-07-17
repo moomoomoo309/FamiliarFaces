@@ -8,7 +8,7 @@ local function all(...)
     if select("#", ...) == 1 then
         return (...) and true or false
     elseif (...) then
-        return all2(select(2, ...))
+        return all(select(2, ...))
     end
     return false
 end
