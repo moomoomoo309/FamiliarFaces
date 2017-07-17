@@ -2009,7 +2009,7 @@ function gooi.draw(group)
 
     local noButton, okButton, yesButton, msgLbl = nil, nil, nil, nil
 
-    local compWithTooltip = nil -- Just for desktop.
+    local compWithTooltip -- Just for desktop.
 
     love.graphics.setColor(255, 255, 255)
     --love.graphics.setCanvas(gooi.canvas)

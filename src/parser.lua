@@ -5,7 +5,7 @@ scene = scene or require "scene"
 audioHandler = audioHandler or require "audioHandler"
 stringx = stringx or require "pl.stringx"
 
-local locked = false
+local locked = true
 
 local function promptPlayer(tbl, process)
     local choices = {}
@@ -64,7 +64,15 @@ local commands = {
 
 local prefixes = {
     ["/r"] = function(val)
+        assert(type(val)=="string", ("String expected, got %s."):format(type(val)))
         scene:printText(val:sub(3), false, { 255, 0, 0 })
+        coroutine.yield()
+    end,
+    ["/t{"] = function(val)
+        local color = unpack(stringx.split(val:sub(3, val:find("}", 4, true)), ","))
+        assert(type(color)=="table", ("Table expected, got %s."):format(type(color)))
+        assert(#color == 3 or #color == 4, ("Length of color table must be 3 or 4, was %d."):format(#color))
+        scene:printText(val:sub(3), false, color)
         coroutine.yield()
     end,
     ["@"] = function(val, tbl)

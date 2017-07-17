@@ -6,7 +6,6 @@
 --TODO: Walking on street scene
 --TODO: Office scene walking to desk
 --TODO: Desk scene + animation
---TODO: Fade to black command
 
 --TODO: Needed assets: Walking to office, faceless woman, office walking to desk, at desk
 
@@ -96,7 +95,7 @@ script = {
     --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
     "@SFX head_bang",
     function()
-        scene.fadeToBlack(5)
+        scene.fadeOut(5)
     end,
     "Again. Again there is a river",
     "Again flowing slowly",
@@ -224,7 +223,7 @@ script = {
             --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
             "@SFX banging noise",
             function()
-                scene.fadeToBlack(5)
+                scene.fadeOut(5)
             end,
         }
     end,
@@ -241,7 +240,7 @@ script = {
     end,
     --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
     function()
-        scene.fadeToBlack(5)
+        scene.fadeOut(5)
     end,
     "Again the river",
     "Again I approach the water",

@@ -24,8 +24,9 @@ sprite = sprite or {
         --- Creates a new sprite.
         if not args and self then
             --Allows you to call sprite.new or sprite:new
-            args = self
+            args = self or {}
         end
+        assert(type(args) == "table", ("Table expected, got %s."):format(type(args)))
         local obj = object {
             Id = (args.Id and not sprite.sprites[args.Id]) and args.Id or sprite.Id(),
             imagePath = args.imagePath or false,
@@ -50,6 +51,7 @@ sprite = sprite or {
             anisotropy = args.anisotropy or 0,
             animPath = args.animPath or (args.imagePath and args.imagePath:find(".", nil, true) and args.imagePath:sub(1, -args.imagePath:reverse():find(".", nil, true)) .. "anim") or false
         }
+        assert(obj, "Object could not be created in sprite.")
         obj.class = sprite --Update the class (This does call the callback in object!)
         obj.sprite = sprite --Give a reference to sprite, which may be needed for children.
         obj.group = obj.group or "default" --Make sure it has a group
@@ -61,7 +63,7 @@ sprite = sprite or {
             --Give each animation a pointer to its sprite.
             animation.sprite = obj
         end
-        --Insert the sprite into sprite.sprites and into it's group's keys.
+        --Insert the sprite into sprite.sprites and into its group's keys.
         --The keys for a given group remains sorted so that draw order is based on a sprite's Id.
         sprite.sprites[obj.Id] = obj
         local keys = sprite.groups[obj.group].keys
@@ -81,9 +83,11 @@ sprite = sprite or {
     end,
     copy = function(self, that, args)
         if not args and self and that then
-            --Allows you to call sprite.copy or sprite:copy
+            --Allows you to call sprite.copy or sprite:copy.
             that, args = self, that
         end
+        assert(type(that) == "table" and that.type == "sprite", ("Sprite expected, got %s."):format(type(that) == "table" and that.type or type(that)))
+        assert(type(args) == "table", ("Table expected, got %s."):format(args))
         local this = {}
         local reusableFields = { "animations" } --Tables that should be shared amongst copied sprites.
         for k, v in pairs(that) do
@@ -135,10 +139,12 @@ sprite = sprite or {
             img = self.image --No animation.
         end
         local oldColor
+        --If the current frame being drawn wants to have its color changed, grab the old color then change it.
         if self.animating and self.animating.currentColor or self.color then
             oldColor = { love.graphics.getColor() }
             love.graphics.setColor(self.animating.currentColor or self.color)
         end
+
         if quad then
             local _, _, quadWidth, quadHeight = quad:getViewport()
             self.sx = self.w / quadWidth --X scale
@@ -166,27 +172,21 @@ sprite = sprite or {
             type(self.ox) == "function" and self:ox() or self.ox,
             type(self.ox) == "function" and self:oy() or self.oy)
         end
+        --Don't forget to change the color back if you changed it before!
         if oldColor then
             love.graphics.setColor(oldColor)
         end
     end,
     drawAll = function()
-        for _, v in pairs(sprite.groups) do
-            for i = 1, #v.keys do
-                local key = v.keys[i]
-                if sprite.sprites[key] and sprite.sprites[key].visible then
-                    sprite.sprites[key]:draw()
-                end
-            end
+        for k in pairs(sprite.groups) do
+            sprite.drawGroup(k)
         end
     end,
     drawGroup = function(group)
-        local group = sprite.groups[group]
-        if not group then
-            return
-        end
-        for i = 1, #group.keys do
-            local key = group.keys[i]
+        local spriteGroup = sprite.groups[group]
+        assert(spriteGroup, ("No group with name %s found."):format(pretty.write(group)))
+        for i = 1, #spriteGroup.keys do
+            local key = spriteGroup.keys[i]
             if sprite.sprites[key] and sprite.sprites[key].visible then
                 sprite.sprites[key]:draw()
             end
@@ -197,15 +197,19 @@ sprite = sprite or {
         animation:animateAll()
     end,
     setImagePath = function(self, imagePath)
+        assert(type(imagePath) == "string", ("String expected, got %s."):format(type(imagePath)))
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
         self.imagePath = imagePath
         local spriteSheet
-        local fakeSpriteSheet = setmetatable({}, { __newindex = function(_, __, v)
+        local fakeSpriteSheet = setmetatable({}, { __newindex = function(_, _, v)
             spriteSheet = v
         end })
         if loadingAssets then
             --It takes a table and a key, and since I don't want to use debug.getLocal, I have to use metatables.
-            loader.newImage(fakeSpriteSheet, "?", self.imagePath)
-            loadingCallbacks[#loadingCallbacks+1] = function()
+            loader.newImage(fakeSpriteSheet, "ifYouSeeThisKeySomethingIsWrong", self.imagePath)
+
+            --Wait to set the filter and image until it's finished loading everything.
+            loadingCallbacks[#loadingCallbacks + 1] = function()
                 if not self.image then
                     self.image = spriteSheet
                 end
@@ -220,7 +224,6 @@ sprite = sprite or {
             end
         end
         self.image = self.image or spriteSheet --If it was user-overridden, keep it!
-        assert(self.imagePath, "No imagePath found for sprite!")
         local success, metaFile = false, nil
         if self.animPath then
             if io.open(self.animPath, "r") then
@@ -267,23 +270,47 @@ sprite = sprite or {
                     frames = { (loadingAssets and loader or love.graphics).newImage(anim.frames) }
                 elseif type(anim.frames) == "table" and #anim.frames == 2 and type(anim.frames[1]) == "number" and type(anim.frames[2]) == "number" then
                     --It's in the format of {x,y} for a quad.
-                    frames = {
-                        love.graphics.newQuad(
-                        tonumber(anim.frames[1]),
-                        tonumber(anim.frames[2]),
-                        tonumber(frameSize[1][1]),
-                        tonumber(frameSize[1][2]),
-                        spriteSheet:getDimensions())
-                    }
+                    if loadingAssets then
+                        loadingCallbacks[#loadingCallbacks + 1] = function()
+                            frames = {
+                                love.graphics.newQuad(
+                                tonumber(anim.frames[1]),
+                                tonumber(anim.frames[2]),
+                                tonumber(frameSize[1][1]),
+                                tonumber(frameSize[1][2]),
+                                spriteSheet:getDimensions())
+                            }
+                        end
+                    else
+                        frames = {
+                            love.graphics.newQuad(
+                            tonumber(anim.frames[1]),
+                            tonumber(anim.frames[2]),
+                            tonumber(frameSize[1][1]),
+                            tonumber(frameSize[1][2]),
+                            spriteSheet:getDimensions())
+                        }
+                    end
                 elseif type(anim.frames) == "table" then
                     for k, frame in pairs(anim.frames) do
                         if tonumber(frame[1]) then
-                            frames[#frames + 1] = love.graphics.newQuad(
-                            tonumber(frame[1]),
-                            tonumber(frame[2]),
-                            tonumber(frameSize[k % #frameSize + 1][1]),
-                            tonumber(frameSize[k % #frameSize + 1][2]),
-                            spriteSheet:getDimensions())
+                            if loadingAssets then
+                                loadingCallbacks[#loadingCallbacks + 1] = function()
+                                    frames[#frames + 1] = love.graphics.newQuad(
+                                    tonumber(frame[1]),
+                                    tonumber(frame[2]),
+                                    tonumber(frameSize[k % #frameSize + 1][1]),
+                                    tonumber(frameSize[k % #frameSize + 1][2]),
+                                    spriteSheet:getDimensions())
+                                end
+                            else
+                                frames[#frames + 1] = love.graphics.newQuad(
+                                tonumber(frame[1]),
+                                tonumber(frame[2]),
+                                tonumber(frameSize[k % #frameSize + 1][1]),
+                                tonumber(frameSize[k % #frameSize + 1][2]),
+                                spriteSheet:getDimensions())
+                            end
                         elseif type(frame) == "string" then
                             frames[#frames + 1] = love.graphics.newImage(frame)
                         end
@@ -291,21 +318,57 @@ sprite = sprite or {
                 else
                     error(("Frames must be a table or string, is a %s"):format(type(anim.frames)))
                 end
-                self.animations[name] = animation {
-                    frames = frames,
-                    frameDurations = anim.frameDurations,
-                    self = self,
-                    colors = anim.colors,
-                    sprite = sprite
-                }
+                if loadingAssets then
+                    loadingCallbacks[#loadingCallbacks + 1] = function()
+                        self.animations[name] = animation {
+                            frames = frames,
+                            frameDurations = anim.frameDurations,
+                            self = self,
+                            colors = anim.colors,
+                            sprite = sprite
+                        }
+                    end
+                else
+                    self.animations[name] = animation {
+                        frames = frames,
+                        frameDurations = anim.frameDurations,
+                        self = self,
+                        colors = anim.colors,
+                        sprite = sprite
+                    }
+                end
             end
         end
     end,
+    leftOx = function(self)
+        --- Returns what you would set ox to in order to rotate the sprite about its left side.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+        return self.flipHorizontal and -self.w / self.sx or 0
+    end,
     centerOx = function(self)
+        --- Returns what you would set ox to in order to rotate the sprite about its center.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
         return self.flipHorizontal and -self.w / 2 / self.sx or self.w / 2 / self.sx
     end,
+    rightOx = function(self)
+        --- Returns what you would set ox to in order to rotate the sprite about its right side.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+        return self.flipHorizontal and 0 or -self.w / self.sx
+    end,
+    topOy = function(self)
+        --- Returns what you would set oy to in order to rotate the sprite about its top.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+        return self.flipVertical and -self.h / self.sy or 0
+    end,
     centerOy = function(self)
+        --- Returns what you would set oy to in order to rotate the sprite about its center.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
         return self.flipVertical and -self.h / 2 / self.sy or self.h / 2 / self.sy
+    end,
+    bottomOy = function(self)
+        --- Returns what you would set oy to in order to rotate the sprite about its bottom.
+        assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+        return self.flipVertical and 0 or -self.h / self.sy
     end,
     type = "sprite"
 }

@@ -25,11 +25,14 @@ GUI = GUI or {
             widgets = {},
             sprites = {},
             init = function(self)
+                if next(GUI.menus.main.widgets) then
+                    return
+                end
                 local font = love.graphics.newFont(love.window.toPixels(24))
                 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
                 local btnWidth, btnHeight = 400, 55
                 local oldStyle = component.style
-                gooi.setStyle{ font = font }
+                gooi.setStyle { font = font }
                 self.sprites.mainTitle = sprite {
                     x = borderX,
                     y = borderY,
@@ -111,6 +114,9 @@ GUI = GUI or {
             widgets = {},
             sprites = {},
             init = function(self)
+                if next(GUI.menus.soundboard.widgets) then
+                    return
+                end
                 self.widgets.btnAirRaidSiren = gooi.newButton("Air Raid Siren", borderX, borderY, btnWidth, btnHeight)
                 :onRelease(function()
                     audioHandler.play "air_raid_siren"
@@ -155,6 +161,9 @@ GUI = GUI or {
             widgets = {},
             sprites = {},
             init = function(self)
+                if next(GUI.menus.credits.widgets) then
+                    return
+                end
                 --TODO: Credits
                 self.widgets.btnBack = btnBack
                 btnBack.visible = true
@@ -170,22 +179,27 @@ GUI = GUI or {
             widgets = {},
             sprites = {},
             init = function(self)
+                if next(GUI.menus.pause.widgets) then
+                    return
+                end
                 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-                local btnWidth, btnHeight = w*.8, h*.075
+                local btnWidth, btnHeight = w * .8, h * .075
                 local font = love.graphics.newFont(love.window.toPixels(24))
                 local oldStyle = component.style
-                gooi.setStyle{ font = font }
-                self.widgets.btnResume = gooi.newButton("Resume", w*.1, h*.35, btnWidth, btnHeight)
+                gooi.setStyle { font = font }
+                self.widgets.btnResume = gooi.newButton("Resume", w * .1, h * .35, btnWidth, btnHeight)
                 :onRelease(GUI.unpause)
-                self.widgets.btnSettings = gooi.newButton("Settings", w*.1, h*.45, btnWidth, btnHeight)
+                self.widgets.btnSettings = gooi.newButton("Settings", w * .1, h * .45, btnWidth, btnHeight)
                 :onRelease(function()
-                    GUI.changeMenu"settings"
+                    GUI.changeMenu "settings"
                 end)
-                self.widgets.btnQuit = gooi.newButton("Quit", w*.1, h*.55, btnWidth, btnHeight)
+                self.widgets.btnQuit = gooi.newButton("Quit", w * .1, h * .55, btnWidth, btnHeight)
                 :onRelease(function()
-                    GUI.changeMenu"main"
+                    GUI.changeMenu "main"
                     scene.clearAll()
                     GUI.unpause()
+                    parser.lock()
+                    scene.clearText()
                 end)
                 gooi.setStyle(oldStyle)
             end
@@ -196,20 +210,22 @@ GUI = GUI or {
         GUI.sprites = tablex.merge(sprites, GUI.sprites or {}, true)
     end,
     addMenu = function(menu, name)
-        if type(menu) == "function" then
-            if GUI.menus[name] then
-                print(("Warning: Overriding menu \"%s\"!"):format(name))
-            end
-            GUI.menus[name] = menu
+        assert(type(menu) == "function", ("Function expected, got %s."):format(type(menu)))
+        assert(type(name) == "string", ("String expected, got %s."):format(type(name)))
+        if GUI.menus[name] then
+            print(("Warning: Overriding menu \"%s\"!"):format(name))
         end
+        GUI.menus[name] = menu
     end,
     showMenu = function(menuName)
         local newMenu = GUI.menus[menuName]
         assert(newMenu, ("Menu name \"%s\" not found."):format(menuName))
-        if next(newMenu.widgets) or next(newMenu.sprites) then
+        if next(newMenu.widgets) then
             for _, v in pairs(newMenu.widgets) do
                 v.visible = true
             end
+        end
+        if next(newMenu.sprites) then
             for _, v in pairs(newMenu.sprites) do
                 v.visible = true
             end
@@ -218,24 +234,24 @@ GUI = GUI or {
         end
     end,
     hideMenu = function(menuName)
+        assert(type(menuName) == "string", ("String expected, got %s."):format(menuName))
         local currentMenu = GUI.menus[menuName]
-        for _, v2 in pairs(currentMenu.widgets) do
-            v2.visible = false
+        assert(currentMenu, ("No menu with name %s found."):format(menuName))
+        for _, v in pairs(currentMenu.widgets) do
+            v.visible = false
         end
-        for _, v2 in pairs(currentMenu.sprites) do
-            v2.visible = false
+        for _, v in pairs(currentMenu.sprites) do
+            v.visible = false
         end
     end,
     changeMenu = function(menuName)
-        if menuName == "pause" then
-            error("Cannot switch to the pause menu via changeMenu! Use pause or unpause instead!")
-        end
+        assert(menuName ~= "pause", "Cannot switch to the pause menu via changeMenu! Use pause or unpause instead!")
         GUI.hideMenu(GUI.currentMenu)
         GUI.currentMenu = menuName
         GUI.showMenu(menuName)
     end,
     init = function()
-        for k,v in pairs(GUI.menus) do
+        for k, v in pairs(GUI.menus) do
             v:init()
             GUI.hideMenu(k)
         end
@@ -243,7 +259,7 @@ GUI = GUI or {
     end,
     pause = function()
         if GUI.currentMenu == "game" then
-            GUI.showMenu"pause"
+            GUI.showMenu "pause"
             paused = true
             local blurTime = .25
             local blurRadius = 5
@@ -265,13 +281,13 @@ GUI = GUI or {
                 cancelFct1()
                 cancelFct2()
             end
-            scheduler.pause"default"
-            scheduler.pause"camera"
+            scheduler.pause "default"
+            scheduler.pause "camera"
             audioHandler.pauseAll()
         end
     end,
     unpause = function()
-        GUI.hideMenu"pause"
+        GUI.hideMenu "pause"
         paused = false
         if type(cancelPause) == "function" then
             cancelPause()
@@ -291,15 +307,15 @@ GUI = GUI or {
             effects.vignette:set("opacity", 0)
             effects.desaturate:set("strength", 0)
         end, "GUI")
-        scheduler.resume"default"
-        scheduler.resume"camera"
+        scheduler.resume "default"
+        scheduler.resume "camera"
         audioHandler.resumeAll()
     end,
     paused = function()
         return paused
     end,
     draw = function()
-        sprite.drawGroup"GUI"
+        sprite.drawGroup "GUI"
         gooi.draw()
     end,
     mousepressed = function()
@@ -309,7 +325,7 @@ GUI = GUI or {
         gooi.released()
     end,
     startGame = function()
-        error"GUI.startGame is undefined!"
+        error "GUI.startGame is undefined!"
     end,
     textinput = gooi.textinput,
     keypressed = gooi.keypressed,

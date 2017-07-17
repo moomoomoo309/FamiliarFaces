@@ -55,6 +55,7 @@ function love.load()
     GUI.startGame = function()
         bathroom:show()
         enterLocked = false
+        parser.unlock()
     end
 
     loader.start(function()
@@ -62,6 +63,7 @@ function love.load()
         for _, v in pairs(loadingCallbacks) do
             v()
         end
+        loadingCallbacks = nil
         --Initialize the GUI
         GUI.init()
     end)
@@ -73,7 +75,7 @@ local function moveNext()
     --Advance the scene
     lastScene = currentScene
     currentScene = followingScene[currentScene]
-    if not currentScene then
+    if not currentScene then --Prevent the game from crashing
         return
     end
 
