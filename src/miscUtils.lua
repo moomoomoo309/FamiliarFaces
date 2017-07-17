@@ -1,7 +1,10 @@
 map = map or require "map"
 
+
+---Returns if all of the arguments are truthy.
+--@param ... The values to check for truthiness.
+--@return If all of the arguments are truthy.
 local function all(...)
-    ---Returns if all of the arguments are truthy.
     if select("#", ...) == 1 then
         return (...) and true or false
     elseif (...) then
@@ -22,28 +25,41 @@ local function all(args)
 end
 --]]
 
+---Returns if all of the arguments passed in ... satisfy fct.
+--@param fct The function to run on each value.
+--@param ... The values to run fct on.
+--@return If all of the arguments passed in ... satisfy fct.
 local function allCondition(fct, ...)
-    ---Returns if all of the arguments passed in ... satisfy fct.
     return all(map(fct, 1, ...))
 end
 
+---Returns if any arguments are true.
+--@param ... The values to check for truthiness.
+--@return If any arguments are true.
 local function any(...)
-    ---Returns if any arguments are true.
     return ((...) or any(select(2, ...))) and true or false
 end
 
+---Returns if anything passed in ... satisfy fct.
+--@param fct The function to run on each value.
+--@param ... The values to run fct on.
+--@return If all of the arguments passed in ... satisfy fct.
 local function anyCondition(fct, ...)
-    ---Returns if anything passed in ... satisfy fct.
     return any(map(fct, 1, ...))
 end
 
+---Rounds a floating point number to the nearest integer.
+--@param num The number to round
+--@return The nearest integer to num.
 function math.round(num)
-    ---Rounds a floating point number to the nearest integer.
     return num >= 0 and math.floor(num + .5) or math.ceil(num - .5)
 end
 
+---Works like math.random(low,high), but returns a float instead of an int.
+--@param low (Optional) The lower bound of the number.
+--@param high (Optional) The upper bound of the number.
+--@return A random number in the range (low,high) if low and high are provided, in (0,low) if low is provided, and (0,1) if neither are.
 function math.frandom(low, high)
-    ---Works like math.random(low,high), but returns a float instead of an int.
     if low and high then
         return math.random(low, high-1) + math.random() --returns a value in low < value < high
     elseif low then

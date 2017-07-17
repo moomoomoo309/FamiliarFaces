@@ -1,7 +1,7 @@
 local elevator
 camera = camera or require "camera"
 scene = scene or require "scene"
-local elevatorScene = scene.load"elevator"
+local elevatorScene = scene.load "elevator"
 local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
 local locked = true
 local transitionIndex = 1
@@ -159,8 +159,9 @@ local transitions = {
 
 local translationIndex = 1
 
+--- Moves the light by one window, flipping it if flipHorizontal appears.
+-- @return nil
 local function moveElevatorLight()
-    --- Moves the light by one window, flipping it if flipHorizontal appears.
     if type(lightOffsets[translationIndex]) == "table" then
         elevatorScene.light.x = elevatorScene.light.x + lightOffsets[translationIndex][1]
         elevatorScene.light.y = elevatorScene.light.y + lightOffsets[translationIndex][2]
@@ -172,47 +173,57 @@ local function moveElevatorLight()
     translationIndex = translationIndex + 1
 end
 
-elevator = {
-    start = function()
-        --- Makes the elevator light and the camera start moving.
-        if transitionIndex > #transitions then
-            print"At the top"
-            return
-        end
-        local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
-        for transIndex = 1, transitions[transitionIndex] do
-            if lightOffsets[translationIndex + transIndex - 1] ~= "flipHorizontal" then
-                totalDx = totalDx + lightOffsets[translationIndex + transIndex - 1][1]
-                totalDy = totalDy + lightOffsets[translationIndex + transIndex - 1][2]
-            end
-        end
-        local startX, startY = cam.x, cam.y
-        local currentOffset = 0
-        local lastOffset = 0
-        local panFct = function(self, percentProgress)
-            currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex-1]))
-            if currentOffset ~= lastOffset then
-                lastOffset = currentOffset
-                moveElevatorLight()
-            end
-        end
-        cam:pan(startX - totalDx, startY - totalDy, .5+.125*(transitions[transitionIndex]-1), "cos", panFct)
-        locked = true
-        scheduler.after(.5+.125*(transitions[transitionIndex]-1), function()
-            locked = false
-        end)
-        moveElevatorLight()
-        transitionIndex = transitionIndex + 1
-    end,
-    locked = function()
-        return locked
-    end,
-    lock = function()
-        locked = true
-    end,
-    unlock = function()
-        locked = false
+elevator = {}
+
+--- Makes the elevator light and the camera start moving.
+-- @return nil
+function elevator.start()
+    if transitionIndex > #transitions then
+        print "At the top"
+        return
     end
-}
+    local totalDx, totalDy = 0, 0 --Total amount the camera will move from this function call
+    for transIndex = 1, transitions[transitionIndex] do
+        if lightOffsets[translationIndex + transIndex - 1] ~= "flipHorizontal" then
+            totalDx = totalDx + lightOffsets[translationIndex + transIndex - 1][1]
+            totalDy = totalDy + lightOffsets[translationIndex + transIndex - 1][2]
+        end
+    end
+    local startX, startY = cam.x, cam.y
+    local currentOffset = 0
+    local lastOffset = 0
+    local panFct = function(self, percentProgress)
+        currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex - 1]))
+        if currentOffset ~= lastOffset then
+            lastOffset = currentOffset
+            moveElevatorLight()
+        end
+    end
+    cam:pan(startX - totalDx, startY - totalDy, .5 + .125 * (transitions[transitionIndex] - 1), "cos", panFct)
+    locked = true
+    scheduler.after(.5 + .125 * (transitions[transitionIndex] - 1), function()
+        locked = false
+    end)
+    moveElevatorLight()
+    transitionIndex = transitionIndex + 1
+end
+
+--- Returns if the elevator is locked.
+-- @return If the elevator is locked.
+function elevator.locked()
+    return locked
+end
+
+--- Locks the elevator.
+-- @return nil
+function elevator.lock()
+    locked = true
+end
+
+--- Unlocks the elevator.
+-- @return nil
+function elevator.unlock()
+    locked = false
+end
 
 return elevator

@@ -9,6 +9,12 @@ local defaultPaddingX, defaultPaddingY = 20, 10
 local scene
 local lastYOffset = 0
 
+--- The internal function used by printText to write to the screen.
+-- @param text The text to write to the screen.
+-- @param paddingX How many pixels from the left/right side should be left by the text.
+-- @param paddingY How many pixels from the top/bottom side should be left by the text.
+-- @param i Which row the text should be on (1-however many fit on the screen)
+-- @param color (Optional) What color the text should be. Defaults to white.
 local function printText2(text, paddingX, paddingY, i, color)
     assert(type(text) == "string", ("String expected, got %s."):format(type(text)))
     assert(type(paddingX) == "number", ("Number expected, got %s."):format(type(paddingX)))
@@ -41,202 +47,254 @@ local function printText2(text, paddingX, paddingY, i, color)
     return yOffset
 end
 
-scene = {
-    scenes = {},
-    currentScenes = {},
-    printText = function(self, text, reset, color)
-        --- Print the given text on the screen, moving the camera down when the text gets off screen.
-        --- Make reset true to move the text back to the top of the screen.
-        local yOffset
-        assert(color == nil or type(color) == "table", ("Color must be nil or a table, was a %s."):format(type(color)))
-        if type(color) == "table" then
-            assert(#color == 3 or #color == 4, ("Color must be of length 3 or 4, had length %d."):format(#color))
-        end
-        if reset then
-            i = 0
-            yOffset = 0
-        end
-        yOffset = printText2(text, defaultPaddingX, defaultPaddingY, i, color)
-        if yOffset ~= lastYOffset then
-            camera.inst:pan(camera.inst.x, camera.inst.y + yOffset - lastYOffset, 0)
-            lastYOffset = yOffset
-        end
-        i = i + 1
-    end,
-    clearText = function()
-        --- Clears all visible text from printText.
-        for _, v in pairs(visibleText) do
-            v.visible = false --Make the sprites invisible so they disappear before garbage collection.
-        end
-        visibleText = {} --Release all of the references to the sprites, causing them to get collected.
-    end,
-    new = function(self, name)
-        --- Creates a new scene.
-        name = name == nil and self or name
-        assert(type(name) == "string", ("String expected, got %s."):format(type(name)))
-        scene.scenes[name] = scene.scenes[name] or { class = scene, name = name }
-        return setmetatable(scene.scenes[name], { __index = scene.scenes[name].class })
-    end,
-    set = function(self, name, sceneName, sprite)
-        --- Adds a sprite to the given scene.
-        if not sprite then
-            name, sceneName, sprite = self, name, sceneName
-        end
-        assert(type(name) == "string", ("Name expected, got %s."):format(type(name)))
-        assert(type(sceneName) == "string", ("SceneName expected, got %s."):format(type(sceneName)))
-        assert(type(sprite) == "table" and sprite.type == "sprite", ("Sprite expected, got %s."):format(type(sprite) == "table" and sprite.type or type(sprite)))
-        if not scene.scenes[name] then
-            scene:new(name)
-        end
-        scene.scenes[name][sceneName] = sprite
-    end,
-    clear = function(self, sceneName)
-        --- Clears the scene with the given name, or self if called with a scene.
-        sceneName = sceneName or self.name
-        assert(sceneName, "Expected scene or scene name, got nil.")
-        local thisScene = scene.scenes[sceneName]
-        assert(thisScene, ("No scene with name %s found."):format(sceneName))
-        if thisScene.onClear then
-            thisScene:onClear()
-        end
-        for k, v in pairs(thisScene) do
-            if type(v) == "table" and k ~= "class" then
-                v.visible = false
-            end
-        end
-        for i = 1, #scene.currentScenes do
-            if scene.currentScenes[i] == thisScene then
-                table.remove(scene.currentScenes, i)
-                break
-            end
-        end
-    end,
-    show = function(self, sceneName)
-        --- Shows the scene with the given name, or self if called with a scene.
-        assert(sceneName or self ~= scene, "Name or object expected, got nil.")
-        assert(type(sceneName) == "string" or sceneName == nil, ("Expected string, got %s"):format(type(sceneName)))
-        scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
-        local foundScene = false
-        for i = 1, #scene.currentScenes do
-            local currentScene = scene.scenes[scene.currentScenes[i].name]
-            if currentScene.onShow then
-                currentScene:onShow()
-            end
-            for k, v in pairs(currentScene) do
-                if type(v) == "table" and k ~= "class" then
-                    foundScene = true
-                    v.visible = true
-                end
-            end
-        end
-        assert(foundScene, ("No scene with name %s found."):format(sceneName))
-    end,
-    clearAll = function()
-        --- Clears all scenes.
-        for _, scene in pairs(scene.currentScenes) do
-            scene:clear()
-        end
-    end,
-    visible = function()
-        --- Returns which scenes are visible.
-        return scene.currentScenes
-    end,
-    isVisible = function(self)
-        --- Returns if self is visible.
-        assert(self, "What are you trying to check the visibility of?")
-        assert(self.name, "Self has no name.")
-        assert(scene.scenes[self.name], ("No scene by the name %s exists."):format(self.name))
-        for k, v in pairs(scene.scenes[self.name]) do
-            assert(v, ("Scene %s contains no elements!"):format(self.name))
-            if type(v) == "table" then
-                return v.visible
-            end
-        end
-    end,
-    load = function(self, sceneName)
-        if not sceneName then
-            sceneName = self
-        end
-        assert(sceneName, "Cannot load scene without a name.")
-        self = scene
-        if not self.scenes[sceneName] then
-            local sceneTbl = dofile("scenes/" .. sceneName .. ".scene")
-            assert(sceneTbl, ("Could not load scene %s at scenes/%s.scene. Is the file malformed?"):format(sceneName,sceneName))
-            local newScene = self:new(sceneName)
-            for k, item in pairs(sceneTbl) do
-                if type(item) == "table" then
-                    local itemName = item.name
-                    item.name = nil
-                    item.visible = false
-                    local itemConstructor = item.type
-                    local itemSprite = itemConstructor(item)
-                    newScene:set(sceneName, itemName, itemSprite)
-                else
-                    newScene[k] = item
-                end
-            end
-            self.scenes[sceneName] = newScene
-        end
-        return self.scenes[sceneName]
-    end,
-    circularFadeOut = function(seconds)
-        assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-        parser.lock()
-        scheduler.before(seconds, function(timePassed)
-            effects.vignette:set("opacity", timePassed / seconds)
-            effects.vignette:set("softness", timePassed / seconds)
-            effects.vignette:set("radius", 1 - timePassed / seconds)
-        end)
-        scheduler.after(seconds, function()
-            parser.unlock()
-            scene.clearAll()
-            effects.vignette:set("radius", .25)
-            effects.vignette:set("opacity", 0)
-            effects.vignette:set("softness", .45)
-        end)
-    end,
-    circularFadeIn = function(seconds)
-        assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-        parser.lock()
-        scheduler.before(seconds, function(timePassed)
-            effects.vignette:set("opacity", 1 - timePassed / seconds)
-            effects.vignette:set("softness", 1 - timePassed / seconds)
-            effects.vignette:set("radius", timePassed / seconds)
-        end)
-        scheduler.after(seconds, function()
-            parser.unlock()
-            effects.vignette:set("radius", .25)
-            effects.vignette:set("opacity", 0)
-            effects.vignette:set("softness", .45)
-        end)
-    end,
-    fadeOut = function(seconds)
-        assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-        parser.lock()
-        scheduler.before(seconds, function(timePassed)
-            effects.vignette:set("opacity", timePassed / seconds)
-        end)
-        scheduler.after(seconds, function()
-            parser.unlock()
-            scene.clearAll()
-            effects.vignette:set("radius", .25)
-            effects.vignette:set("opacity", 0)
-            effects.vignette:set("softness", .45)
-        end)
-    end,
-    fadeIn = function(seconds)
-        assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-        parser.lock()
-        scheduler.before(seconds, function(timePassed)
-            effects.vignette:set("opacity", 1 - timePassed / seconds)
-        end)
-        scheduler.after(seconds, function()
-            parser.unlock()
-            effects.vignette:set("radius", .25)
-            effects.vignette:set("opacity", 0)
-            effects.vignette:set("softness", .45)
-        end)
+scene = { scenes = {}, currentScenes = {} }
+
+--- Print the given text on the screen, moving the camera down when the text gets off screen.
+--- Make reset true to move the text back to the top of the screen.
+-- @param self unused
+-- @param text The text to print on screen
+-- @param reset (Optional) If true, will reset the text back to the top of the screen.
+-- @param color (Optional) The color to make the text. White by default.
+-- @return nil
+function scene.printText(self, text, reset, color)
+    local yOffset
+    assert(color == nil or type(color) == "table", ("Color must be nil or a table, was a %s."):format(type(color)))
+    if type(color) == "table" then
+        assert(#color == 3 or #color == 4, ("Color must be of length 3 or 4, had length %d."):format(#color))
     end
-}
+    if reset then
+        i = 0
+        yOffset = 0
+    end
+    yOffset = printText2(text, defaultPaddingX, defaultPaddingY, i, color)
+    if yOffset ~= lastYOffset then
+        camera.inst:pan(camera.inst.x, camera.inst.y + yOffset - lastYOffset, 0)
+        lastYOffset = yOffset
+    end
+    i = i + 1
+end
+
+--- Clears all visible text from printText.
+-- @return nil
+function scene.clearText()
+    for _, v in pairs(visibleText) do
+        v.visible = false --Make the sprites invisible so they disappear before garbage collection.
+    end
+    visibleText = {} --Release all of the references to the sprites, causing them to get collected.
+end
+
+--- Creates a new scene.
+-- @param self (Unused) Allows scene.new or scene:new to be called.
+-- @param name the name of the new scene
+-- @return nil
+function scene:new(name)
+    name = name == nil and self or name
+    assert(type(name) == "string", ("String expected, got %s."):format(type(name)))
+    scene.scenes[name] = scene.scenes[name] or { class = scene, name = name }
+    return setmetatable(scene.scenes[name], { __index = scene.scenes[name].class })
+end
+
+--- Adds a sprite to the given scene.
+-- @param self (Unused) Allows scene.set or scene:set to be called.
+-- @param name The name of the scene to set the sprite to.
+-- @param sceneName The name of the sprite within the scene.
+-- @param sprite The sprite to insert into the scene.
+-- @return nil
+function scene.set(self, name, sceneName, sprite)
+    if not sprite then
+        name, sceneName, sprite = self, name, sceneName
+    end
+    assert(type(name) == "string", ("Name expected, got %s."):format(type(name)))
+    assert(type(sceneName) == "string", ("SceneName expected, got %s."):format(type(sceneName)))
+    assert(type(sprite) == "table" and sprite.type == "sprite", ("Sprite expected, got %s."):format(type(sprite) == "table" and sprite.type or type(sprite)))
+    if not scene.scenes[name] then
+        scene:new(name)
+    end
+    scene.scenes[name][sceneName] = sprite
+end
+
+--- Clears the scene with the given name, or self if called with a scene.
+-- @param self A scene or the name of the scene.
+-- @param sceneName (Optional) The name of the scene, if a reference to the scene is not available.
+-- @return nil
+function scene.clear(self, sceneName)
+    sceneName = sceneName or self.name
+    assert(sceneName, "Expected scene or scene name, got nil.")
+    local thisScene = scene.scenes[sceneName]
+    assert(thisScene, ("No scene with name %s found."):format(sceneName))
+    if thisScene.onClear then
+        thisScene:onClear()
+    end
+    for k, v in pairs(thisScene) do
+        if type(v) == "table" and k ~= "class" then
+            v.visible = false
+        end
+    end
+    for i = 1, #scene.currentScenes do
+        if scene.currentScenes[i] == thisScene then
+            table.remove(scene.currentScenes, i)
+            break
+        end
+    end
+end
+
+--- Shows the scene with the given name, or self if called with a scene.
+-- @param self A scene or the name of the scene.
+-- @param sceneName (Optional) The name of the scene, if a reference to the scene is not available.
+-- @return nil
+function scene.show(self, sceneName)
+    assert(sceneName or self ~= scene, "Name or object expected, got nil.")
+    assert(type(sceneName) == "string" or sceneName == nil, ("Expected string, got %s"):format(type(sceneName)))
+    scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
+    local foundScene = false
+    for i = 1, #scene.currentScenes do
+        local currentScene = scene.scenes[scene.currentScenes[i].name]
+        if currentScene.onShow then
+            currentScene:onShow()
+        end
+        for k, v in pairs(currentScene) do
+            if type(v) == "table" and k ~= "class" then
+                foundScene = true
+                v.visible = true
+            end
+        end
+    end
+    assert(foundScene, ("No scene with name %s found."):format(sceneName))
+end
+
+--- Clears all scenes.
+-- @return nil
+function scene.clearAll()
+    for _, scene in pairs(scene.currentScenes) do
+        scene:clear()
+    end
+end
+
+--- Returns which scenes are visible.
+-- @return which scenes are visible.
+function scene.visible()
+    return scene.currentScenes
+end
+
+--- Returns if self is visible.
+-- @param self A scene.
+-- @return If self is visible.
+function scene.isVisible(self)
+    assert(self, "What are you trying to check the visibility of?")
+    assert(self.name, "Self has no name.")
+    assert(scene.scenes[self.name], ("No scene by the name %s exists."):format(self.name))
+    for k, v in pairs(scene.scenes[self.name]) do
+        assert(v, ("Scene %s contains no elements!"):format(self.name))
+        if type(v) == "table" then
+            return v.visible
+        end
+    end
+end
+
+--- Loads the scene file at the given location.
+-- @param self (Unused) Allows scene.load or scene:load to be called.
+-- @param sceneName The path to the scene.
+-- @return nil
+function scene:load(sceneName)
+    if not sceneName then
+        sceneName = self
+    end
+    assert(sceneName, "Cannot load scene without a name.")
+    self = scene
+    if not self.scenes[sceneName] then
+        local sceneTbl = dofile("scenes/" .. sceneName .. ".scene")
+        assert(sceneTbl, ("Could not load scene %s at scenes/%s.scene. Is the file malformed?"):format(sceneName, sceneName))
+        local newScene = self:new(sceneName)
+        for k, item in pairs(sceneTbl) do
+            if type(item) == "table" then
+                local itemName = item.name
+                item.name = nil
+                item.visible = false
+                local itemConstructor = item.type
+                local itemSprite = itemConstructor(item)
+                newScene:set(sceneName, itemName, itemSprite)
+            else
+                newScene[k] = item
+            end
+        end
+        self.scenes[sceneName] = newScene
+    end
+    return self.scenes[sceneName]
+end
+
+--- Fades out the game using a vignette over seconds, then clears all scenes.
+-- @param seconds How many seconds it should take to fade out.
+-- @return nil
+function scene.circularFadeOut(seconds)
+    assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
+    parser.lock()
+    scheduler.before(seconds, function(timePassed)
+        effects.vignette:set("opacity", timePassed / seconds)
+        effects.vignette:set("softness", timePassed / seconds)
+        effects.vignette:set("radius", 1 - timePassed / seconds)
+    end)
+    scheduler.after(seconds, function()
+        parser.unlock()
+        scene.clearAll()
+        effects.vignette:set("radius", .25)
+        effects.vignette:set("opacity", 0)
+        effects.vignette:set("softness", .45)
+    end)
+end
+
+--- Fades in the game using a vignette over seconds.
+-- @param seconds How many seconds it should take to fade in.
+-- @return nil
+function scene.circularFadeIn(seconds)
+    assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
+    parser.lock()
+    scheduler.before(seconds, function(timePassed)
+        effects.vignette:set("opacity", 1 - timePassed / seconds)
+        effects.vignette:set("softness", 1 - timePassed / seconds)
+        effects.vignette:set("radius", timePassed / seconds)
+    end)
+    scheduler.after(seconds, function()
+        parser.unlock()
+        effects.vignette:set("radius", .25)
+        effects.vignette:set("opacity", 0)
+        effects.vignette:set("softness", .45)
+    end)
+end
+
+--- Fades out the game over seconds, then clears all scenes.
+-- @param seconds How many seconds it should take to fade out.
+-- @return nil
+function scene.fadeOut(seconds)
+    assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
+    parser.lock()
+    effects.vignette:set("radius", 0)
+    scheduler.before(seconds, function(timePassed)
+        effects.vignette:set("opacity", timePassed / seconds)
+    end)
+    scheduler.after(seconds, function()
+        parser.unlock()
+        scene.clearAll()
+        effects.vignette:set("radius", .25)
+        effects.vignette:set("opacity", 0)
+        effects.vignette:set("softness", .45)
+    end)
+end
+
+--- Fades in the game over seconds.
+-- @param seconds How many seconds it should take to fade in.
+-- @return nil
+function scene.fadeIn(seconds)
+    assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
+    parser.lock()
+    scheduler.before(seconds, function(timePassed)
+        effects.vignette:set("opacity", 1 - timePassed / seconds)
+    end)
+    scheduler.after(seconds, function()
+        parser.unlock()
+        effects.vignette:set("radius", .25)
+        effects.vignette:set("opacity", 0)
+        effects.vignette:set("softness", .45)
+    end)
+end
 
 return scene

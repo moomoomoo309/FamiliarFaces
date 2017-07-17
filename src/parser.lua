@@ -7,6 +7,10 @@ stringx = stringx or require "pl.stringx"
 
 local locked = true
 
+--- Prompts the player for input between dialogue options.
+-- @param tbl The script
+-- @param process The coroutine the parser is running from.
+-- @return The choice the player picked.
 local function promptPlayer(tbl, process)
     local choices = {}
     for k, v in pairs(tbl) do
@@ -22,10 +26,10 @@ local function promptPlayer(tbl, process)
         end
         buttons = nil
     end
+
     local choice
     for k in pairs(choices) do
-        local btn = gooi.newButton(k)
-        :onRelease(function(self)
+        local btn = gooi.newButton(k):onRelease(function(self)
             choice = choices[self.text]
             clearButtons()
             coroutine.resume(process)
@@ -40,6 +44,8 @@ local function promptPlayer(tbl, process)
     return choice
 end
 
+--- Contains all commands recognized by the parser.
+-- @see processLine
 local commands = {
     new = function()
         scene:clearText()
@@ -61,16 +67,17 @@ local commands = {
     end
 }
 
-
+--- Contains any prefixes recognized by the parser.
+-- @see processLine
 local prefixes = {
     ["/r"] = function(val)
-        assert(type(val)=="string", ("String expected, got %s."):format(type(val)))
+        assert(type(val) == "string", ("String expected, got %s."):format(type(val)))
         scene:printText(val:sub(3), false, { 255, 0, 0 })
         coroutine.yield()
     end,
     ["/t{"] = function(val)
         local color = unpack(stringx.split(val:sub(3, val:find("}", 4, true)), ","))
-        assert(type(color)=="table", ("Table expected, got %s."):format(type(color)))
+        assert(type(color) == "table", ("Table expected, got %s."):format(type(color)))
         assert(#color == 3 or #color == 4, ("Length of color table must be 3 or 4, was %d."):format(#color))
         scene:printText(val:sub(3), false, color)
         coroutine.yield()
@@ -85,6 +92,10 @@ local prefixes = {
     end
 }
 
+--- Processes a string from the script.
+-- @param val The string to process
+-- @param process The coroutine the parser is being run from.
+-- @return nil
 local function processLine(val, tbl)
     assert(type(val) == "string", ("Expected string, got %s."):format(type(val)))
     local prefixed = false
@@ -102,6 +113,10 @@ local function processLine(val, tbl)
     end
 end
 
+--- Processes the next value in the script.
+-- @param tbl The script.
+-- @param process The coroutine the parser is being run from.
+-- @return nil
 local function processVal(tbl, process)
     if type(tbl) == "table" then
         tbl.vars = tbl.vars or {}
@@ -119,18 +134,27 @@ local function processVal(tbl, process)
     end
 end
 
+--- Locks the parser.
+-- @return nil
 local lock = function()
     locked = true
 end
 
+--- Unlocks the parser.
+-- @return nil
 local unlock = function()
     locked = false
 end
 
+--- Returns whether the parser is locked or not.
+-- @reutrn Whether the parser is locked or not.
 local locked = function()
     return locked
 end
 
+--- Processes the file at the given path using require(). Returns a coroutine to the parser, and the table it's reading from, or false if it is unsuccessful.
+-- @param path The path to the file to parse.
+-- @return A coroutine to the parser, and the table it's reading from, or false if it is unsuccessful.
 local process = function(path)
     local processTbl = require(path)
     if type(processTbl) == "table" then

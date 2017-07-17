@@ -1,7 +1,5 @@
 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
 local museum
-local cancel = function()
-end
 audioHandler = audioHandler or require"audioHandler"
 museum = {
     {
@@ -21,10 +19,7 @@ museum = {
         type = sprite
     },
     onShow = function()
-        cancel = audioHandler.loop"museum"
+        museum.onCancel = audioHandler.loop"museum"
     end,
-    onClear = function()
-        cancel() --Don't simplify this to "onClear = cancel", the lazy evaluation is what makes this work.
-    end
 }
 return museum

@@ -89,7 +89,7 @@ local function moveNext()
 end
 
 local function checkControls()
-    if player:pressed"pause" then
+    if player:pressed "pause" then
         if GUI.paused() then
             GUI.unpause()
         else
@@ -98,11 +98,11 @@ local function checkControls()
     end
     if not GUI.paused() then
         if elevatorScene:isVisible() then
-            if player:pressed"moveElevator" and not elevator.locked() then
+            if player:pressed "moveElevator" and not elevator.locked() then
                 elevator.start()
             end
         end
-        if player:pressed"advanceScript" then
+        if player:pressed "advanceScript" then
             local tbl
             if not process then
                 process, tbl = parser.process "Script"
