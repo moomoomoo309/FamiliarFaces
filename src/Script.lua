@@ -1,3 +1,7 @@
+--- The script containing all of the dialogue and implementing most of the game flow.
+-- @module Script
+
+
 --TODO: Eye animation, eye asset, figure out how to do animation
 --TODO: Bathroom wave scene
 --TODO: Scene switching command
@@ -13,6 +17,7 @@ parser = parser or require "parser"
 scheduler = scheduler or require "scheduler"
 scene = scene or require "scene"
 
+
 local script
 script = {
     vars = { good = 0, outfit = "nice" }, --Easier to declare the variables beforehand so you don't have to check if they exist later.
@@ -27,24 +32,16 @@ script = {
     "Time to get ready for the day.",
     {
         ["I want to look nice"] = {
-            function()
-                script.vars.outfit = "nice"
-            end
+            "@store outfit nice"
         },
         ["Gray and drab"] = {
-            function()
-                script.vars.outfit = "gray"
-            end
+            "@store outfit gray"
         },
         ["Blocky and drab"] = {
-            function()
-                script.vars.outfit = "blocky"
-            end
+            "@store outfit blocky"
         },
         ["Attractive yet respectable"] = {
-            function()
-                script.vars.outfit = "attractive"
-            end
+            "@store outfit attractive"
         }
     },
     function()
@@ -150,9 +147,7 @@ script = {
     "/rI'm not terribly fond of the dark.",
     {
         Refuse = {
-            function(val, tbl)
-                script.vars.good = script.vars.good - 1
-            end,
+            "@add good 1",
             "Look I can’t go to work with someone else’s facial features on my arm.",
             "@SFX bap_2",
             "/rIm afraid I cannot read lips, and I’ve no ear on your body but please just don’t cover me.",
@@ -180,9 +175,7 @@ script = {
             "/rPlease.",
         },
         ["“Accept”"] = {
-            function()
-                script.vars.good = script.vars.good + 1
-            end,
+            "@add good 1",
             "*I nod",
             "Okay.",
             "/rThank you",
@@ -198,17 +191,13 @@ script = {
             "I wince slightly as I hear what sounds like a muffled groan escape the lips on my arm.",
             {
                 ["Uncover them"] = {
-                    function()
-                        script.vars.good = script.vars.good + 1
-                    end,
+                    "@add good 1",
                     "I slide the glove off my arm and remove the cotton balls from the mouth",
                     "/rThank you.",
                     "You're welcome now what are you on about? ",
                 },
                 ["Silence them"] = {
-                    function()
-                        script.vars.good = script.vars.good - 1
-                    end,
+                    "@subtract good 1",
                     "@SFX bap_distressed",
                     "I silence them",
                     "forcibly",
@@ -272,9 +261,7 @@ script = {
     "/rAll of my remaining facial features have manifested on your body",
     {
         ["Express Grievances"] = {
-            function()
-                script.vars.good = script.vars.good - 1
-            end,
+            "@subtract good 1",
             "This is terrible",
             "/rIs it?",
             "Yes. This simply isn’t normal.",
@@ -297,9 +284,7 @@ script = {
             }
         },
         ["Express excitement"] = {
-            function()
-                script.vars.good = script.vars.good + 1
-            end,
+            "@add good 1",
             "At this point, the more the merrier I suppose.",
             "But what should we do now?",
             "/rIm afraid I don't know.",
@@ -371,15 +356,11 @@ script = {
                 "/rIf you want.",
                 {
                     Yes = {
-                        function()
-                            script.vars.good = script.vars.good + 1
-                        end,
+                        "@add good 1",
                         "We shall"
                     },
                     ["We shan't"] = {
-                        function()
-                            script.vars.good = script.vars.good - 1
-                        end,
+                        "@subtract good 1",
                         "Let's see where things go"
                     }
                 }
@@ -400,9 +381,7 @@ script = {
                 "/rAt least now you can finally take a well-deserved work from break",
                 {
                     No = {
-                        function()
-                            script.vars.good = script.vars.good - 1
-                        end,
+                        "@subtract good 1",
                         "I can’t take a break. I’ve worked every day",
                         "And will work everyday",
                         "But now I can’t",
@@ -419,9 +398,7 @@ script = {
                         --cut to walking scene. The office should be closed while the museum is open",
                     },
                     Yes = {
-                        function()
-                            script.vars.good = script.vars.good + 1
-                        end,
+                        "@add good 1",
                         "You may be right.",
                         "I want to go to that museum.",
                         "/rHehe",
@@ -512,7 +489,9 @@ script = {
             "…",
             "…",
             "I feel lonely.",
-            --fade to black
+            function()
+                scene.fadeOut(5)
+            end,
             "@end",
         }
     end

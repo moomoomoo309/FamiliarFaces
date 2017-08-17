@@ -1,3 +1,6 @@
+--- A module containing a few utility functions: any, all, anyCondition, allCondition, math.round, math.frandom
+-- @module miscUtils
+
 map = map or require "map"
 
 
@@ -58,7 +61,7 @@ end
 ---Works like math.random(low,high), but returns a float instead of an int.
 --@param low (Optional) The lower bound of the number.
 --@param high (Optional) The upper bound of the number.
---@return A random number in the range (low,high) if low and high are provided, in (0,low) if low is provided, and (0,1) if neither are.
+--@return A random number in the range (low,high) if low and high are provided, in (0,low) if low is provided, or in (0,1) if neither are.
 function math.frandom(low, high)
     if low and high then
         return math.random(low, high-1) + math.random() --returns a value in low < value < high

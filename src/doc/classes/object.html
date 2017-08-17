@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="GUI.html">GUI</a></li>
+  <li><a href="animation.html">animation</a></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><a href="camera.html">camera</a></li>
+  <li><strong>object</strong></li>
+  <li><a href="scene.html">scene</a></li>
+  <li><a href="scheduler.html">scheduler</a></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>object</code></h1>
+<p>The "object" class, so to speak.</p>
+<p> Adds callbacks.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#object:addCallback">object:addCallback (key, fct)</a></td>
+	<td class="summary">Adds a callback to the given property (running the function when the property changes)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:triggerCallback">object:triggerCallback (property, value)</a></td>
+	<td class="summary">Triggers the callback for the given property, updating it to the passed value if not cancelled.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:defaultMetatable">object:defaultMetatable ()</a></td>
+	<td class="summary">Returns the default metatable for this object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:new">object:new (tbl)</a></td>
+	<td class="summary">Creates a new object using the values contained in tbl.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:setGlobalCallback">object:setGlobalCallback (fct)</a></td>
+	<td class="summary">Gives the object a global callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:hasGlobalCallback">object:hasGlobalCallback ()</a></td>
+	<td class="summary">Returns if this object has a global callback.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:removeGlobalCallback">object:removeGlobalCallback ()</a></td>
+	<td class="summary">Removes the global callback from the object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#object:extends">object:extends (className)</a></td>
+	<td class="summary">Returns if an object extends the given class.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "object:addCallback"></a>
+    <strong>object:addCallback (key, fct)</strong>
+    </dt>
+    <dd>
+    Adds a callback to the given property (running the function when the property changes)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">key</span>
+         The property to add the callback for.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run when key changes. Object and the new value will be passed as parameters to it.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:triggerCallback"></a>
+    <strong>object:triggerCallback (property, value)</strong>
+    </dt>
+    <dd>
+    Triggers the callback for the given property, updating it to the passed value if not cancelled.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">property</span>
+         The property to trigger callbacks for.
+        </li>
+        <li><span class="parameter">value</span>
+         What the new value of the property should be.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:defaultMetatable"></a>
+    <strong>object:defaultMetatable ()</strong>
+    </dt>
+    <dd>
+    Returns the default metatable for this object.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The default metatable for this object.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:new"></a>
+    <strong>object:new (tbl)</strong>
+    </dt>
+    <dd>
+    Creates a new object using the values contained in tbl.  Can be run using object(), object.new() or object:new().
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The parameters to the object. All of these values will be put into the object on initialization.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The created object.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:setGlobalCallback"></a>
+    <strong>object:setGlobalCallback (fct)</strong>
+    </dt>
+    <dd>
+    Gives the object a global callback.  This will remove the ability to use normal callbacks!
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fct</span>
+         The function to run when any property of the object changes.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:hasGlobalCallback"></a>
+    <strong>object:hasGlobalCallback ()</strong>
+    </dt>
+    <dd>
+    Returns if this object has a global callback.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If this object has a global callback.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:removeGlobalCallback"></a>
+    <strong>object:removeGlobalCallback ()</strong>
+    </dt>
+    <dd>
+    Removes the global callback from the object.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "object:extends"></a>
+    <strong>object:extends (className)</strong>
+    </dt>
+    <dd>
+    Returns if an object extends the given class.  Can be given the class name as a string, or a reference to the class itself.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">className</span>
+         A class's name as a string or a class.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If the object extends the given class.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="Script.html">Script</a></li>
+  <li><a href="color.html">color</a></li>
+  <li><a href="elevator.html">elevator</a></li>
+  <li><strong>miscUtils</strong></li>
+  <li><a href="parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/GUI.html">GUI</a></li>
+  <li><a href="../classes/animation.html">animation</a></li>
+  <li><a href="../classes/audioHandler.html">audioHandler</a></li>
+  <li><a href="../classes/camera.html">camera</a></li>
+  <li><a href="../classes/object.html">object</a></li>
+  <li><a href="../classes/scene.html">scene</a></li>
+  <li><a href="../classes/scheduler.html">scheduler</a></li>
+  <li><a href="../classes/sprite.html">sprite</a></li>
+  <li><a href="../classes/spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>miscUtils</code></h1>
+<p>A module containing a few utility functions: any, all, anyCondition, allCondition, math.round, math.frandom</p>
+<p></p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#math.round">math.round (num)</a></td>
+	<td class="summary">Rounds a floating point number to the nearest integer.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#math.frandom">math.frandom (low, high)</a></td>
+	<td class="summary">Works like math.random(low,high), but returns a float instead of an int.</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#all">all (...)</a></td>
+	<td class="summary">Returns if all of the arguments are truthy.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#allCondition">allCondition (fct, ...)</a></td>
+	<td class="summary">Returns if all of the arguments passed in ...</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#any">any (...)</a></td>
+	<td class="summary">Returns if any arguments are true.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#anyCondition">anyCondition (fct, ...)</a></td>
+	<td class="summary">Returns if anything passed in ...</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "math.round"></a>
+    <strong>math.round (num)</strong>
+    </dt>
+    <dd>
+    Rounds a floating point number to the nearest integer.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">num</span>
+         The number to round
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The nearest integer to num.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "math.frandom"></a>
+    <strong>math.frandom (low, high)</strong>
+    </dt>
+    <dd>
+    Works like math.random(low,high), but returns a float instead of an int.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">low</span>
+         (Optional) The lower bound of the number.
+        </li>
+        <li><span class="parameter">high</span>
+         (Optional) The upper bound of the number.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A random number in the range (low,high) if low and high are provided, in (0,low) if low is provided, or in (0,1) if neither are.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "all"></a>
+    <strong>all (...)</strong>
+    </dt>
+    <dd>
+    Returns if all of the arguments are truthy.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The values to check for truthiness.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If all of the arguments are truthy.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "allCondition"></a>
+    <strong>allCondition (fct, ...)</strong>
+    </dt>
+    <dd>
+    Returns if all of the arguments passed in ...  satisfy fct.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fct</span>
+         The function to run on each value.
+        </li>
+        <li><span class="parameter">...</span>
+         The values to run fct on.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If all of the arguments passed in ... satisfy fct.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "any"></a>
+    <strong>any (...)</strong>
+    </dt>
+    <dd>
+    Returns if any arguments are true.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         The values to check for truthiness.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If any arguments are true.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "anyCondition"></a>
+    <strong>anyCondition (fct, ...)</strong>
+    </dt>
+    <dd>
+    Returns if anything passed in ...  satisfy fct.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">fct</span>
+         The function to run on each value.
+        </li>
+        <li><span class="parameter">...</span>
+         The values to run fct on.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If all of the arguments passed in ... satisfy fct.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

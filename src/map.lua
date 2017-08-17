@@ -1,8 +1,8 @@
----Applies a function to a set of data, returning the results.
---@param fct The function to apply.
---@param numArgs How many arguments the function takes.
---@param ... The values to apply the function to.
---@return The values the function returns each time, unpacked.
+--- Applies a function to a set of data, returning the results.
+-- @param fct The function to apply.
+-- @param numArgs How many arguments the function takes.
+-- @param ... The values to apply the function to.
+-- @return The values the function returns each time, unpacked.
 local function map(fct, numArgs, ...)
     assert(type(fct) == "function" and type(numArgs) == "number")
     local results = {}

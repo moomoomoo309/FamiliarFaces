@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="GUI.html">GUI</a></li>
+  <li><strong>animation</strong></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><a href="camera.html">camera</a></li>
+  <li><a href="object.html">object</a></li>
+  <li><a href="scene.html">scene</a></li>
+  <li><a href="scheduler.html">scheduler</a></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>animation</code></h1>
+<p>A class allowing sprites to be animated.</p>
+<p></p>
+
+
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#animation.animation">animation.animation</a></td>
+	<td class="summary"></td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#animation:new">animation:new (args)</a></td>
+	<td class="summary">Creates a new animation with the arguments provided.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:start">animation:start (self)</a></td>
+	<td class="summary">Starts the animation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:stop">animation:stop (self)</a></td>
+	<td class="summary">Stops the animation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:pause">animation:pause (self)</a></td>
+	<td class="summary">Pauses the animation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:resume">animation:resume (self)</a></td>
+	<td class="summary">Resumes the animation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:reset">animation:reset (self)</a></td>
+	<td class="summary">Resets all properties of this animation involving its running state.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:copy">animation:copy (self)</a></td>
+	<td class="summary">Makes a copy of this animation, resetting its state in the process.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:animate">animation:animate (self)</a></td>
+	<td class="summary">Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#animation:animateAll">animation:animateAll ()</a></td>
+	<td class="summary">Animates all animations at once.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "animation.animation"></a>
+    <strong>animation.animation</strong>
+    </dt>
+    <dd>
+
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="sprite.html#sprite:new">sprite.new</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "animation:new"></a>
+    <strong>animation:new (args)</strong>
+    </dt>
+    <dd>
+    Creates a new animation with the arguments provided.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">args</span>
+         A table containing arguments, which may be any of the following:
+ frames: (Optional) The frames of the animation.
+ frameDurations: (Optional) The duration, in seconds, of each frame of the animation, or of all of them. Defaults to 1/60
+ sprite: The drawable used in the animation
+ colors: (Optional) A table containing all of the colors which will overlay the sprite, or one color which will overlay all of them.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The created animation.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:start"></a>
+    <strong>animation:start (self)</strong>
+    </dt>
+    <dd>
+    Starts the animation.  Makes the sprite draw using the first frame of this animation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to start.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:stop"></a>
+    <strong>animation:stop (self)</strong>
+    </dt>
+    <dd>
+    Stops the animation.  Makes the sprite go back to drawing using its image property.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to stop.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:pause"></a>
+    <strong>animation:pause (self)</strong>
+    </dt>
+    <dd>
+    Pauses the animation.  Note, a paused animation will use the current frame of the animation,
+ while a sprite not animating will use the sprite's image.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to pause.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:resume"></a>
+    <strong>animation:resume (self)</strong>
+    </dt>
+    <dd>
+    Resumes the animation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to resume.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:reset"></a>
+    <strong>animation:reset (self)</strong>
+    </dt>
+    <dd>
+    Resets all properties of this animation involving its running state.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to reset.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:copy"></a>
+    <strong>animation:copy (self)</strong>
+    </dt>
+    <dd>
+    Makes a copy of this animation, resetting its state in the process.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to copy.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The copied animation.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:animate"></a>
+    <strong>animation:animate (self)</strong>
+    </dt>
+    <dd>
+    Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">self</span>
+         The animation to animate.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "animation:animateAll"></a>
+    <strong>animation:animateAll ()</strong>
+    </dt>
+    <dd>
+    Animates all animations at once.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

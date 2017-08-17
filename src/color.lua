@@ -1,3 +1,6 @@
+--- A module containing functions converting a color from one format to another.
+-- @module color
+
 ---Converts HSV to RGV
 --@param h The hue of the color.
 --@param s The saturation of the color.

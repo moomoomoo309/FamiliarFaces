@@ -1,22 +1,25 @@
+--- The script that runs the game.
+-- @script main
+
 io.stdout:setvbuf "no"
-camera = camera or require "camera"
-local cam = camera:new()
+camera = require "camera"
+local cam = camera()
 cam.x = -cam.w / 2
 cam.y = -cam.h / 2
 loadingAssets = true
 loadingCallbacks = {}
-scene = scene or require "scene"
-loader = loader or require "love-loader.love-loader"
-sprite = sprite or require "sprite"
-tablex = tablex or require "tablex"
-pretty = pretty or require "pretty"
-parser = parser or require "parser"
-elevator = elevator or require "elevator"
-audioHandler = audioHandler or require "audioHandler"
-GUI = GUI or require "GUI"
-baton = baton or require "baton.baton"
-scheduler = scheduler or require "scheduler"
-shine = shine or require "shine"
+scene = require "scene"
+loader = require "love-loader.love-loader"
+sprite = require "sprite"
+tablex = require "pl.tablex"
+pretty = require "pl.pretty"
+parser = require "parser"
+elevator = require "elevator"
+audioHandler = require "audioHandler"
+GUI = require "GUI"
+baton = require "baton.baton"
+scheduler = require "scheduler"
+shine = require "shine"
 
 local lastScene
 local enterLocked = true
@@ -25,14 +28,15 @@ local followingScene = { bathroom = "museum", museum = "elevator" }
 local process
 local sceneTbl
 local elevatorScene
-local player
+player = nil
+script = nil
 effects = {}
 
 local defaultControls = {
     advanceScript = { "key:right", "button:a" },
     moveRight = { "key:right", "key:d", "button:dpright", "axis:leftx+" },
     moveLeft = { "key:left", "key:a", "button:dpleft", "axis:leftx-" },
-    moveElevator = { "key:space", "key:return", "button:a" },
+    moveElevator = { "key:space", --[["key:return",]] "button:a" },
     pause = { "key:escape", "button:start" }
 }
 
@@ -58,6 +62,7 @@ function love.load()
         parser.unlock()
     end
 
+    love.graphics.setNewFont(36)
     loader.start(function()
         loadingAssets = false
         for _, v in pairs(loadingCallbacks) do
@@ -103,13 +108,12 @@ local function checkControls()
             end
         end
         if player:pressed "advanceScript" then
-            local tbl
             if not process then
-                process, tbl = parser.process "Script"
+                process, script = parser.process "Script"
             end
             if not parser.locked() then
                 if coroutine.status(process) ~= "dead" then
-                    local success, msg = coroutine.resume(process, tbl, process)
+                    local success, msg = coroutine.resume(process, script, process)
                     if not success then
                         print(msg)
                     end
@@ -147,15 +151,22 @@ end
 
 function love.draw()
     if loadingAssets then
-        --TODO: Better looking loading bar?
         local w, h = love.graphics.getWidth(), love.graphics.getHeight()
         local percentLoaded = loader.loadedCount / loader.resourceCount
         local r, g, b = love.graphics.getColor()
+        love.graphics.printf("Loading...", w * .1, h * .375, w * .9, "left")
+        love.graphics.printf(("%d%%"):format(percentLoaded * 100), 0, h * .375, w * .9, "right")
         love.graphics.setColor(128, 128, 128)
         love.graphics.rectangle("fill", w * .1, h * .45, w * .8, h * .1)
+        --A scissor is used here so the rectangle could easily be replaced with an image.
+        love.graphics.setScissor(w * .11, h * .465, w * .78 * percentLoaded, h * .0725)
+
+        --TODO: Replace the rectangle with something better
         love.graphics.setColor(255, 0, 0)
-        love.graphics.rectangle("fill", w * .11, h * .4625, w * .78 * percentLoaded, h * .0775)
+        love.graphics.rectangle("fill", w * .11, h * .465, w * .78, h * .0725)
         love.graphics.setColor(r, g, b)
+
+        love.graphics.setScissor()
     else
         if effects.blur.radius_h > 0 or effects.blur.radius_v > 0 then
             effects.pause:draw(drawGame)

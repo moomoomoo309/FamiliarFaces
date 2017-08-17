@@ -1,0 +1,36 @@
+sprite = sprite or require "sprite"
+
+local w, h = love.graphics.getDimensions()
+local walking
+local cancel
+walking = {
+    {
+        name = "background",
+        x = 0,
+        y = 0,
+        w = w,
+        h = h,
+        imagePath = "assets/City.png",
+        type = sprite
+    },
+    {
+        name = "character", --The character sprite may change, so that will be changed in onShow.
+        x = w * .1,
+        y = h * .9,
+        w = w * .05,
+        h = h * .05
+    },
+    onShow = function(self)
+        self.character = character
+        player:onPress("moveRight", function()
+        end)
+        player:onPress("moveLeft", function()
+        end)
+    end,
+    onClear = function()
+        player:onPress("moveRight", nil)
+        player:onPress("moveLeft", nil)
+    end
+}
+
+return walking

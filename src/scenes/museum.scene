@@ -1,9 +1,11 @@
-local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-local museum
 audioHandler = audioHandler or require"audioHandler"
+
+local w, h = love.graphics.getDimensions()
+local museum
+local cancel
 museum = {
     {
-        name = "appleGuy",
+        name = "painting",
         x = w * .3375,
         y = h / 3,
         w = w * .34375,
@@ -19,7 +21,10 @@ museum = {
         type = sprite
     },
     onShow = function()
-        museum.onCancel = audioHandler.loop"museum"
+        cancel = audioHandler.loop"museum"
     end,
+    onClear = function()
+        cancel()
+    end
 }
 return museum

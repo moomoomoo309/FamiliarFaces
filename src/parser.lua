@@ -1,9 +1,14 @@
-utils = utils or require "pl.utils"
-map = map or require "map"
-pretty = pretty or require "pl.pretty"
-scene = scene or require "scene"
-audioHandler = audioHandler or require "audioHandler"
-stringx = stringx or require "pl.stringx"
+--- A module allowing scripts of dialogue to be parsed.
+-- @module parser
+
+
+utils = require "pl.utils"
+map = require "map"
+pretty = require "pl.pretty"
+scene = require "scene"
+audioHandler = require "audioHandler"
+stringx = require "pl.stringx"
+
 
 local locked = true
 
@@ -64,6 +69,24 @@ local commands = {
         for i = 1, #scenes do
             scene:show(scenes[i])
         end
+    end,
+    store = function(val, tbl)
+        print(val,tbl)
+        local varName, value = unpack(stringx.split(val," "))
+        tbl.vars[varName] = tonumber(value) or value
+    end,
+    add = function(val, tbl)
+        local varName, value = unpack(stringx.split(val," "))
+        value = tonumber(value)
+        assert(varName, "You need a value to add to!")
+        assert(value, "You need a number to add to the value.")
+        tbl.vars[varName] = tbl.vars[varName] + value
+    end,
+    subtract = function(val, tbl)
+        local varName, value = unpack(stringx.split(val," "))
+        assert(varName, "You need a value to subtract from!")
+        assert(value, "You need a number to subtract from the value.")
+        tbl.vars[varName] = tbl.vars[varName] - value
     end
 }
 
@@ -76,7 +99,8 @@ local prefixes = {
         coroutine.yield()
     end,
     ["/t{"] = function(val)
-        local color = unpack(stringx.split(val:sub(3, val:find("}", 4, true)), ","))
+        assert(val:find("}", 4, true), "The color table must be closed with a closing brace!")
+        local color = stringx.split(val:sub(3, val:find("}", 4, true)), ",")
         assert(type(color) == "table", ("Table expected, got %s."):format(type(color)))
         assert(#color == 3 or #color == 4, ("Length of color table must be 3 or 4, was %d."):format(#color))
         scene:printText(val:sub(3), false, color)
@@ -88,13 +112,15 @@ local prefixes = {
         local cmd = firstWord:sub(2):lower()
         if commands[cmd] then
             commands[cmd](val, tbl)
+        else
+            print(("Unrecognized command: \"%s\" from \"%s\""):format(cmd, val))
         end
     end
 }
 
 --- Processes a string from the script.
 -- @param val The string to process
--- @param process The coroutine the parser is being run from.
+-- @param tbl The table containing the script.
 -- @return nil
 local function processLine(val, tbl)
     assert(type(val) == "string", ("Expected string, got %s."):format(type(val)))
@@ -124,7 +150,7 @@ local function processVal(tbl, process)
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
-                processLine(val)
+                processLine(val, tbl)
             elseif t == "table" then
                 processVal(promptPlayer(val, process), process)
             elseif t == "function" then
@@ -147,14 +173,14 @@ local unlock = function()
 end
 
 --- Returns whether the parser is locked or not.
--- @reutrn Whether the parser is locked or not.
+-- @return Whether the parser is locked or not.
 local locked = function()
     return locked
 end
 
---- Processes the file at the given path using require(). Returns a coroutine to the parser, and the table it's reading from, or false if it is unsuccessful.
+--- Processes the file at the given path using require(). Returns a coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
 -- @param path The path to the file to parse.
--- @return A coroutine to the parser, and the table it's reading from, or false if it is unsuccessful.
+-- @return A coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
 local process = function(path)
     local processTbl = require(path)
     if type(processTbl) == "table" then

@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="GUI.html">GUI</a></li>
+  <li><a href="animation.html">animation</a></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><a href="camera.html">camera</a></li>
+  <li><a href="object.html">object</a></li>
+  <li><a href="scene.html">scene</a></li>
+  <li><strong>scheduler</strong></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>scheduler</code></h1>
+<p>A class allowing for functions to be scheduled based on certain conditions.</p>
+<p></p>
+
+
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scheduler.unpause">scheduler.unpause</a></td>
+	<td class="summary">An alias to scheduler.resume</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scheduler._until">scheduler._until (conditionFct, fct, cancelFct, group)</a></td>
+	<td class="summary">Runs fct until conditionFct returns a truthy value or the function returned is called.</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:sleep">scheduler:sleep (seconds)</a></td>
+	<td class="summary">Sleeps the running coroutine until seconds has passed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:after">scheduler:after (seconds, fct, group)</a></td>
+	<td class="summary">Run fct after seconds has passed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:before">scheduler:before (seconds, fct, cancelFct, group)</a></td>
+	<td class="summary">Run fct until seconds has passed.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:when">scheduler:when (conditionFct, fct, cancelFct, group)</a></td>
+	<td class="summary">Runs fct when conditionFct returns a truthy value or the function returned is called.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:every">scheduler:every (seconds, fct, cancelFct, group)</a></td>
+	<td class="summary">Runs fct every seconds seconds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:everyCondition">scheduler:everyCondition (conditionFct, fct, cancelFct, group)</a></td>
+	<td class="summary">Runs fct every time conditionFct returns a truthy value.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:pause">scheduler:pause (group)</a></td>
+	<td class="summary">Pause the given group.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:resume">scheduler:resume (group)</a></td>
+	<td class="summary">Resumes the given group.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scheduler:update">scheduler:update (dt)</a></td>
+	<td class="summary">Updates all of the functions in the scheduler, checking if any need to run and running them if necessary.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "scheduler.unpause"></a>
+    <strong>scheduler.unpause</strong>
+    </dt>
+    <dd>
+    An alias to scheduler.resume
+
+
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="scheduler.html#scheduler:resume">scheduler.resume</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "scheduler._until"></a>
+    <strong>scheduler._until (conditionFct, fct, cancelFct, group)</strong>
+    </dt>
+    <dd>
+    Runs fct until conditionFct returns a truthy value or the function returned is called.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">conditionFct</span>
+         A function supplying the condition that will stop fct.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run continuously while conditionFct returns a truthy value.
+        </li>
+        <li><span class="parameter">cancelFct</span>
+         (Optional) A function to run if this one is cancelled.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default".
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "scheduler:sleep"></a>
+    <strong>scheduler:sleep (seconds)</strong>
+    </dt>
+    <dd>
+    Sleeps the running coroutine until seconds has passed.  Will not work on the main thread.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds to sleep for.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:after"></a>
+    <strong>scheduler:after (seconds, fct, group)</strong>
+    </dt>
+    <dd>
+    Run fct after seconds has passed.  Returns a function which cancels this function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds to wait before running fct.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run after the time has passed.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default"
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:before"></a>
+    <strong>scheduler:before (seconds, fct, cancelFct, group)</strong>
+    </dt>
+    <dd>
+    Run fct until seconds has passed.  Returns a function which cancels this function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds to wait until fct should stop being run.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to continuously run before the time has passed.
+        </li>
+        <li><span class="parameter">cancelFct</span>
+         (Optional) A function to run if this one is cancelled.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default".
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:when"></a>
+    <strong>scheduler:when (conditionFct, fct, cancelFct, group)</strong>
+    </dt>
+    <dd>
+    Runs fct when conditionFct returns a truthy value or the function returned is called.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">conditionFct</span>
+         A function supplying the condition that will run fct.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run when conditionFct returns a truthy value.
+        </li>
+        <li><span class="parameter">cancelFct</span>
+         (Optional) A function to run if this one is cancelled.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default".
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:every"></a>
+    <strong>scheduler:every (seconds, fct, cancelFct, group)</strong>
+    </dt>
+    <dd>
+    Runs fct every seconds seconds.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         The number of seconds to wait between running fct.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run every seconds seconds.
+        </li>
+        <li><span class="parameter">cancelFct</span>
+         (Optional) A function to run if this one is cancelled.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default".
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:everyCondition"></a>
+    <strong>scheduler:everyCondition (conditionFct, fct, cancelFct, group)</strong>
+    </dt>
+    <dd>
+    Runs fct every time conditionFct returns a truthy value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">conditionFct</span>
+         A function supplying the condition that will run fct.
+        </li>
+        <li><span class="parameter">fct</span>
+         The function to run every time conditionFct returns a truthy value.
+        </li>
+        <li><span class="parameter">cancelFct</span>
+         (Optional) A function to run if this one is cancelled.
+        </li>
+        <li><span class="parameter">group</span>
+         (Optional) The group the function should be in. Defaults to "default".
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a function which cancels this function.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:pause"></a>
+    <strong>scheduler:pause (group)</strong>
+    </dt>
+    <dd>
+    Pause the given group.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">group</span>
+         The key of the group to pause. Can technically be any value.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:resume"></a>
+    <strong>scheduler:resume (group)</strong>
+    </dt>
+    <dd>
+    Resumes the given group.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">group</span>
+         The key of the group to resume. Can technically be any value.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scheduler:update"></a>
+    <strong>scheduler:update (dt)</strong>
+    </dt>
+    <dd>
+    Updates all of the functions in the scheduler, checking if any need to run and running them if necessary.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt</span>
+         The time between the last update and this one.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

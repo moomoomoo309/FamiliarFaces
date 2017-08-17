@@ -1,3 +1,6 @@
+---The class handling all parts of the GUI.
+-- @classmod GUI
+
 require "gooi"
 tablex = tablex or require "pl.tablex"
 audioHandler = audioHandler or require "audioHandler"

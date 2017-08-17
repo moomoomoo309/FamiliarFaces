@@ -1,4 +1,9 @@
+--- A class allowing sprites to be animated.
+-- @classmod animation
+
 local animation
+
+--- @see sprite.new
 animation = animation or {
     type = "animation",
     class = animation,
@@ -6,7 +11,6 @@ animation = animation or {
 }
 
 --- Creates a new animation with the arguments provided.
--- @param self Allows animation.new or animation:new to be called.
 -- @param args A table containing arguments, which may be any of the following:
 -- frames: (Optional) The frames of the animation.
 -- frameDurations: (Optional) The duration, in seconds, of each frame of the animation, or of all of them. Defaults to 1/60

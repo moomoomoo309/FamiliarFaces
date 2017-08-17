@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="GUI.html">GUI</a></li>
+  <li><a href="animation.html">animation</a></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><strong>camera</strong></li>
+  <li><a href="object.html">object</a></li>
+  <li><a href="scene.html">scene</a></li>
+  <li><a href="scheduler.html">scheduler</a></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>camera</code></h1>
+<p>A class acting like a camera using scale, translate, and rotate.</p>
+<p></p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#camera:new">camera:new (_, args)</a></td>
+	<td class="summary">Creates the instance of the camera with the values passed in args.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:draw">camera:draw ()</a></td>
+	<td class="summary">Performs all necessary matrix transformations needed by the camera.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:getTransformations">camera:getTransformations ()</a></td>
+	<td class="summary">Returns a table containing all of the matrix transformations done by the camera.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:toCameraCoords">camera:toCameraCoords (x, y)</a></td>
+	<td class="summary">Converts screen coordinates to camera coordinates.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:toScreenCoords">camera:toScreenCoords (x, y)</a></td>
+	<td class="summary">Converts camera coordinates to screen coordinates.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:transition">camera:transition (time, interpolation, values, key, fct)</a></td>
+	<td class="summary">Transitions the values in values using the interpolation provided in the time provided, running fct.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:pan">camera:pan (x, y, time, interpolation, fct)</a></td>
+	<td class="summary">Pans the camera to the given location in the given amount of time using the given interpolation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:panTo">camera:panTo (obj, time, interpolation, fct)</a></td>
+	<td class="summary">Pans the camera to the given object in the given amount of time using the given interpolation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:zoomTo">camera:zoomTo (newZoom, time, interpolation, fct)</a></td>
+	<td class="summary">Zooms the camera to the given zoom level in the given amount of time using the given interpolation.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:follow">camera:follow (obj)</a></td>
+	<td class="summary">Makes the camera follow the given object.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#camera:unfollow">camera:unfollow ()</a></td>
+	<td class="summary">Makes the camers stop following anything.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "camera:new"></a>
+    <strong>camera:new (_, args)</strong>
+    </dt>
+    <dd>
+    Creates the instance of the camera with the values passed in args.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">_</span>
+         (Unused) Allows camera.new to be called or camera:new.
+        </li>
+        <li><span class="parameter">args</span>
+         A table of arguments modifying the camera. Can be any of the following:<br>
+ x: The x coordinate of the camera. Defaults to 0.<br>
+ y: The y coordinate of the camera. Defaults to 0.<br>
+ w: The width of the camera's viewport. Defaults to the screen width.<br>
+ h: The height of the camera's viewport. Defaults to the screen height.<br>
+ viewport: Another way of specifying the width and height of the camera. Defaults to the screen dimensions.<br>
+ zoom: How much the camera should be zoomed in. Defaults to 1.<br>
+ rotation: How much the camera should be rotated, in degrees. Defaults to 0.<br>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The instance of the camera. Will error if the camera instance already exists.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:draw"></a>
+    <strong>camera:draw ()</strong>
+    </dt>
+    <dd>
+    Performs all necessary matrix transformations needed by the camera.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:getTransformations"></a>
+    <strong>camera:getTransformations ()</strong>
+    </dt>
+    <dd>
+    Returns a table containing all of the matrix transformations done by the camera.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A table containing all of the matrix transformations done by the camera.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:toCameraCoords"></a>
+    <strong>camera:toCameraCoords (x, y)</strong>
+    </dt>
+    <dd>
+    Converts screen coordinates to camera coordinates.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         The x coordinate in screen coordinates
+        </li>
+        <li><span class="parameter">y</span>
+         The y coordinate in screen coordinates.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x and y in camera coordinates.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:toScreenCoords"></a>
+    <strong>camera:toScreenCoords (x, y)</strong>
+    </dt>
+    <dd>
+    Converts camera coordinates to screen coordinates.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         The x coordinate in camera coordinates
+        </li>
+        <li><span class="parameter">y</span>
+         The y coordinate in camera coordinates.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        x and y in screen coordinates.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:transition"></a>
+    <strong>camera:transition (time, interpolation, values, key, fct)</strong>
+    </dt>
+    <dd>
+    Transitions the values in values using the interpolation provided in the time provided, running fct.
+ key can be used to make sure it cancels the function with the given key, and fct will run on each iteration.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">time</span>
+         How many seconds it should take for the value to change completely.
+        </li>
+        <li><span class="parameter">interpolation</span>
+         (Optional) The key of the function in camera.interpolations to use to tween the values.
+        </li>
+        <li><span class="parameter">values</span>
+         A table whose keys are the fields to transition, and whose values are what they should transition to.
+        </li>
+        <li><span class="parameter">key</span>
+         (Optional) The key of the transition function, so other functions on that key can be cancelled.
+        </li>
+        <li><span class="parameter">fct</span>
+         (Optional) A function to run on each iteration of the transition.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A function which will cancel the transition.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:pan"></a>
+    <strong>camera:pan (x, y, time, interpolation, fct)</strong>
+    </dt>
+    <dd>
+    Pans the camera to the given location in the given amount of time using the given interpolation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">x</span>
+         Where it should end up on the x coordinate.
+        </li>
+        <li><span class="parameter">y</span>
+         Where it should end up on the y coordinate.
+        </li>
+        <li><span class="parameter">time</span>
+         How many seconds it should take to pan completely.
+        </li>
+        <li><span class="parameter">interpolation</span>
+         (Optional) The key of the function in camera.interpolations to use to tween the values.
+        </li>
+        <li><span class="parameter">fct</span>
+         A function to run on each movement of the camera.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A function which will cancel the camera pan right where it is.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:panTo"></a>
+    <strong>camera:panTo (obj, time, interpolation, fct)</strong>
+    </dt>
+    <dd>
+    Pans the camera to the given object in the given amount of time using the given interpolation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+         The object to pan to.
+        </li>
+        <li><span class="parameter">time</span>
+         How many seconds it should take to pan completely.
+        </li>
+        <li><span class="parameter">interpolation</span>
+         (Optional) The key of the function in camera.interpolations to use to tween the values.
+        </li>
+        <li><span class="parameter">fct</span>
+         A function to run on each movement of the camera.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A function which will cancel the camera pan right where it is.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:zoomTo"></a>
+    <strong>camera:zoomTo (newZoom, time, interpolation, fct)</strong>
+    </dt>
+    <dd>
+    Zooms the camera to the given zoom level in the given amount of time using the given interpolation.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">newZoom</span>
+         Where the zoom should end up.
+        </li>
+        <li><span class="parameter">time</span>
+         How many seconds it should take to pan completely.
+        </li>
+        <li><span class="parameter">interpolation</span>
+         (Optional) The key of the function in camera.interpolations to use to tween the values.
+        </li>
+        <li><span class="parameter">fct</span>
+         A function to run on each movement of the camera.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A function which will cancel the camera pan right where it is.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:follow"></a>
+    <strong>camera:follow (obj)</strong>
+    </dt>
+    <dd>
+    Makes the camera follow the given object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">obj</span>
+         The object to follow.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "camera:unfollow"></a>
+    <strong>camera:unfollow ()</strong>
+    </dt>
+    <dd>
+    Makes the camers stop following anything.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,12 +1,11 @@
-sprite = sprite or require "sprite"
-camera = camera or require "camera"
+--- A module designed to show multiple sprites or UI elements at once.
+-- @classmod scene
 
 local font = love.graphics.getFont()
 local fontHeight = font:getHeight()
 local visibleText = {}
 local i = 1
 local defaultPaddingX, defaultPaddingY = 20, 10
-local scene
 local lastYOffset = 0
 
 --- The internal function used by printText to write to the screen.
@@ -47,16 +46,16 @@ local function printText2(text, paddingX, paddingY, i, color)
     return yOffset
 end
 
-scene = { scenes = {}, currentScenes = {} }
+local scene = { scenes = {}, currentScenes = {} }
 
 --- Print the given text on the screen, moving the camera down when the text gets off screen.
---- Make reset true to move the text back to the top of the screen.
--- @param self unused
+-- Make reset true to move the text back to the top of the screen.
+-- @param _ unused
 -- @param text The text to print on screen
 -- @param reset (Optional) If true, will reset the text back to the top of the screen.
 -- @param color (Optional) The color to make the text. White by default.
 -- @return nil
-function scene.printText(self, text, reset, color)
+function scene.printText(_, text, reset, color)
     local yOffset
     assert(color == nil or type(color) == "table", ("Color must be nil or a table, was a %s."):format(type(color)))
     if type(color) == "table" then
@@ -84,7 +83,6 @@ function scene.clearText()
 end
 
 --- Creates a new scene.
--- @param self (Unused) Allows scene.new or scene:new to be called.
 -- @param name the name of the new scene
 -- @return nil
 function scene:new(name)
@@ -95,18 +93,17 @@ function scene:new(name)
 end
 
 --- Adds a sprite to the given scene.
--- @param self (Unused) Allows scene.set or scene:set to be called.
 -- @param name The name of the scene to set the sprite to.
 -- @param sceneName The name of the sprite within the scene.
 -- @param sprite The sprite to insert into the scene.
 -- @return nil
-function scene.set(self, name, sceneName, sprite)
+function scene:set(name, sceneName, sprite)
     if not sprite then
         name, sceneName, sprite = self, name, sceneName
     end
     assert(type(name) == "string", ("Name expected, got %s."):format(type(name)))
     assert(type(sceneName) == "string", ("SceneName expected, got %s."):format(type(sceneName)))
-    assert(type(sprite) == "table" and sprite.type == "sprite", ("Sprite expected, got %s."):format(type(sprite) == "table" and sprite.type or type(sprite)))
+    assert(type(sprite) == "table" and sprite:extends"sprite", ("Sprite expected, got %s."):format(type(sprite) == "table" and sprite.type or type(sprite)))
     if not scene.scenes[name] then
         scene:new(name)
     end
@@ -114,10 +111,9 @@ function scene.set(self, name, sceneName, sprite)
 end
 
 --- Clears the scene with the given name, or self if called with a scene.
--- @param self A scene or the name of the scene.
 -- @param sceneName (Optional) The name of the scene, if a reference to the scene is not available.
 -- @return nil
-function scene.clear(self, sceneName)
+function scene:clear(sceneName)
     sceneName = sceneName or self.name
     assert(sceneName, "Expected scene or scene name, got nil.")
     local thisScene = scene.scenes[sceneName]
@@ -139,10 +135,9 @@ function scene.clear(self, sceneName)
 end
 
 --- Shows the scene with the given name, or self if called with a scene.
--- @param self A scene or the name of the scene.
 -- @param sceneName (Optional) The name of the scene, if a reference to the scene is not available.
 -- @return nil
-function scene.show(self, sceneName)
+function scene:show(sceneName)
     assert(sceneName or self ~= scene, "Name or object expected, got nil.")
     assert(type(sceneName) == "string" or sceneName == nil, ("Expected string, got %s"):format(type(sceneName)))
     scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
@@ -177,9 +172,8 @@ function scene.visible()
 end
 
 --- Returns if self is visible.
--- @param self A scene.
 -- @return If self is visible.
-function scene.isVisible(self)
+function scene:isVisible()
     assert(self, "What are you trying to check the visibility of?")
     assert(self.name, "Self has no name.")
     assert(scene.scenes[self.name], ("No scene by the name %s exists."):format(self.name))
@@ -192,7 +186,6 @@ function scene.isVisible(self)
 end
 
 --- Loads the scene file at the given location.
--- @param self (Unused) Allows scene.load or scene:load to be called.
 -- @param sceneName The path to the scene.
 -- @return nil
 function scene:load(sceneName)
@@ -208,9 +201,12 @@ function scene:load(sceneName)
         for k, item in pairs(sceneTbl) do
             if type(item) == "table" then
                 local itemName = item.name
+                local itemConstructor = item.type
+                if itemName and not itemConstructor then
+                    newScene:set(sceneName, itemName, itemName) --Put a placeholder if needed.
+                end
                 item.name = nil
                 item.visible = false
-                local itemConstructor = item.type
                 local itemSprite = itemConstructor(item)
                 newScene:set(sceneName, itemName, itemSprite)
             else
@@ -224,30 +220,34 @@ end
 
 --- Fades out the game using a vignette over seconds, then clears all scenes.
 -- @param seconds How many seconds it should take to fade out.
+-- @param fct A callback to run when it's done.
 -- @return nil
-function scene.circularFadeOut(seconds)
+function scene.circularFadeOut(seconds, fct)
     assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-    parser.lock()
+    assert(type(fct) == "function" or not fct, ("Function or nil expected, got %s."):format(type(fct)))
     scheduler.before(seconds, function(timePassed)
         effects.vignette:set("opacity", timePassed / seconds)
         effects.vignette:set("softness", timePassed / seconds)
         effects.vignette:set("radius", 1 - timePassed / seconds)
     end)
     scheduler.after(seconds, function()
-        parser.unlock()
         scene.clearAll()
         effects.vignette:set("radius", .25)
         effects.vignette:set("opacity", 0)
         effects.vignette:set("softness", .45)
+        if type(fct) == "function" then
+            fct()
+        end
     end)
 end
 
 --- Fades in the game using a vignette over seconds.
 -- @param seconds How many seconds it should take to fade in.
+-- @param fct A callback to run when it's done.
 -- @return nil
-function scene.circularFadeIn(seconds)
+function scene.circularFadeIn(seconds, fct)
     assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-    parser.lock()
+    assert(type(fct) == "function" or not fct, ("Function or nil expected, got %s."):format(type(fct)))
     scheduler.before(seconds, function(timePassed)
         effects.vignette:set("opacity", 1 - timePassed / seconds)
         effects.vignette:set("softness", 1 - timePassed / seconds)
@@ -258,42 +258,51 @@ function scene.circularFadeIn(seconds)
         effects.vignette:set("radius", .25)
         effects.vignette:set("opacity", 0)
         effects.vignette:set("softness", .45)
+        if type(fct) == "function" then
+            fct()
+        end
     end)
 end
 
 --- Fades out the game over seconds, then clears all scenes.
 -- @param seconds How many seconds it should take to fade out.
+-- @param fct A callback to run when it's done.
 -- @return nil
-function scene.fadeOut(seconds)
+function scene.fadeOut(seconds, fct)
     assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-    parser.lock()
+    assert(type(fct) == "function" or not fct, ("Function or nil expected, got %s."):format(type(fct)))
     effects.vignette:set("radius", 0)
     scheduler.before(seconds, function(timePassed)
         effects.vignette:set("opacity", timePassed / seconds)
     end)
     scheduler.after(seconds, function()
-        parser.unlock()
         scene.clearAll()
         effects.vignette:set("radius", .25)
         effects.vignette:set("opacity", 0)
         effects.vignette:set("softness", .45)
+        if type(fct) == "function" then
+            fct()
+        end
     end)
 end
 
 --- Fades in the game over seconds.
 -- @param seconds How many seconds it should take to fade in.
+-- @param fct A callback to run when it's done.
 -- @return nil
-function scene.fadeIn(seconds)
+function scene.fadeIn(seconds, fct)
     assert(type(seconds) == "number", ("Number expected, got %s."):format(type(seconds)))
-    parser.lock()
+    assert(type(fct) == "function" or not fct, ("Function or nil expected, got %s."):format(type(fct)))
     scheduler.before(seconds, function(timePassed)
         effects.vignette:set("opacity", 1 - timePassed / seconds)
     end)
     scheduler.after(seconds, function()
-        parser.unlock()
         effects.vignette:set("radius", .25)
         effects.vignette:set("opacity", 0)
         effects.vignette:set("softness", .45)
+        if type(fct) == "function" then
+            fct()
+        end
     end)
 end
 

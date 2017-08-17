@@ -1,12 +1,15 @@
+--- The "object" class, so to speak. Adds callbacks.
+-- @classmod object
+
 local object
 object = {
-    --The "object" class, so to speak. Adds callbacks.
     type = "object",
     class = object,
     cancel = setmetatable({}, {
         __newindex = function()
         end
-    })
+    }),
+    globalCallback = {}
 }
 
 --- Adds a callback to the given property (running the function when the property changes)
@@ -39,18 +42,11 @@ function object:triggerCallback(property, value)
     end
 end
 
---- Creates a new object using the values contained in tbl. Can be run using object(), object.new() or object:new().
--- @param self (Unused) Allows object.new or object:new to be called.
--- @param tbl The parameters to the object. All of these values will be put into the object on initialization.
--- @return The created object.
-function object:new(tbl)
-    tbl = tbl or self --Allow object.new{} or object:new{}.
-    assert(type(tbl) == "table", ("Table expected, got %s."):format(type(tbl)))
-    local realElement --This table stores values, the actual element is empty, because that's how callbacks are easily done in Lua.
-    realElement = { callbacks = {} } --The table storing all of the callbacks for the object.
-    realElement = setmetatable(realElement, { __index = object }) --Give it the methods from object
-    realElement.realTbl = realElement --In case access to the real table is needed, here's a pointer to it.
-    local defaultMt = {
+--- Returns the default metatable for this object.
+-- @return The default metatable for this object.
+function object:defaultMetatable()
+    local realElement = self.realTbl
+    return {
         __newindex = function(_, key, val)
             if realElement[key] == val then
                 return
@@ -66,6 +62,19 @@ function object:new(tbl)
         --Only works with Lua 5.2 or with 5.2 compat flags enabled.
         __len = realElement,
     }
+end
+
+--- Creates a new object using the values contained in tbl. Can be run using object(), object.new() or object:new().
+-- @param tbl The parameters to the object. All of these values will be put into the object on initialization.
+-- @return The created object.
+function object:new(tbl)
+    tbl = tbl or self --Allow object.new{} or object:new{}.
+    assert(type(tbl) == "table", ("Table expected, got %s."):format(type(tbl)))
+    local realElement --This table stores values, the actual element is empty, because that's how callbacks are easily done in Lua.
+    realElement = { callbacks = {} } --The table storing all of the callbacks for the object.
+    realElement = setmetatable(realElement, { __index = object }) --Give it the methods from object
+    realElement.realTbl = realElement --In case access to the real table is needed, here's a pointer to it.
+    local defaultMt = realElement:defaultMetatable()
     local element = setmetatable({}, defaultMt) --Gives the element its metatable for callbacks
     element:addCallback("class",
         function(self, class)
@@ -80,7 +89,57 @@ function object:new(tbl)
     for k, v in pairs(tbl) do
         realElement[k] = v --Make sure all of the values in tbl go into the object.
     end
-    return element --Return the created "object"
+    return element
+end
+
+--- Gives the object a global callback. This will remove the ability to use normal callbacks!
+-- @param fct The function to run when any property of the object changes.
+function object:setGlobalCallback(fct)
+    self.callbacks = setmetatable(object.globalCallback, { __newindex = function() error "Global callback in use!" end })
+    getmetatable(self).__newindex = fct
+end
+
+--- Returns if this object has a global callback.
+-- @return If this object has a global callback.
+function object:hasGlobalCallback()
+    return self.callbacks == object.globalCallback
+end
+
+--- Removes the global callback from the object.
+-- @return nil
+function object:removeGlobalCallback()
+    self.callbacks = {}
+    getmetatable(self).__newindex = self:defaultMetatable()
+end
+
+--- Returns if an object extends the given class. Can be given the class name as a string, or a reference to the class itself.
+-- @param className A class's name as a string or a class.
+-- @return If the object extends the given class.
+function object:extends(className)
+    assert(type(className) == "string" or type(className) == "table", ("String or table expected, got %s."):format(type(className)))
+    local checkExtension
+    checkExtension = function(self, className)
+        local mt = getmetatable(self)
+        if not mt then
+            return false
+        end
+        local parent = mt.__index
+        if not parent then
+            return false
+        end
+        if type(parent) == "function" then
+            assert(self.class, "Self has no class!")
+            assert(getmetatable(self.class), "Self.class has no metatable!")
+            parent = getmetatable(self.class).__index
+        end
+        assert(type(parent) == "table", ("Metatable __index must be a table, was a %s."):format(type(mt.__index)))
+        if (type(className) == "string" and parent.type or parent.class) == className then
+            return true
+        else
+            return checkExtension(parent, className)
+        end
+    end
+    return checkExtension(self, className)
 end
 
 return setmetatable(object, { __call = object.new })

@@ -1,0 +1,549 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Local_Functions">Local Functions</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="GUI.html">GUI</a></li>
+  <li><a href="animation.html">animation</a></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><a href="camera.html">camera</a></li>
+  <li><a href="object.html">object</a></li>
+  <li><strong>scene</strong></li>
+  <li><a href="scheduler.html">scheduler</a></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>scene</code></h1>
+<p>A module designed to show multiple sprites or UI elements at once.</p>
+<p></p>
+
+
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scene.printText2">scene.printText2 (text, paddingX, paddingY, i, color)</a></td>
+	<td class="summary">The internal function used by printText to write to the screen.</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#scene:printText">scene:printText (_, text, reset, color)</a></td>
+	<td class="summary">Print the given text on the screen, moving the camera down when the text gets off screen.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:clearText">scene:clearText ()</a></td>
+	<td class="summary">Clears all visible text from printText.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:new">scene:new (name)</a></td>
+	<td class="summary">Creates a new scene.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:set">scene:set (name, sceneName, sprite)</a></td>
+	<td class="summary">Adds a sprite to the given scene.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:clear">scene:clear (sceneName)</a></td>
+	<td class="summary">Clears the scene with the given name, or self if called with a scene.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:show">scene:show (sceneName)</a></td>
+	<td class="summary">Shows the scene with the given name, or self if called with a scene.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:clearAll">scene:clearAll ()</a></td>
+	<td class="summary">Clears all scenes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:visible">scene:visible ()</a></td>
+	<td class="summary">Returns which scenes are visible.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:isVisible">scene:isVisible ()</a></td>
+	<td class="summary">Returns if self is visible.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:load">scene:load (sceneName)</a></td>
+	<td class="summary">Loads the scene file at the given location.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:circularFadeOut">scene:circularFadeOut (seconds, fct)</a></td>
+	<td class="summary">Fades out the game using a vignette over seconds, then clears all scenes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:circularFadeIn">scene:circularFadeIn (seconds, fct)</a></td>
+	<td class="summary">Fades in the game using a vignette over seconds.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:fadeOut">scene:fadeOut (seconds, fct)</a></td>
+	<td class="summary">Fades out the game over seconds, then clears all scenes.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#scene:fadeIn">scene:fadeIn (seconds, fct)</a></td>
+	<td class="summary">Fades in the game over seconds.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "scene.printText2"></a>
+    <strong>scene.printText2 (text, paddingX, paddingY, i, color)</strong>
+    </dt>
+    <dd>
+    The internal function used by printText to write to the screen.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">text</span>
+         The text to write to the screen.
+        </li>
+        <li><span class="parameter">paddingX</span>
+         How many pixels from the left/right side should be left by the text.
+        </li>
+        <li><span class="parameter">paddingY</span>
+         How many pixels from the top/bottom side should be left by the text.
+        </li>
+        <li><span class="parameter">i</span>
+         Which row the text should be on (1-however many fit on the screen)
+        </li>
+        <li><span class="parameter">color</span>
+         (Optional) What color the text should be. Defaults to white.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "scene:printText"></a>
+    <strong>scene:printText (_, text, reset, color)</strong>
+    </dt>
+    <dd>
+    Print the given text on the screen, moving the camera down when the text gets off screen.
+ Make reset true to move the text back to the top of the screen.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">_</span>
+         unused
+        </li>
+        <li><span class="parameter">text</span>
+         The text to print on screen
+        </li>
+        <li><span class="parameter">reset</span>
+         (Optional) If true, will reset the text back to the top of the screen.
+        </li>
+        <li><span class="parameter">color</span>
+         (Optional) The color to make the text. White by default.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:clearText"></a>
+    <strong>scene:clearText ()</strong>
+    </dt>
+    <dd>
+    Clears all visible text from printText.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:new"></a>
+    <strong>scene:new (name)</strong>
+    </dt>
+    <dd>
+    Creates a new scene.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         the name of the new scene
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:set"></a>
+    <strong>scene:set (name, sceneName, sprite)</strong>
+    </dt>
+    <dd>
+    Adds a sprite to the given scene.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">name</span>
+         The name of the scene to set the sprite to.
+        </li>
+        <li><span class="parameter">sceneName</span>
+         The name of the sprite within the scene.
+        </li>
+        <li><span class="parameter">sprite</span>
+         The sprite to insert into the scene.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:clear"></a>
+    <strong>scene:clear (sceneName)</strong>
+    </dt>
+    <dd>
+    Clears the scene with the given name, or self if called with a scene.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sceneName</span>
+         (Optional) The name of the scene, if a reference to the scene is not available.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:show"></a>
+    <strong>scene:show (sceneName)</strong>
+    </dt>
+    <dd>
+    Shows the scene with the given name, or self if called with a scene.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sceneName</span>
+         (Optional) The name of the scene, if a reference to the scene is not available.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:clearAll"></a>
+    <strong>scene:clearAll ()</strong>
+    </dt>
+    <dd>
+    Clears all scenes.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:visible"></a>
+    <strong>scene:visible ()</strong>
+    </dt>
+    <dd>
+    Returns which scenes are visible.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        which scenes are visible.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:isVisible"></a>
+    <strong>scene:isVisible ()</strong>
+    </dt>
+    <dd>
+    Returns if self is visible.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If self is visible.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:load"></a>
+    <strong>scene:load (sceneName)</strong>
+    </dt>
+    <dd>
+    Loads the scene file at the given location.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">sceneName</span>
+         The path to the scene.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:circularFadeOut"></a>
+    <strong>scene:circularFadeOut (seconds, fct)</strong>
+    </dt>
+    <dd>
+    Fades out the game using a vignette over seconds, then clears all scenes.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds it should take to fade out.
+        </li>
+        <li><span class="parameter">fct</span>
+         A callback to run when it's done.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:circularFadeIn"></a>
+    <strong>scene:circularFadeIn (seconds, fct)</strong>
+    </dt>
+    <dd>
+    Fades in the game using a vignette over seconds.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds it should take to fade in.
+        </li>
+        <li><span class="parameter">fct</span>
+         A callback to run when it's done.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:fadeOut"></a>
+    <strong>scene:fadeOut (seconds, fct)</strong>
+    </dt>
+    <dd>
+    Fades out the game over seconds, then clears all scenes.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds it should take to fade out.
+        </li>
+        <li><span class="parameter">fct</span>
+         A callback to run when it's done.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "scene:fadeIn"></a>
+    <strong>scene:fadeIn (seconds, fct)</strong>
+    </dt>
+    <dd>
+    Fades in the game over seconds.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seconds</span>
+         How many seconds it should take to fade in.
+        </li>
+        <li><span class="parameter">fct</span>
+         A callback to run when it's done.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

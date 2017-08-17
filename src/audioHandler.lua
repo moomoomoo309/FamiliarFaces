@@ -1,3 +1,6 @@
+--- A class handling the playing, pausing, and looping of audio.
+-- @classmod audioHandler
+
 scheduler = scheduler or require "scheduler"
 
 local audioHandler
@@ -177,8 +180,8 @@ for _, v in pairs(love.filesystem.getDirectoryItems(audioDir)) do
 end
 
  --Add them all
-for k in pairs(files.names) do
-    audioHandler.add(("%s/%s.%s"):format(audioDir, k, files.extensions[k]), k)
+for name in pairs(files.names) do
+    audioHandler.add(("%s/%s.%s"):format(audioDir, name, files.extensions[name]), name)
 end
 files = nil
 

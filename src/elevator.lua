@@ -1,3 +1,6 @@
+--- The module controlling the movement of the elevator in the elevator scene.
+-- @module elevator
+
 local elevator
 camera = camera or require "camera"
 scene = scene or require "scene"
@@ -190,10 +193,11 @@ function elevator.start()
         end
     end
     local startX, startY = cam.x, cam.y
-    local currentOffset = 0
+    local currentOffset
     local lastOffset = 0
-    local panFct = function(self, percentProgress)
-        currentOffset = math.floor(math.abs(cam.y - startY) / math.abs(totalDy / transitions[transitionIndex - 1]))
+    local panFct = function(_, interpolatedPercentProgress)
+        local moveAmt = transitions[transitionIndex-1]
+        currentOffset = math.ceil(interpolatedPercentProgress * moveAmt)
         if currentOffset ~= lastOffset then
             lastOffset = currentOffset
             moveElevatorLight()
@@ -204,7 +208,6 @@ function elevator.start()
     scheduler.after(.5 + .125 * (transitions[transitionIndex] - 1), function()
         locked = false
     end)
-    moveElevatorLight()
     transitionIndex = transitionIndex + 1
 end
 

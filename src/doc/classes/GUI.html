@@ -1,0 +1,478 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>GUI</strong></li>
+  <li><a href="animation.html">animation</a></li>
+  <li><a href="audioHandler.html">audioHandler</a></li>
+  <li><a href="camera.html">camera</a></li>
+  <li><a href="object.html">object</a></li>
+  <li><a href="scene.html">scene</a></li>
+  <li><a href="scheduler.html">scheduler</a></li>
+  <li><a href="sprite.html">sprite</a></li>
+  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/Script.html">Script</a></li>
+  <li><a href="../modules/color.html">color</a></li>
+  <li><a href="../modules/elevator.html">elevator</a></li>
+  <li><a href="../modules/miscUtils.html">miscUtils</a></li>
+  <li><a href="../modules/parser.html">parser</a></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>GUI</code></h1>
+<p>The class handling all parts of the GUI.</p>
+<p></p>
+
+
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#GUI.update">GUI.update</a></td>
+	<td class="summary">Updates the GUI.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI.textinput">GUI.textinput</a></td>
+	<td class="summary">Passes textinput events to gooi.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI.keypressed">GUI.keypressed</a></td>
+	<td class="summary">Passes keypressed events to gooi.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI.mousemoved">GUI.mousemoved</a></td>
+	<td class="summary">Passes mousemoved events to gooi.</td>
+	</tr>
+</table>
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#GUI:addMenu">GUI:addMenu (menu, name)</a></td>
+	<td class="summary">Adds a menu with the passed values and the given name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:showMenu">GUI:showMenu (menuName)</a></td>
+	<td class="summary">Shows the menu with the given name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:hideMenu">GUI:hideMenu (menuName)</a></td>
+	<td class="summary">Hides the menu with the given name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:changeMenu">GUI:changeMenu (menuName)</a></td>
+	<td class="summary">Changes the visible menu to the one with the given name.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:init">GUI:init ()</a></td>
+	<td class="summary">Initializes the GUI, loading any necessary sprites.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:pause">GUI:pause ()</a></td>
+	<td class="summary">Pauses the game.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:unpause">GUI:unpause ()</a></td>
+	<td class="summary">Unpauses the game.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:paused">GUI:paused ()</a></td>
+	<td class="summary">Returns if the game is paused or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:draw">GUI:draw ()</a></td>
+	<td class="summary">Draws all GUI-related sprites, and the GUI itself.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:mousepressed">GUI:mousepressed ()</a></td>
+	<td class="summary">Passes mousepressed events to gooi.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:mousereleased">GUI:mousereleased ()</a></td>
+	<td class="summary">Passes mousereleased events to gooi.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#GUI:startGame">GUI:startGame ()</a></td>
+	<td class="summary">Starts the game.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "GUI.update"></a>
+    <strong>GUI.update</strong>
+    </dt>
+    <dd>
+    Updates the GUI.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI.textinput"></a>
+    <strong>GUI.textinput</strong>
+    </dt>
+    <dd>
+    Passes textinput events to gooi.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI.keypressed"></a>
+    <strong>GUI.keypressed</strong>
+    </dt>
+    <dd>
+    Passes keypressed events to gooi.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI.mousemoved"></a>
+    <strong>GUI.mousemoved</strong>
+    </dt>
+    <dd>
+    Passes mousemoved events to gooi.
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "GUI:addMenu"></a>
+    <strong>GUI:addMenu (menu, name)</strong>
+    </dt>
+    <dd>
+    Adds a menu with the passed values and the given name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">menu</span>
+         A table containing an init function, widgets, and any sprites needed by the GUI.
+        </li>
+        <li><span class="parameter">name</span>
+         The name of the menu.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:showMenu"></a>
+    <strong>GUI:showMenu (menuName)</strong>
+    </dt>
+    <dd>
+    Shows the menu with the given name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">menuName</span>
+         The name of the menu to show.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:hideMenu"></a>
+    <strong>GUI:hideMenu (menuName)</strong>
+    </dt>
+    <dd>
+    Hides the menu with the given name.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">menuName</span>
+         The name of the menu to hide.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:changeMenu"></a>
+    <strong>GUI:changeMenu (menuName)</strong>
+    </dt>
+    <dd>
+    Changes the visible menu to the one with the given name.  Do not use this to switch to the pause menu, use pause or unpause.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">menuName</span>
+         The name of the menu to switch to.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:init"></a>
+    <strong>GUI:init ()</strong>
+    </dt>
+    <dd>
+    Initializes the GUI, loading any necessary sprites.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:pause"></a>
+    <strong>GUI:pause ()</strong>
+    </dt>
+    <dd>
+    Pauses the game.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:unpause"></a>
+    <strong>GUI:unpause ()</strong>
+    </dt>
+    <dd>
+    Unpauses the game.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:paused"></a>
+    <strong>GUI:paused ()</strong>
+    </dt>
+    <dd>
+    Returns if the game is paused or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        If the game is paused or not.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:draw"></a>
+    <strong>GUI:draw ()</strong>
+    </dt>
+    <dd>
+    Draws all GUI-related sprites, and the GUI itself.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:mousepressed"></a>
+    <strong>GUI:mousepressed ()</strong>
+    </dt>
+    <dd>
+    Passes mousepressed events to gooi.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:mousereleased"></a>
+    <strong>GUI:mousereleased ()</strong>
+    </dt>
+    <dd>
+    Passes mousereleased events to gooi.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "GUI:startGame"></a>
+    <strong>GUI:startGame ()</strong>
+    </dt>
+    <dd>
+    Starts the game.  Gets overridden in main.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

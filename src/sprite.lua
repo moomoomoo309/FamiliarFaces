@@ -1,20 +1,20 @@
-tablex = tablex or require "pl.tablex"
-animation = animation or require "animation"
-utils = utils or require "pl.utils"
-pretty = pretty or require "pl.pretty"
-map = map or require "map"
-object = object or require "object"
+--- A class representing a drawable 2D object (image, text, etc.). Supports callbacks.
+-- @classmod sprite
 
+tablex = require "pl.tablex"
+animation = require "animation"
+pretty = require "pl.pretty"
+object = require "object"
 
 local sprite = sprite or {
     type = "sprite",
-    class = sprite,
     currentId = 1,
     sprites = setmetatable({}, { __mode = "v" }), --Make sure the sprites can be garbage collected!
     batches = {},
     groups = {},
     type = "sprite"
 }
+sprite.class = sprite
 
 --- Returns the next available numeric id for a sprite.
 -- @return The next available numeric id for a sprite.
@@ -77,11 +77,11 @@ function sprite:new(args)
         filterMin = args.filterMin or "nearest",
         filterMax = args.filterMax or "nearest",
         anisotropy = args.anisotropy or 0,
-        animPath = args.animPath or (args.imagePath and args.imagePath:find(".", nil, true) and args.imagePath:sub(1, -args.imagePath:reverse():find(".", nil, true)) .. "anim") or false
+        animPath = args.animPath or (args.imagePath and args.imagePath:find(".", nil, true) and args.imagePath:sub(1, -args.imagePath:reverse():find(".", nil, true)) .. "anim") or false,
+        overlays = args.overlays or {}
     }
     assert(obj, "Object could not be created in sprite.")
     obj.class = sprite --Update the class (This does call the callback in object!)
-    obj.sprite = sprite --Give a reference to sprite, which may be needed for children.
     obj.group = obj.group or "default" --Make sure it has a group
     sprite.groups[obj.group] = sprite.groups[obj.group] or { keys = {} }
     if obj.imagePath then
@@ -111,8 +111,7 @@ function sprite:new(args)
 end
 
 --- Copies that to a new sprite.
--- @param self (Unused) Allows sprite.copy or sprite:copy to be called.
--- @param The sprite to copy.
+-- @param that The sprite to copy.
 -- @param args If noBatch is true, it will not use a spriteBatch to copy the sprite.
 -- @return The copied sprite.
 function sprite:copy(that, args)
@@ -120,7 +119,7 @@ function sprite:copy(that, args)
         --Allows you to call sprite.copy or sprite:copy.
         that, args = self, that
     end
-    assert(type(that) == "table" and that.type == "sprite", ("Sprite expected, got %s."):format(type(that) == "table" and that.type or type(that)))
+    assert(type(that) == "table" and that:extends "sprite", ("Sprite expected, got %s."):format(type(that) == "table" and that.type or type(that)))
     assert(type(args) == "table", ("Table expected, got %s."):format(args))
     local this = {}
     local reusableFields = { "animations" } --Tables that should be shared amongst copied sprites.
@@ -162,6 +161,14 @@ end
 -- @param self the sprite to draw.
 -- @return nil
 function sprite:draw()
+    self:_draw(self.x, self.y, self.w, self.h, self.rotation, self.flipHorizontal, self.flipVertical, self.ox, self.oy)
+    for _, overlay in pairs(self.overlays) do
+        overlay:draw()
+    end
+end
+
+function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     if not self.visible then
         return
     end
@@ -185,30 +192,30 @@ function sprite:draw()
 
     if quad then
         local _, _, quadWidth, quadHeight = quad:getViewport()
-        self.sx = self.w / quadWidth --X scale
-        self.sy = self.h / quadHeight --Y scale
+        self.sx = w / quadWidth --X scale
+        self.sy = h / quadHeight --Y scale
 
         love.graphics.draw(img,
             quad,
-            self.flipHorizontal and self.x + self.w - self.sx / self.w or self.x,
-            self.flipVertical and self.y + self.h - self.sy / self.h or self.y + self.sy / self.h,
-            math.rad(self.rotation),
-            self.flipHorizontal and -self.sx or self.sx,
-            self.flipVertical and -self.sy or self.sy,
-            type(self.ox) == "function" and self:ox() or self.ox,
-            type(self.oy) == "function" and self:oy() or self.oy)
+            flipHorizontal and x + w - self.sx / w or x,
+            flipVertical and y + h - self.sy / h or y + self.sy / h,
+            math.rad(rotation),
+            flipHorizontal and -self.sx or self.sx,
+            flipVertical and -self.sy or self.sy,
+            ox,
+            oy)
     else
-        self.sx = self.w / img:getWidth() --X scale
-        self.sy = self.h / img:getHeight() --Y scale
+        self.sx = w / img:getWidth() --X scale
+        self.sy = h / img:getHeight() --Y scale
 
         love.graphics.draw(img,
-            self.flipHorizontal and self.x + self.image:getWidth() or self.x,
-            self.flipVertical and self.y + self.image:getHeight() or self.y,
-            math.rad(self.rotation),
-            self.flipHorizontal and -self.sx or self.sx,
-            self.flipVertical and -self.sy or self.sy,
-            type(self.ox) == "function" and self:ox() or self.ox,
-            type(self.ox) == "function" and self:oy() or self.oy)
+            flipHorizontal and x + w - self.sx / w or x,
+            flipVertical and y + h - self.sy / h or y + self.sy / h,
+            math.rad(rotation),
+            flipHorizontal and -self.sx or self.sx,
+            flipVertical and -self.sy or self.sy,
+            ox,
+            oy)
     end
     --Don't forget to change the color back if you changed it before!
     if oldColor then
@@ -249,7 +256,7 @@ end
 -- @return nil
 function sprite:setImagePath(imagePath)
     assert(type(imagePath) == "string", ("String expected, got %s."):format(type(imagePath)))
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     self.imagePath = imagePath
     local spriteSheet
     local fakeSpriteSheet = setmetatable({}, {
@@ -394,25 +401,25 @@ end
 
 --- Returns what you would set ox to in order to rotate the sprite about its left side.
 -- @param self A sprite
--- @returns What you would set ox to in order to rotate the sprite about its left side.
+-- @return What you would set ox to in order to rotate the sprite about its left side.
 function sprite:leftOx()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipHorizontal and -self.w / self.sx or 0
 end
 
 --- Returns what you would set ox to in order to rotate the sprite about its center.
 -- @param self A sprite
--- @returns What you would set ox to in order to rotate the sprite about its center.
+-- @return What you would set ox to in order to rotate the sprite about its center.
 function sprite:centerOx()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipHorizontal and -self.w / 2 / self.sx or self.w / 2 / self.sx
 end
 
 --- Returns what you would set ox to in order to rotate the sprite about its right side.
 -- @param self A sprite
--- @returns What you would set ox to in order to rotate the sprite about its right side.
+-- @return What you would set ox to in order to rotate the sprite about its right side.
 function sprite:rightOx()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipHorizontal and 0 or -self.w / self.sx
 end
 
@@ -420,23 +427,23 @@ end
 -- @param self A sprite
 -- @return What you would set oy to in order to rotate the sprite about its top.
 function sprite:topOy()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipVertical and -self.h / self.sy or 0
 end
 
 --- Returns what you would set oy to in order to rotate the sprite about its center.
 -- @param self A sprite
--- @returns What you would set oy to in order to rotate the sprite about its center.
+-- @return What you would set oy to in order to rotate the sprite about its center.
 function sprite:centerOy()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipVertical and -self.h / 2 / self.sy or self.h / 2 / self.sy
 end
 
 --- Returns what you would set oy to in order to rotate the sprite about its bottom.
 -- @param self A sprite
--- @returns What you would set oy to in order to rotate the sprite about its bottom.
+-- @return What you would set oy to in order to rotate the sprite about its bottom.
 function sprite:bottomOy()
-    assert(type(self) == "table" and self.type == "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+    assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     return self.flipVertical and 0 or -self.h / self.sy
 end
 

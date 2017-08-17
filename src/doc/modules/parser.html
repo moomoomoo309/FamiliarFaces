@@ -1,0 +1,389 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>Familiar Faces</title>
+    <link rel="stylesheet" href="../ldoc.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>ldoc</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Local_Functions">Local Functions</a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="Script.html">Script</a></li>
+  <li><a href="color.html">color</a></li>
+  <li><a href="elevator.html">elevator</a></li>
+  <li><a href="miscUtils.html">miscUtils</a></li>
+  <li><strong>parser</strong></li>
+</ul>
+<h2>Scripts</h2>
+<ul class="nowrap">
+  <li><a href="../scripts/main.html">main</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/GUI.html">GUI</a></li>
+  <li><a href="../classes/animation.html">animation</a></li>
+  <li><a href="../classes/audioHandler.html">audioHandler</a></li>
+  <li><a href="../classes/camera.html">camera</a></li>
+  <li><a href="../classes/object.html">object</a></li>
+  <li><a href="../classes/scene.html">scene</a></li>
+  <li><a href="../classes/scheduler.html">scheduler</a></li>
+  <li><a href="../classes/sprite.html">sprite</a></li>
+  <li><a href="../classes/spriteOverlay.html">spriteOverlay</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>parser</code></h1>
+<p>A module allowing scripts of dialogue to be parsed.</p>
+<p></p>
+
+
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#commands">commands</a></td>
+	<td class="summary">Contains all commands recognized by the parser.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#prefixes">prefixes</a></td>
+	<td class="summary">Contains any prefixes recognized by the parser.</td>
+	</tr>
+</table>
+<h2><a href="#Local_Functions">Local Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#promptPlayer">promptPlayer (tbl, process)</a></td>
+	<td class="summary">Prompts the player for input between dialogue options.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#processLine">processLine (val, tbl)</a></td>
+	<td class="summary">Processes a string from the script.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#processVal">processVal (tbl, process)</a></td>
+	<td class="summary">Processes the next value in the script.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#lock">lock ()</a></td>
+	<td class="summary">Locks the parser.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#unlock">unlock ()</a></td>
+	<td class="summary">Unlocks the parser.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#locked">locked ()</a></td>
+	<td class="summary">Returns whether the parser is locked or not.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#process">process (path)</a></td>
+	<td class="summary">Processes the file at the given path using require().</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "commands"></a>
+    <strong>commands</strong>
+    </dt>
+    <dd>
+    Contains all commands recognized by the parser.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">new</span>
+
+        </li>
+        <li><span class="parameter">sfx</span>
+
+        </li>
+        <li><span class="parameter">[end]</span>
+
+        </li>
+        <li><span class="parameter">scene</span>
+
+        </li>
+        <li><span class="parameter">#</span>
+
+        </li>
+        <li><span class="parameter">store</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">add</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+        <li><span class="parameter">subtract</span>
+
+        </li>
+        <li><span class="parameter">value</span>
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="parser.html#processLine">processLine</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "prefixes"></a>
+    <strong>prefixes</strong>
+    </dt>
+    <dd>
+    Contains any prefixes recognized by the parser.
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">[/r]</span>
+
+        </li>
+        <li><span class="parameter">[/t{]</span>
+
+        </li>
+        <li><span class="parameter">[@]</span>
+
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="parser.html#processLine">processLine</a>
+    </ul>
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+    Methods
+    <dl class="function">
+    <dt>
+    <a name = "promptPlayer"></a>
+    <strong>promptPlayer (tbl, process)</strong>
+    </dt>
+    <dd>
+    Prompts the player for input between dialogue options.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The script
+        </li>
+        <li><span class="parameter">process</span>
+         The coroutine the parser is running from.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        The choice the player picked.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "processLine"></a>
+    <strong>processLine (val, tbl)</strong>
+    </dt>
+    <dd>
+    Processes a string from the script.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+         The string to process
+        </li>
+        <li><span class="parameter">tbl</span>
+         The table containing the script.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "processVal"></a>
+    <strong>processVal (tbl, process)</strong>
+    </dt>
+    <dd>
+    Processes the next value in the script.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+         The script.
+        </li>
+        <li><span class="parameter">process</span>
+         The coroutine the parser is being run from.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "lock"></a>
+    <strong>lock ()</strong>
+    </dt>
+    <dd>
+    Locks the parser.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "unlock"></a>
+    <strong>unlock ()</strong>
+    </dt>
+    <dd>
+    Unlocks the parser.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        nil
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "locked"></a>
+    <strong>locked ()</strong>
+    </dt>
+    <dd>
+    Returns whether the parser is locked or not.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        Whether the parser is locked or not.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "process"></a>
+    <strong>process (path)</strong>
+    </dt>
+    <dd>
+    Processes the file at the given path using require().  Returns a coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">path</span>
+         The path to the file to parse.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        A coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

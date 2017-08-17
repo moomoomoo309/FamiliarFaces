@@ -1,0 +1,8 @@
+--This file is here so all of the character sprites are loaded in RAM when the game starts up.
+
+local characterSprites
+characterSprites = {
+
+}
+
+return characterSprites

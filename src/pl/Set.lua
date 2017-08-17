@@ -68,7 +68,7 @@ end
 Set.values = Map.keys
 
 --- map a function over the values of a set.
--- @param self a Set
+-- @param root a Set
 -- @param fn a function
 -- @param ... extra arguments to pass to the function.
 -- @return a new set
@@ -82,7 +82,7 @@ function Set.map (self,fn,...)
 end
 
 --- union of two sets (also +).
--- @param self a Set
+-- @param root a Set
 -- @param set another set
 -- @return a new set
 function Set.union (self,set)
@@ -109,7 +109,7 @@ end
 Set.__add = setadd
 
 --- intersection of two sets (also *).
--- @param self a Set
+-- @param root a Set
 -- @param set another set
 -- @return a new set
 -- @usage
@@ -132,7 +132,7 @@ end
 Set.__mul = Set.intersection
 
 --- new set with elements in the set that are not in the other (also -).
--- @param self a Set
+-- @param root a Set
 -- @param set another set
 -- @return a new set
 function Set.difference (self,set)
@@ -171,7 +171,7 @@ end
 Set.__pow = Set.symmetric_difference
 
 --- is the first set a subset of the second (also <)?.
--- @param self a Set
+-- @param root a Set
 -- @param set another set
 -- @return true or false
 function Set.issubset (self,set)
@@ -187,7 +187,7 @@ end
 Set.__lt = Set.issubset
 
 --- is the set empty?.
--- @param self a Set
+-- @param root a Set
 -- @return true or false
 function Set.isempty (self)
     return next(self) == nil

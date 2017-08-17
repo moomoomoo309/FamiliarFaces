@@ -1,6 +1,6 @@
---Look ma, no dependencies!
-
---- @field paused Contains whether a group is paused or not.
+--- A class allowing for functions to be scheduled based on certain conditions.
+-- @classmod scheduler
+-- @field paused Contains whether a group is paused or not.
 -- @field functions Contains the functions within a group.
 -- @field groups Contains a flat list of groups.
 local scheduler = {
@@ -218,7 +218,6 @@ end
 -- @return nil
 function scheduler.pause(group)
     local pausedGroup = scheduler.paused
-    assert(pausedGroup[group], ("No group with key %s found."):format(pretty.write(group)))
     pausedGroup[group] = true
 end
 
@@ -227,7 +226,6 @@ end
 -- @return nil
 function scheduler.resume(group)
     local pausedGroup = scheduler.paused
-    assert(pausedGroup[group], ("No group with key %s found."):format(pretty.write(group)))
     pausedGroup[group] = false
 end
 
