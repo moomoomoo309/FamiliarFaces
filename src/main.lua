@@ -1,25 +1,23 @@
 --- The script that runs the game.
--- @script main
+--- @script main
 
 io.stdout:setvbuf "no"
-camera = require "camera"
+local camera = require "camera"
 local cam = camera()
 cam.x = -cam.w / 2
 cam.y = -cam.h / 2
 loadingAssets = true
 loadingCallbacks = {}
-scene = require "scene"
-loader = require "love-loader.love-loader"
-sprite = require "sprite"
-tablex = require "pl.tablex"
-pretty = require "pl.pretty"
-parser = require "parser"
+
+local parser = require "parser"
+local scene = require "scene"
+local loader = require "love-loader.love-loader"
+local sprite = require "sprite"
 elevator = require "elevator"
-audioHandler = require "audioHandler"
-GUI = require "GUI"
-baton = require "baton.baton"
-scheduler = require "scheduler"
-shine = require "shine"
+local GUI = require "GUI"
+local baton = require "baton.baton"
+local scheduler = require "scheduler"
+local shine = require "shine"
 
 local lastScene
 local enterLocked = true

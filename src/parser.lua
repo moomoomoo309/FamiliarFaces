@@ -1,21 +1,19 @@
 --- A module allowing scripts of dialogue to be parsed.
--- @module parser
+--- @module parser
 
 
-utils = require "pl.utils"
-map = require "map"
-pretty = require "pl.pretty"
-scene = require "scene"
-audioHandler = require "audioHandler"
-stringx = require "pl.stringx"
+local scene = require "scene"
+local audioHandler = require "audioHandler"
+local stringx = require "pl.stringx"
 
 
 local locked = true
+local parser = {}
 
 --- Prompts the player for input between dialogue options.
--- @param tbl The script
--- @param process The coroutine the parser is running from.
--- @return The choice the player picked.
+--- @tparam table tbl The script
+--- @tparam coroutine process The coroutine the parser is running from.
+--- @treturn string The choice the player picked.
 local function promptPlayer(tbl, process)
     local choices = {}
     for k, v in pairs(tbl) do
@@ -50,7 +48,7 @@ local function promptPlayer(tbl, process)
 end
 
 --- Contains all commands recognized by the parser.
--- @see processLine
+--- @see processLine
 local commands = {
     new = function()
         scene:clearText()
@@ -91,7 +89,7 @@ local commands = {
 }
 
 --- Contains any prefixes recognized by the parser.
--- @see processLine
+--- @see processLine
 local prefixes = {
     ["/r"] = function(val)
         assert(type(val) == "string", ("String expected, got %s."):format(type(val)))
@@ -119,10 +117,10 @@ local prefixes = {
 }
 
 --- Processes a string from the script.
--- @param val The string to process
--- @param tbl The table containing the script.
--- @return nil
-local function processLine(val, tbl)
+--- @tparam string val The string to process
+--- @tparam table tbl The table containing the script.
+--- @return nil
+function parser.processLine(val, tbl)
     assert(type(val) == "string", ("Expected string, got %s."):format(type(val)))
     local prefixed = false
     for k, v in pairs(prefixes) do
@@ -140,54 +138,54 @@ local function processLine(val, tbl)
 end
 
 --- Processes the next value in the script.
--- @param tbl The script.
--- @param process The coroutine the parser is being run from.
--- @return nil
-local function processVal(tbl, process)
+--- @tparam table tbl The script.
+--- @tparam coroutine process The coroutine the parser is being run from.
+--- @return nil
+function parser.processVal(tbl, process)
     if type(tbl) == "table" then
         tbl.vars = tbl.vars or {}
         for i = 1, #tbl do
             local val = tbl[i]
             local t = type(val)
             if t == "string" then
-                processLine(val, tbl)
+                parser.processLine(val, tbl)
             elseif t == "table" then
-                processVal(promptPlayer(val, process), process)
+                parser.processVal(promptPlayer(val, process), process)
             elseif t == "function" then
-                processVal(val(val, tbl), process)
+                parser.processVal(val(val, tbl), process)
             end
         end
     end
 end
 
 --- Locks the parser.
--- @return nil
-local lock = function()
+--- @return nil
+function parser.lock()
     locked = true
 end
 
 --- Unlocks the parser.
--- @return nil
-local unlock = function()
+--- @return nil
+function parser.unlock()
     locked = false
 end
 
 --- Returns whether the parser is locked or not.
--- @return Whether the parser is locked or not.
-local locked = function()
+--- @return Whether the parser is locked or not.
+function parser.locked()
     return locked
 end
 
 --- Processes the file at the given path using require(). Returns a coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
--- @param path The path to the file to parse.
--- @return A coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
-local process = function(path)
+--- @tparam string path The path to the file to parse.
+--- @treturn (coroutine,table)/false A coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
+function parser.process(path)
     local processTbl = require(path)
     if type(processTbl) == "table" then
-        return coroutine.create(processVal), processTbl
+        return coroutine.create(parser.processVal), processTbl
     else
         return false
     end
 end
 
-return { process = process, processLine = processLine, lock = lock, unlock = unlock, locked = locked }
+return parser

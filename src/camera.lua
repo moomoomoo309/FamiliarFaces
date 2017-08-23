@@ -1,8 +1,9 @@
 --- A class acting like a camera using scale, translate, and rotate.
--- @classmod camera
+--- @classmod camera
 
-object = object or require "object"
-scheduler = scheduler or require "scheduler"
+local object = require "object"
+local scheduler = require "scheduler"
+
 local camera
 
 camera = {
@@ -19,16 +20,16 @@ camera = {
 }
 
 --- Creates the instance of the camera with the values passed in args.
--- @param _ (Unused) Allows camera.new to be called or camera:new.
--- @param args A table of arguments modifying the camera. Can be any of the following:<br>
--- x: The x coordinate of the camera. Defaults to 0.<br>
--- y: The y coordinate of the camera. Defaults to 0.<br>
--- w: The width of the camera's viewport. Defaults to the screen width.<br>
--- h: The height of the camera's viewport. Defaults to the screen height.<br>
--- viewport: Another way of specifying the width and height of the camera. Defaults to the screen dimensions.<br>
--- zoom: How much the camera should be zoomed in. Defaults to 1.<br>
--- rotation: How much the camera should be rotated, in degrees. Defaults to 0.<br>
--- @return The instance of the camera. Will error if the camera instance already exists.
+--- @param _ (Unused) Allows camera.new to be called or camera:new.
+--- @tparam table args A table of arguments modifying the camera. Can be any of the following:<br>
+--- x: The x coordinate of the camera. Defaults to 0.<br>
+--- y: The y coordinate of the camera. Defaults to 0.<br>
+--- w: The width of the camera's viewport. Defaults to the screen width.<br>
+--- h: The height of the camera's viewport. Defaults to the screen height.<br>
+--- viewport: Another way of specifying the width and height of the camera. Defaults to the screen dimensions.<br>
+--- zoom: How much the camera should be zoomed in. Defaults to 1.<br>
+--- rotation: How much the camera should be rotated, in degrees. Defaults to 0.<br>
+--- @treturn camera The instance of the camera. Will error if the camera instance already exists.
 function camera.new(_, args)
     assert(camera.inst == nil, "Camera instance already exists! Camera is a singleton!")
     args = args or _ or {}
@@ -66,7 +67,7 @@ function camera.new(_, args)
 end
 
 --- Performs all necessary matrix transformations needed by the camera.
--- @return nil
+--- @return nil
 function camera:draw()
     local centerX = self.x + self.w / 2 / self.zoom
     local centerY = self.y + self.h / 2 / self.zoom
@@ -77,7 +78,7 @@ function camera:draw()
 end
 
 --- Returns a table containing all of the matrix transformations done by the camera.
--- @return A table containing all of the matrix transformations done by the camera.
+--- @treturn table A table containing all of the matrix transformations done by the camera.
 function camera:getTransformations()
     self = self or camera.inst
     local centerX = self.x + self.w / 2 / self.zoom
@@ -86,9 +87,9 @@ function camera:getTransformations()
 end
 
 --- Converts screen coordinates to camera coordinates.
--- @param x The x coordinate in screen coordinates
--- @param y The y coordinate in screen coordinates.
--- @return x and y in camera coordinates.
+--- @tparam number x The x coordinate in screen coordinates
+--- @tparam number y The y coordinate in screen coordinates.
+--- @treturn number,number x and y in camera coordinates.
 function camera:toCameraCoords(x, y)
     assert(type(x) == "number", ("Number expected, got %s."):format(type(x)))
     assert(type(y) == "number", ("Number expected, got %s."):format(type(y)))
@@ -99,9 +100,9 @@ function camera:toCameraCoords(x, y)
 end
 
 --- Converts camera coordinates to screen coordinates.
--- @param x The x coordinate in camera coordinates
--- @param y The y coordinate in camera coordinates.
--- @return x and y in screen coordinates.
+--- @tparam number x The x coordinate in camera coordinates
+--- @tparam number y The y coordinate in camera coordinates.
+--- @treturn number,number x and y in screen coordinates.
 function camera:toScreenCoords(x, y)
     assert(type(x) == "number", ("Number expected, got %s."):format(type(x)))
     assert(type(y) == "number", ("Number expected, got %s."):format(type(y)))
@@ -112,13 +113,13 @@ function camera:toScreenCoords(x, y)
 end
 
 --- Transitions the values in values using the interpolation provided in the time provided, running fct.
--- key can be used to make sure it cancels the function with the given key, and fct will run on each iteration.
--- @param time How many seconds it should take for the value to change completely.
--- @param interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
--- @param values A table whose keys are the fields to transition, and whose values are what they should transition to.
--- @param key (Optional) The key of the transition function, so other functions on that key can be cancelled.
--- @param fct (Optional) A function to run on each iteration of the transition.
--- @return A function which will cancel the transition.
+--- key can be used to make sure it cancels the function with the given key, and fct will run on each iteration.
+--- @tparam number time How many seconds it should take for the value to change completely.
+--- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
+--- @tparam table values A table whose keys are the fields to transition, and whose values are what they should transition to.
+--- @tparam string key (Optional) The key of the transition function, so other functions on that key can be cancelled.
+--- @tparam function fct (Optional) A function to run on each iteration of the transition.
+--- @return A function which will cancel the transition.
 function camera:transition(time, interpolation, values, key, fct)
     key = key or "default"
     if self.cancelFcts[key] then
@@ -186,39 +187,39 @@ function camera:transition(time, interpolation, values, key, fct)
 end
 
 --- Pans the camera to the given location in the given amount of time using the given interpolation.
--- @param x Where it should end up on the x coordinate.
--- @param y Where it should end up on the y coordinate.
--- @param time How many seconds it should take to pan completely.
--- @param interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
--- @param fct A function to run on each movement of the camera.
--- @return A function which will cancel the camera pan right where it is.
+--- @tparam number x Where it should end up on the x coordinate.
+--- @tparam number y Where it should end up on the y coordinate.
+--- @tparam number time How many seconds it should take to pan completely.
+--- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
+--- @tparam function fct A function to run on each movement of the camera.
+--- @return A function which will cancel the camera pan right where it is.
 function camera:pan(x, y, time, interpolation, fct)
     return self:transition(time, interpolation, { x = x, y = y }, "pan", fct)
 end
 
 --- Pans the camera to the given object in the given amount of time using the given interpolation.
--- @param obj The object to pan to.
--- @param time How many seconds it should take to pan completely.
--- @param interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
--- @param fct A function to run on each movement of the camera.
--- @return A function which will cancel the camera pan right where it is.
+--- @tparam table obj The object to pan to. (It does not actually need to be an object, it could be a normal table)
+--- @tparam number time How many seconds it should take to pan completely.
+--- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
+--- @tparam function fct A function to run on each movement of the camera.
+--- @return A function which will cancel the camera pan right where it is.
 function camera:panTo(obj, time, interpolation, fct)
     return self:pan(-obj.x, -obj.y, time, interpolation, fct)
 end
 
 --- Zooms the camera to the given zoom level in the given amount of time using the given interpolation.
--- @param newZoom Where the zoom should end up.
--- @param time How many seconds it should take to pan completely.
--- @param interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
--- @param fct A function to run on each movement of the camera.
--- @return A function which will cancel the camera pan right where it is.
+--- @tparam number newZoom Where the zoom should end up.
+--- @tparam number time How many seconds it should take to pan completely.
+--- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
+--- @tparam function fct A function to run on each movement of the camera.
+--- @treturn function A function which will cancel the camera pan right where it is.
 function camera:zoomTo(newZoom, time, interpolation, fct)
     return self:transition(time, interpolation, { zoom = newZoom }, "zoom", fct)
 end
 
 --- Makes the camera follow the given object.
--- @param obj The object to follow.
--- @return nil
+--- @tparam table obj The object to follow.
+--- @return nil
 function camera:follow(obj)
     self.followFct = function(self)
         self.x, self.y = -obj.x, -obj.y
@@ -226,7 +227,7 @@ function camera:follow(obj)
 end
 
 --- Makes the camers stop following anything.
--- @return nil
+--- @return nil
 function camera:unfollow()
     self.followFct = nil
 end

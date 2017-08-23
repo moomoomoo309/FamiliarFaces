@@ -1,5 +1,7 @@
-sprite = sprite or require "sprite"
 local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+
+local sprite = require "sprite"
+
 local elevatorScene
 elevatorScene = {
     {

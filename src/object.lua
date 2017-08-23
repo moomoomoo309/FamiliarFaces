@@ -1,5 +1,5 @@
 --- The "object" class, so to speak. Adds callbacks.
--- @classmod object
+--- @classmod object
 
 local object
 object = {
@@ -13,9 +13,9 @@ object = {
 }
 
 --- Adds a callback to the given property (running the function when the property changes)
--- @param key The property to add the callback for.
--- @param fct The function to run when key changes. Object and the new value will be passed as parameters to it.
--- @return nil
+--- @tparam any key The property to add the callback for.
+--- @tparam function fct The function to run when key changes. Object and the new value will be passed as parameters to it.
+--- @return nil
 function object:addCallback(key, fct)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     self.callbacks[key] = self.callbacks[key] or {}
@@ -23,8 +23,9 @@ function object:addCallback(key, fct)
 end
 
 --- Triggers the callback for the given property, updating it to the passed value if not cancelled.
--- @param property The property to trigger callbacks for.
--- @param value What the new value of the property should be.
+--- @tparam string property The property to trigger callbacks for.
+--- @tparam any value What the new value of the property should be.
+--- @return nil
 function object:triggerCallback(property, value)
     local cancel = false
     if self.callbacks[property] then
@@ -43,7 +44,7 @@ function object:triggerCallback(property, value)
 end
 
 --- Returns the default metatable for this object.
--- @return The default metatable for this object.
+--- @treturn table The default metatable for this object.
 function object:defaultMetatable()
     local realElement = self.realTbl
     return {
@@ -65,8 +66,8 @@ function object:defaultMetatable()
 end
 
 --- Creates a new object using the values contained in tbl. Can be run using object(), object.new() or object:new().
--- @param tbl The parameters to the object. All of these values will be put into the object on initialization.
--- @return The created object.
+--- @tparam table tbl The parameters to the object. All of these values will be put into the object on initialization.
+--- @treturn object The created object.
 function object:new(tbl)
     tbl = tbl or self --Allow object.new{} or object:new{}.
     assert(type(tbl) == "table", ("Table expected, got %s."):format(type(tbl)))
@@ -93,28 +94,28 @@ function object:new(tbl)
 end
 
 --- Gives the object a global callback. This will remove the ability to use normal callbacks!
--- @param fct The function to run when any property of the object changes.
+--- @tparam function fct The function to run when any property of the object changes.
 function object:setGlobalCallback(fct)
     self.callbacks = setmetatable(object.globalCallback, { __newindex = function() error "Global callback in use!" end })
     getmetatable(self).__newindex = fct
 end
 
 --- Returns if this object has a global callback.
--- @return If this object has a global callback.
+--- @treturn boolean If this object has a global callback.
 function object:hasGlobalCallback()
     return self.callbacks == object.globalCallback
 end
 
 --- Removes the global callback from the object.
--- @return nil
+--- @return nil
 function object:removeGlobalCallback()
     self.callbacks = {}
     getmetatable(self).__newindex = self:defaultMetatable()
 end
 
 --- Returns if an object extends the given class. Can be given the class name as a string, or a reference to the class itself.
--- @param className A class's name as a string or a class.
--- @return If the object extends the given class.
+--- @tparam string/table className A class's name as a string or a class.
+--- @treturn boolean If the object extends the given class.
 function object:extends(className)
     assert(type(className) == "string" or type(className) == "table", ("String or table expected, got %s."):format(type(className)))
     local checkExtension

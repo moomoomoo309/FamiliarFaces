@@ -197,12 +197,31 @@ div.header, div.footer { margin-left: 0em; }
 	}
 	a { font-weight:bold; color: #004080; text-decoration: underline; }
 	
-	#main	{		background-color: #ffffff;		border-left: 0px;	}	
-	#container	{		margin-left: 2%;		margin-right: 2%;		background-color: #ffffff;	}
+	#main
+	{
+		background-color: #ffffff;
+		border-left: 0px;
+	}
 	
-	#content	{		margin-left: 0px;		padding: 1em;		border-left: 0px;		border-right: 0px;		background-color: #ffffff;	}
+	#container
+	{
+		margin-left: 2%;
+		margin-right: 2%;
+		background-color: #ffffff;
+	}
 	
-	#navigation	{		display: none;
+	#content
+	{
+		margin-left: 0px;
+		padding: 1em;
+		border-left: 0px;
+		border-right: 0px;
+		background-color: #ffffff;
+	}
+	
+	#navigation
+	{
+		display: none;
 	}
 	pre.example {
 		font-family: "Andale Mono", monospace; 
@@ -282,5 +301,5 @@ dl.table dt {border-top: 1px solid #ccc; padding-top: 1em;}
 dl.table dd {padding-bottom: 1em;}
 dl.table h3 {padding: 0; margin: 0; font-size: medium;}
 
-#TODO: make module_list, file_list, function_list, table_list inherit from a list
+
 

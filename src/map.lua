@@ -1,8 +1,8 @@
 --- Applies a function to a set of data, returning the results.
--- @param fct The function to apply.
--- @param numArgs How many arguments the function takes.
--- @param ... The values to apply the function to.
--- @return The values the function returns each time, unpacked.
+--- @tparam function fct The function to apply.
+--- @tparam number numArgs How many arguments the function takes.
+--- @param ... The values to apply the function to.
+--- @return The values the function returns each time, unpacked.
 local function map(fct, numArgs, ...)
     assert(type(fct) == "function" and type(numArgs) == "number")
     local results = {}
@@ -26,12 +26,15 @@ local function map(fct, numArgs, ...)
         return results
     end
 
-    local tbl = innerWrap(fct, numArgs, results, { ... }, select("#", ...)) --Select vs. making {...} local and doing len on it was the same speed, but this is one line shorter.
+    --Select vs. making {...} local and doing len on it was the same speed, but this is one line shorter.
+    local tbl = innerWrap(fct, numArgs, results, { ... }, select("#", ...))
     local tblLen = #tbl
+
     --Reverse the table, inserting it backwards in innerWrap is n*(n-i) iterations, but reversing it here is n/2.
     for i = 1, tblLen / 2 do
         tbl[i], tbl[tblLen - i + 1] = tbl[tblLen - i + 1], tbl[i] --Swap the first half of the elements with the last half
     end
+
     return unpack(tbl)
 end
 

@@ -1,11 +1,11 @@
 ---The class handling all parts of the GUI.
--- @classmod GUI
+--- @classmod GUI
 
 require "gooi"
-tablex = tablex or require "pl.tablex"
-audioHandler = audioHandler or require "audioHandler"
-scene = scene or require "scene"
-scheduler = scheduler or require "scheduler"
+local gooi = gooi
+local audioHandler = require "audioHandler"
+local scene = require "scene"
+local scheduler = require "scheduler"
 
 component.style.bgColor = { 140, 145, 145, 170 }
 
@@ -188,13 +188,13 @@ GUI = GUI or {
 }
 
 --- Updates the GUI.
--- @return nil
+--- @return nil
 GUI.update = gooi.update
 
 --- Adds a menu with the passed values and the given name.
--- @param menu A table containing an init function, widgets, and any sprites needed by the GUI.
--- @param name The name of the menu.
--- @return nil
+--- @tparam table menu A table containing an init function, widgets, and any sprites needed by the GUI.
+--- @tparam string name The name of the menu.
+--- @return nil
 function GUI.addMenu(menu, name)
     assert(type(menu) == "table", ("Table expected, got %s."):format(type(menu)))
     assert(type(name) == "string", ("String expected, got %s."):format(type(name)))
@@ -205,8 +205,8 @@ function GUI.addMenu(menu, name)
 end
 
 --- Shows the menu with the given name.
--- @param menuName The name of the menu to show.
--- @return nil
+--- @tparam string menuName The name of the menu to show.
+--- @return nil
 function GUI.showMenu(menuName)
     local newMenu = GUI.menus[menuName]
     assert(newMenu, ("Menu name \"%s\" not found."):format(menuName))
@@ -225,8 +225,8 @@ function GUI.showMenu(menuName)
 end
 
 --- Hides the menu with the given name.
--- @param menuName The name of the menu to hide.
--- @return nil
+--- @tparam string menuName The name of the menu to hide.
+--- @return nil
 function GUI.hideMenu(menuName)
     assert(type(menuName) == "string", ("String expected, got %s."):format(menuName))
     local currentMenu = GUI.menus[menuName]
@@ -240,8 +240,8 @@ function GUI.hideMenu(menuName)
 end
 
 --- Changes the visible menu to the one with the given name. Do not use this to switch to the pause menu, use pause or unpause.
--- @param menuName The name of the menu to switch to.
--- @return nil
+--- @tparam string menuName The name of the menu to switch to.
+--- @return nil
 function GUI.changeMenu(menuName)
     assert(menuName ~= "pause", "Cannot switch to the pause menu via changeMenu! Use pause or unpause instead!")
     GUI.hideMenu(GUI.currentMenu)
@@ -250,7 +250,7 @@ function GUI.changeMenu(menuName)
 end
 
 --- Initializes the GUI, loading any necessary sprites.
--- @return nil
+--- @return nil
 function GUI.init()
     for k, v in pairs(GUI.menus) do
         v:init()
@@ -260,7 +260,7 @@ function GUI.init()
 end
 
 --- Pauses the game.
--- @return nil
+--- @return nil
 function GUI.pause()
     if GUI.currentMenu == "game" then
         GUI.showMenu "pause"
@@ -293,7 +293,7 @@ function GUI.pause()
 end
 
 --- Unpauses the game.
--- @return nil
+--- @return nil
 function GUI.unpause()
     GUI.hideMenu "pause"
     paused = false
@@ -321,46 +321,46 @@ function GUI.unpause()
 end
 
 --- Returns if the game is paused or not.
--- @return If the game is paused or not.
+--- @treturn boolean If the game is paused or not.
 function GUI.paused()
     return paused
 end
 
 --- Draws all GUI-related sprites, and the GUI itself.
--- @return nil
+--- @return nil
 function GUI.draw()
     sprite.drawGroup "GUI"
     gooi.draw()
 end
 
 --- Passes mousepressed events to gooi.
--- @return nil
+--- @return nil
 function GUI.mousepressed()
     gooi.pressed()
 end
 
 --- Passes mousereleased events to gooi.
--- @return nil
+--- @return nil
 function GUI.mousereleased()
     gooi.released()
 end
 
 --- Starts the game. Gets overridden in main.
--- @return nil
+--- @return nil
 function GUI.startGame()
     error "GUI.startGame is undefined!"
 end
 
 --- Passes textinput events to gooi.
--- @return nil
+--- @return nil
 GUI.textinput = gooi.textinput
 
 --- Passes keypressed events to gooi.
--- @return nil
+--- @return nil
 GUI.keypressed = gooi.keypressed
 
 --- Passes mousemoved events to gooi.
--- @return nil
+--- @return nil
 GUI.mousemoved = gooi.mousemoved
 
 

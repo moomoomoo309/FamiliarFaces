@@ -1,11 +1,11 @@
 --- A module containing functions converting a color from one format to another.
--- @module color
+--- @module color
 
 ---Converts HSV to RGV
---@param h The hue of the color.
---@param s The saturation of the color.
---@param v The value of the color.
---@return The r,g,b values of the new color.
+---@tparam number h The hue of the color.
+---@tparam number s The saturation of the color.
+---@tparam number v The value of the color.
+---@treturn number,number,number The r,g,b values of the new color.
 local function hsv(h, s, v)
     if s <= 0 then return v, v, v end
     h, s, v = h / 256 * 6, s / 255, v / 255

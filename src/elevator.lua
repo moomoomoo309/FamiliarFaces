@@ -1,9 +1,11 @@
 --- The module controlling the movement of the elevator in the elevator scene.
--- @module elevator
+--- @module elevator
+
+local camera = require "camera"
+local scene = require "scene"
+local scheduler = require "scheduler"
 
 local elevator
-camera = camera or require "camera"
-scene = scene or require "scene"
 local elevatorScene = scene.load "elevator"
 local cam = camera.inst --Camera is a singleton, so I can just grab the instance as a "static member".
 local locked = true
@@ -163,7 +165,7 @@ local transitions = {
 local translationIndex = 1
 
 --- Moves the light by one window, flipping it if flipHorizontal appears.
--- @return nil
+--- @return nil
 local function moveElevatorLight()
     if type(lightOffsets[translationIndex]) == "table" then
         elevatorScene.light.x = elevatorScene.light.x + lightOffsets[translationIndex][1]
@@ -179,7 +181,7 @@ end
 elevator = {}
 
 --- Makes the elevator light and the camera start moving.
--- @return nil
+--- @return nil
 function elevator.start()
     if transitionIndex > #transitions then
         print "At the top"
@@ -212,19 +214,19 @@ function elevator.start()
 end
 
 --- Returns if the elevator is locked.
--- @return If the elevator is locked.
+--- @treturn boolean If the elevator is locked.
 function elevator.locked()
     return locked
 end
 
 --- Locks the elevator.
--- @return nil
+--- @return nil
 function elevator.lock()
     locked = true
 end
 
 --- Unlocks the elevator.
--- @return nil
+--- @return nil
 function elevator.unlock()
     locked = false
 end

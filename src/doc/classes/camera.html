@@ -38,15 +38,15 @@
 
 <h2>Classes</h2>
 <ul class="nowrap">
-  <li><a href="GUI.html">GUI</a></li>
-  <li><a href="animation.html">animation</a></li>
-  <li><a href="audioHandler.html">audioHandler</a></li>
+    <li><a href="../classes/GUI.html">GUI</a></li>
+    <li><a href="../classes/animation.html">animation</a></li>
+    <li><a href="../classes/audioHandler.html">audioHandler</a></li>
   <li><strong>camera</strong></li>
-  <li><a href="object.html">object</a></li>
-  <li><a href="scene.html">scene</a></li>
-  <li><a href="scheduler.html">scheduler</a></li>
-  <li><a href="sprite.html">sprite</a></li>
-  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+    <li><a href="../classes/object.html">object</a></li>
+    <li><a href="../classes/scene.html">scene</a></li>
+    <li><a href="../classes/scheduler.html">scheduler</a></li>
+    <li><a href="../classes/sprite.html">sprite</a></li>
+    <li><a href="../classes/spriteOverlay.html">spriteOverlay</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
@@ -139,6 +139,7 @@
          (Unused) Allows camera.new to be called or camera:new.
         </li>
         <li><span class="parameter">args</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          A table of arguments modifying the camera. Can be any of the following:<br>
  x: The x coordinate of the camera. Defaults to 0.<br>
  y: The y coordinate of the camera. Defaults to 0.<br>
@@ -153,6 +154,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="../classes/camera.html#">camera</a></span>
         The instance of the camera. Will error if the camera instance already exists.
     </ol>
 
@@ -191,6 +193,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
         A table containing all of the matrix transformations done by the camera.
     </ol>
 
@@ -209,9 +212,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          The x coordinate in screen coordinates
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          The y coordinate in screen coordinates.
         </li>
     </ul>
@@ -219,6 +224,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number,number</span></span>
         x and y in camera coordinates.
     </ol>
 
@@ -237,9 +243,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          The x coordinate in camera coordinates
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          The y coordinate in camera coordinates.
         </li>
     </ul>
@@ -247,6 +255,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number,number</span></span>
         x and y in screen coordinates.
     </ol>
 
@@ -266,18 +275,23 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
          How many seconds it should take for the value to change completely.
         </li>
         <li><span class="parameter">interpolation</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Optional) The key of the function in camera.interpolations to use to tween the values.
         </li>
         <li><span class="parameter">values</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          A table whose keys are the fields to transition, and whose values are what they should transition to.
         </li>
         <li><span class="parameter">key</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Optional) The key of the transition function, so other functions on that key can be cancelled.
         </li>
         <li><span class="parameter">fct</span>
+            <span class="types"><span class="type">function</span></span>
          (Optional) A function to run on each iteration of the transition.
         </li>
     </ul>
@@ -303,18 +317,23 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">x</span>
+            <span class="types"><span class="type">number</span></span>
          Where it should end up on the x coordinate.
         </li>
         <li><span class="parameter">y</span>
+            <span class="types"><span class="type">number</span></span>
          Where it should end up on the y coordinate.
         </li>
         <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
          How many seconds it should take to pan completely.
         </li>
         <li><span class="parameter">interpolation</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Optional) The key of the function in camera.interpolations to use to tween the values.
         </li>
         <li><span class="parameter">fct</span>
+            <span class="types"><span class="type">function</span></span>
          A function to run on each movement of the camera.
         </li>
     </ul>
@@ -340,15 +359,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">obj</span>
-         The object to pan to.
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            The object to pan to. (It does not actually need to be an object, it could be a normal table)
         </li>
         <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
          How many seconds it should take to pan completely.
         </li>
         <li><span class="parameter">interpolation</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Optional) The key of the function in camera.interpolations to use to tween the values.
         </li>
         <li><span class="parameter">fct</span>
+            <span class="types"><span class="type">function</span></span>
          A function to run on each movement of the camera.
         </li>
     </ul>
@@ -374,15 +397,19 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">newZoom</span>
+            <span class="types"><span class="type">number</span></span>
          Where the zoom should end up.
         </li>
         <li><span class="parameter">time</span>
+            <span class="types"><span class="type">number</span></span>
          How many seconds it should take to pan completely.
         </li>
         <li><span class="parameter">interpolation</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          (Optional) The key of the function in camera.interpolations to use to tween the values.
         </li>
         <li><span class="parameter">fct</span>
+            <span class="types"><span class="type">function</span></span>
          A function to run on each movement of the camera.
         </li>
     </ul>
@@ -390,6 +417,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">function</span></span>
         A function which will cancel the camera pan right where it is.
     </ol>
 
@@ -408,6 +436,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">obj</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          The object to follow.
         </li>
     </ul>
@@ -448,7 +477,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

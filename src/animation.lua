@@ -1,9 +1,9 @@
 --- A class allowing sprites to be animated.
--- @classmod animation
+--- @classmod animation
 
 local animation
 
---- @see sprite.new
+--- @see sprite.sprite
 animation = animation or {
     type = "animation",
     class = animation,
@@ -11,12 +11,12 @@ animation = animation or {
 }
 
 --- Creates a new animation with the arguments provided.
--- @param args A table containing arguments, which may be any of the following:
--- frames: (Optional) The frames of the animation.
--- frameDurations: (Optional) The duration, in seconds, of each frame of the animation, or of all of them. Defaults to 1/60
--- sprite: The drawable used in the animation
--- colors: (Optional) A table containing all of the colors which will overlay the sprite, or one color which will overlay all of them.
--- @return The created animation.
+--- @tparam table args A table containing arguments, which may be any of the following:<br>
+--- frames: (Optional) The frames of the animation.<br>
+--- frameDurations: (Optional) The duration, in seconds, of each frame of the animation, or of all of them. Defaults to 1/60.<br>
+--- sprite: The drawable used in the animation.<br>
+--- colors: (Optional) A table containing all of the colors which will overlay the sprite, or one color which will overlay all of them.
+--- @treturn animation The created animation.
 function animation:new(args)
     local obj = {
         frames = args.frames or {},
@@ -35,8 +35,7 @@ function animation:new(args)
 end
 
 --- Starts the animation. Makes the sprite draw using the first frame of this animation.
--- @param self The animation to start.
--- @return nil
+--- @return nil
 function animation:start()
     self.animation.runningAnimations[self.sprite] = self
     self.lastTime = love.timer.getTime()
@@ -53,8 +52,7 @@ function animation:start()
 end
 
 --- Stops the animation. Makes the sprite go back to drawing using its image property.
--- @param self The animation to stop.
--- @return nil
+--- @return nil
 function animation:stop()
     self.animation.runningAnimations[self.sprite] = nil
     self.sprite.animating = false
@@ -62,16 +60,14 @@ function animation:stop()
 end
 
 --- Pauses the animation. Note, a paused animation will use the current frame of the animation,
--- while a sprite not animating will use the sprite's image.
--- @param self The animation to pause.
--- @return nil
+--- while a sprite not animating will use the sprite's image.
+--- @return nil
 function animation:pause()
     self.paused = true
 end
 
 --- Resumes the animation.
--- @param self The animation to resume.
--- @return nil
+--- @return nil
 function animation:resume()
     self.paused = false
     self.lastTime = love.timer.getTime() --Update the time of the last frame
@@ -79,8 +75,7 @@ function animation:resume()
 end
 
 --- Resets all properties of this animation involving its running state.
--- @param self The animation to reset.
--- @return nil
+--- @return nil
 function animation:reset()
     self.currentFrame = 1
     self.paused = true
@@ -89,8 +84,7 @@ function animation:reset()
 end
 
 --- Makes a copy of this animation, resetting its state in the process.
--- @param self The animation to copy.
--- @return The copied animation.
+--- @treturn animation The copied animation.
 function animation:copy()
     local obj = {
         frames = self.frames,
@@ -111,8 +105,7 @@ function animation:copy()
 end
 
 --- Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.
--- @param self The animation to animate.
--- @return nil
+--- @return nil
 function animation:animate()
     if self.paused then --If it's paused, just return. Exists because paused animations will use the current frame,
         --but if the animation is stopped, the sprite will use its image to draw.
@@ -178,7 +171,7 @@ function animation:animate()
 end
 
 --- Animates all animations at once.
--- @return nil
+--- @return nil
 function animation.animateAll()
     for _, anim in pairs(animation.runningAnimations) do
         anim:animate()

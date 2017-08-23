@@ -39,15 +39,15 @@
 
 <h2>Classes</h2>
 <ul class="nowrap">
-  <li><a href="GUI.html">GUI</a></li>
+    <li><a href="../classes/GUI.html">GUI</a></li>
   <li><strong>animation</strong></li>
-  <li><a href="audioHandler.html">audioHandler</a></li>
-  <li><a href="camera.html">camera</a></li>
-  <li><a href="object.html">object</a></li>
-  <li><a href="scene.html">scene</a></li>
-  <li><a href="scheduler.html">scheduler</a></li>
-  <li><a href="sprite.html">sprite</a></li>
-  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+    <li><a href="../classes/audioHandler.html">audioHandler</a></li>
+    <li><a href="../classes/camera.html">camera</a></li>
+    <li><a href="../classes/object.html">object</a></li>
+    <li><a href="../classes/scene.html">scene</a></li>
+    <li><a href="../classes/scheduler.html">scheduler</a></li>
+    <li><a href="../classes/sprite.html">sprite</a></li>
+    <li><a href="../classes/spriteOverlay.html">spriteOverlay</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
@@ -85,31 +85,31 @@
 	<td class="summary">Creates a new animation with the arguments provided.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:start">animation:start (self)</a></td>
+        <td class="name" nowrap><a href="#animation:start">animation:start ()</a></td>
 	<td class="summary">Starts the animation.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:stop">animation:stop (self)</a></td>
+        <td class="name" nowrap><a href="#animation:stop">animation:stop ()</a></td>
 	<td class="summary">Stops the animation.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:pause">animation:pause (self)</a></td>
+        <td class="name" nowrap><a href="#animation:pause">animation:pause ()</a></td>
 	<td class="summary">Pauses the animation.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:resume">animation:resume (self)</a></td>
+        <td class="name" nowrap><a href="#animation:resume">animation:resume ()</a></td>
 	<td class="summary">Resumes the animation.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:reset">animation:reset (self)</a></td>
+        <td class="name" nowrap><a href="#animation:reset">animation:reset ()</a></td>
 	<td class="summary">Resets all properties of this animation involving its running state.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:copy">animation:copy (self)</a></td>
+        <td class="name" nowrap><a href="#animation:copy">animation:copy ()</a></td>
 	<td class="summary">Makes a copy of this animation, resetting its state in the process.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#animation:animate">animation:animate (self)</a></td>
+        <td class="name" nowrap><a href="#animation:animate">animation:animate ()</a></td>
 	<td class="summary">Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.</td>
 	</tr>
 	<tr>
@@ -138,7 +138,7 @@
 
     <h3>See also:</h3>
     <ul>
-         <a href="sprite.html#sprite:new">sprite.new</a>
+        <a href="../classes/sprite.html#">sprite</a>
     </ul>
 
 
@@ -158,6 +158,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          A table containing arguments, which may be any of the following:
  frames: (Optional) The frames of the animation.
  frameDurations: (Optional) The duration, in seconds, of each frame of the animation, or of all of them. Defaults to 1/60
@@ -169,6 +170,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="../classes/animation.html#">animation</a></span>
         The created animation.
     </ol>
 
@@ -178,18 +180,12 @@
 </dd>
     <dt>
     <a name = "animation:start"></a>
-    <strong>animation:start (self)</strong>
+        <strong>animation:start ()</strong>
     </dt>
     <dd>
     Starts the animation.  Makes the sprite draw using the first frame of this animation.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to start.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -203,18 +199,12 @@
 </dd>
     <dt>
     <a name = "animation:stop"></a>
-    <strong>animation:stop (self)</strong>
+        <strong>animation:stop ()</strong>
     </dt>
     <dd>
     Stops the animation.  Makes the sprite go back to drawing using its image property.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to stop.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -228,19 +218,13 @@
 </dd>
     <dt>
     <a name = "animation:pause"></a>
-    <strong>animation:pause (self)</strong>
+        <strong>animation:pause ()</strong>
     </dt>
     <dd>
     Pauses the animation.  Note, a paused animation will use the current frame of the animation,
  while a sprite not animating will use the sprite's image.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to pause.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -254,18 +238,12 @@
 </dd>
     <dt>
     <a name = "animation:resume"></a>
-    <strong>animation:resume (self)</strong>
+        <strong>animation:resume ()</strong>
     </dt>
     <dd>
     Resumes the animation.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to resume.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -279,18 +257,12 @@
 </dd>
     <dt>
     <a name = "animation:reset"></a>
-    <strong>animation:reset (self)</strong>
+        <strong>animation:reset ()</strong>
     </dt>
     <dd>
     Resets all properties of this animation involving its running state.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to reset.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -304,18 +276,12 @@
 </dd>
     <dt>
     <a name = "animation:copy"></a>
-    <strong>animation:copy (self)</strong>
+        <strong>animation:copy ()</strong>
     </dt>
     <dd>
     Makes a copy of this animation, resetting its state in the process.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to copy.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -329,18 +295,12 @@
 </dd>
     <dt>
     <a name = "animation:animate"></a>
-    <strong>animation:animate (self)</strong>
+        <strong>animation:animate ()</strong>
     </dt>
     <dd>
     Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         The animation to animate.
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
@@ -378,7 +338,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

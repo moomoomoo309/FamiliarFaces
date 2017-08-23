@@ -38,15 +38,15 @@
 
 <h2>Classes</h2>
 <ul class="nowrap">
-  <li><a href="GUI.html">GUI</a></li>
-  <li><a href="animation.html">animation</a></li>
-  <li><a href="audioHandler.html">audioHandler</a></li>
-  <li><a href="camera.html">camera</a></li>
-  <li><a href="object.html">object</a></li>
-  <li><a href="scene.html">scene</a></li>
-  <li><a href="scheduler.html">scheduler</a></li>
+    <li><a href="../classes/GUI.html">GUI</a></li>
+    <li><a href="../classes/animation.html">animation</a></li>
+    <li><a href="../classes/audioHandler.html">audioHandler</a></li>
+    <li><a href="../classes/camera.html">camera</a></li>
+    <li><a href="../classes/object.html">object</a></li>
+    <li><a href="../classes/scene.html">scene</a></li>
+    <li><a href="../classes/scheduler.html">scheduler</a></li>
   <li><strong>sprite</strong></li>
-  <li><a href="spriteOverlay.html">spriteOverlay</a></li>
+    <li><a href="../classes/spriteOverlay.html">spriteOverlay</a></li>
 </ul>
 <h2>Modules</h2>
 <ul class="nowrap">
@@ -85,13 +85,18 @@
 	<td class="summary">Copies that to a new sprite.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:draw">sprite:draw (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:draw">sprite:draw ()</a></td>
 	<td class="summary">Draws the given sprite.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:drawAll">sprite:drawAll ()</a></td>
-	<td class="summary">Draws all sprites.</td>
-	</tr>
+        <td class="name" nowrap><a href="#sprite:_draw">sprite:_draw (x, y, w, h, rotation, flipHorizontal,
+            flipVertical, ox, oy)</a></td>
+        <td class="summary">The method which actually draws the sprite internally.</td>
+    </tr>
+    <tr>
+        <td class="name" nowrap><a href="#sprite:drawAll">sprite:drawAll ()</a></td>
+        <td class="summary">Draws all sprites.</td>
+    </tr>
 	<tr>
 	<td class="name" nowrap><a href="#sprite:drawGroup">sprite:drawGroup (group)</a></td>
 	<td class="summary">Draws all sprites within the given group.</td>
@@ -105,27 +110,27 @@
 	<td class="summary">Sets the imagePath of a sprite, updating its image and animations accordingly.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:leftOx">sprite:leftOx (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:leftOx">sprite:leftOx ()</a></td>
 	<td class="summary">Returns what you would set ox to in order to rotate the sprite about its left side.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:centerOx">sprite:centerOx (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:centerOx">sprite:centerOx ()</a></td>
 	<td class="summary">Returns what you would set ox to in order to rotate the sprite about its center.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:rightOx">sprite:rightOx (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:rightOx">sprite:rightOx ()</a></td>
 	<td class="summary">Returns what you would set ox to in order to rotate the sprite about its right side.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:topOy">sprite:topOy (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:topOy">sprite:topOy ()</a></td>
 	<td class="summary">Returns what you would set oy to in order to rotate the sprite about its top.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:centerOy">sprite:centerOy (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:centerOy">sprite:centerOy ()</a></td>
 	<td class="summary">Returns what you would set oy to in order to rotate the sprite about its center.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sprite:bottomOy">sprite:bottomOy (self)</a></td>
+        <td class="name" nowrap><a href="#sprite:bottomOy">sprite:bottomOy ()</a></td>
 	<td class="summary">Returns what you would set oy to in order to rotate the sprite about its bottom.</td>
 	</tr>
 </table>
@@ -149,6 +154,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         The next available numeric id for a sprite.
     </ol>
 
@@ -167,6 +173,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">args</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          The arguments to the sprite, which can be:<br>
  Id: The numeric ID of the sprite.<br>
  imagePath: The path to the image, if it is not yet loaded.<br>
@@ -195,6 +202,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="../classes/sprite.html#">sprite</a></span>
         The created sprite.
     </ol>
 
@@ -213,9 +221,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">that</span>
+            <span class="types"><a class="type" href="../classes/sprite.html#">sprite</a></span>
          The sprite to copy.
         </li>
         <li><span class="parameter">args</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          If noBatch is true, it will not use a spriteBatch to copy the sprite.
         </li>
     </ul>
@@ -223,6 +233,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="../classes/sprite.html#">sprite</a></span>
         The copied sprite.
     </ol>
 
@@ -232,29 +243,76 @@
 </dd>
     <dt>
     <a name = "sprite:draw"></a>
-    <strong>sprite:draw (self)</strong>
+        <strong>sprite:draw ()</strong>
     </dt>
     <dd>
     Draws the given sprite.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         the sprite to draw.
-        </li>
-    </ul>
+        <h3>Returns:</h3>
+        <ol>
 
-    <h3>Returns:</h3>
-    <ol>
-
-        nil
-    </ol>
+            nil
+        </ol>
 
 
+    </dd>
+        <dt>
+            <a name="sprite:_draw"></a>
+            <strong>sprite:_draw (x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)</strong>
+        </dt>
+        <dd>
+            The method which actually draws the sprite internally. Used by sprite and spriteOverlay.
 
 
-</dd>
+            <h3>Parameters:</h3>
+            <ul>
+                <li><span class="parameter">x</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The x coordinate of the sprite.
+                </li>
+                <li><span class="parameter">y</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The y coordinate of the sprite.
+                </li>
+                <li><span class="parameter">w</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The width of the sprite.
+                </li>
+                <li><span class="parameter">h</span>
+                    <span class="types"><span class="type">number</span></span>
+                    the height of the sprite.
+                </li>
+                <li><span class="parameter">rotation</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The rotation of the sprite, in degrees.
+                </li>
+                <li><span class="parameter">flipHorizontal</span>
+                    <span class="types"><span class="type">boolean</span></span>
+                    Whether or not the sprite should be flipped horizontally.
+                </li>
+                <li><span class="parameter">flipVertical</span>
+                    <span class="types"><span class="type">boolean</span></span>
+                    Whether or not the sprite should be flipped vertically.
+                </li>
+                <li><span class="parameter">ox</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The x coordinate of the origin used for rotation, scaling, and other matrix transformations.
+                </li>
+                <li><span class="parameter">oy</span>
+                    <span class="types"><span class="type">number</span></span>
+                    The y coordinate of the origin used for rotation, scaling, and other matrix transformations.
+                </li>
+            </ul>
+
+            <h3>Returns:</h3>
+            <ol>
+
+                nil
+            </ol>
+
+
+        </dd>
     <dt>
     <a name = "sprite:drawAll"></a>
     <strong>sprite:drawAll ()</strong>
@@ -285,6 +343,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">group</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The name of the group of sprites you want to draw.
         </li>
     </ul>
@@ -329,6 +388,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">imagePath</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The path to the image file.
         </li>
     </ul>
@@ -345,22 +405,17 @@
 </dd>
     <dt>
     <a name = "sprite:leftOx"></a>
-    <strong>sprite:leftOx (self)</strong>
+        <strong>sprite:leftOx ()</strong>
     </dt>
     <dd>
     Returns what you would set ox to in order to rotate the sprite about its left side.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set ox to in order to rotate the sprite about its left side.
     </ol>
 
@@ -370,22 +425,17 @@
 </dd>
     <dt>
     <a name = "sprite:centerOx"></a>
-    <strong>sprite:centerOx (self)</strong>
+        <strong>sprite:centerOx ()</strong>
     </dt>
     <dd>
     Returns what you would set ox to in order to rotate the sprite about its center.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set ox to in order to rotate the sprite about its center.
     </ol>
 
@@ -395,22 +445,17 @@
 </dd>
     <dt>
     <a name = "sprite:rightOx"></a>
-    <strong>sprite:rightOx (self)</strong>
+        <strong>sprite:rightOx ()</strong>
     </dt>
     <dd>
     Returns what you would set ox to in order to rotate the sprite about its right side.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set ox to in order to rotate the sprite about its right side.
     </ol>
 
@@ -420,22 +465,17 @@
 </dd>
     <dt>
     <a name = "sprite:topOy"></a>
-    <strong>sprite:topOy (self)</strong>
+        <strong>sprite:topOy ()</strong>
     </dt>
     <dd>
     Returns what you would set oy to in order to rotate the sprite about its top.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set oy to in order to rotate the sprite about its top.
     </ol>
 
@@ -445,22 +485,17 @@
 </dd>
     <dt>
     <a name = "sprite:centerOy"></a>
-    <strong>sprite:centerOy (self)</strong>
+        <strong>sprite:centerOy ()</strong>
     </dt>
     <dd>
     Returns what you would set oy to in order to rotate the sprite about its center.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set oy to in order to rotate the sprite about its center.
     </ol>
 
@@ -470,22 +505,17 @@
 </dd>
     <dt>
     <a name = "sprite:bottomOy"></a>
-    <strong>sprite:bottomOy (self)</strong>
+        <strong>sprite:bottomOy ()</strong>
     </dt>
     <dd>
     Returns what you would set oy to in order to rotate the sprite about its bottom.
 
 
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">self</span>
-         A sprite
-        </li>
-    </ul>
 
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><span class="type">number</span></span>
         What you would set oy to in order to rotate the sprite about its bottom.
     </ol>
 
@@ -500,7 +530,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

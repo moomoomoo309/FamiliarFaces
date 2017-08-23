@@ -32,6 +32,7 @@
 
 <h2>Contents</h2>
 <ul>
+    <li><a href="#Functions">Functions</a></li>
 <li><a href="#Tables">Tables</a></li>
 <li><a href="#Local_Functions">Local Functions</a></li>
 </ul>
@@ -39,10 +40,10 @@
 
 <h2>Modules</h2>
 <ul class="nowrap">
-  <li><a href="Script.html">Script</a></li>
-  <li><a href="color.html">color</a></li>
-  <li><a href="elevator.html">elevator</a></li>
-  <li><a href="miscUtils.html">miscUtils</a></li>
+    <li><a href="../modules/Script.html">Script</a></li>
+    <li><a href="../modules/color.html">color</a></li>
+    <li><a href="../modules/elevator.html">elevator</a></li>
+    <li><a href="../modules/miscUtils.html">miscUtils</a></li>
   <li><strong>parser</strong></li>
 </ul>
 <h2>Scripts</h2>
@@ -71,23 +72,8 @@
 <p></p>
 
 
-<h2><a href="#Tables">Tables</a></h2>
+    <h2><a href="#Functions">Functions</a></h2>
 <table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#commands">commands</a></td>
-	<td class="summary">Contains all commands recognized by the parser.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#prefixes">prefixes</a></td>
-	<td class="summary">Contains any prefixes recognized by the parser.</td>
-	</tr>
-</table>
-<h2><a href="#Local_Functions">Local Functions</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#promptPlayer">promptPlayer (tbl, process)</a></td>
-	<td class="summary">Prompts the player for input between dialogue options.</td>
-	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#processLine">processLine (val, tbl)</a></td>
 	<td class="summary">Processes a string from the script.</td>
@@ -113,130 +99,32 @@
 	<td class="summary">Processes the file at the given path using require().</td>
 	</tr>
 </table>
+    <h2><a href="#Tables">Tables</a></h2>
+    <table class="function_list">
+        <tr>
+            <td class="name" nowrap><a href="#commands">commands</a></td>
+            <td class="summary">Contains all commands recognized by the parser.</td>
+        </tr>
+        <tr>
+            <td class="name" nowrap><a href="#prefixes">prefixes</a></td>
+            <td class="summary">Contains any prefixes recognized by the parser.</td>
+        </tr>
+    </table>
+    <h2><a href="#Local_Functions">Local Functions</a></h2>
+    <table class="function_list">
+        <tr>
+            <td class="name" nowrap><a href="#promptPlayer">promptPlayer (tbl, process)</a></td>
+            <td class="summary">Prompts the player for input between dialogue options.</td>
+        </tr>
+    </table>
 
 <br/>
 <br/>
 
 
-    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
 
     <dl class="function">
-    <dt>
-    <a name = "commands"></a>
-    <strong>commands</strong>
-    </dt>
-    <dd>
-    Contains all commands recognized by the parser.
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">new</span>
-
-        </li>
-        <li><span class="parameter">sfx</span>
-
-        </li>
-        <li><span class="parameter">[end]</span>
-
-        </li>
-        <li><span class="parameter">scene</span>
-
-        </li>
-        <li><span class="parameter">#</span>
-
-        </li>
-        <li><span class="parameter">store</span>
-
-        </li>
-        <li><span class="parameter">value</span>
-
-        </li>
-        <li><span class="parameter">add</span>
-
-        </li>
-        <li><span class="parameter">value</span>
-
-        </li>
-        <li><span class="parameter">subtract</span>
-
-        </li>
-        <li><span class="parameter">value</span>
-
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="parser.html#processLine">processLine</a>
-    </ul>
-
-
-</dd>
-    <dt>
-    <a name = "prefixes"></a>
-    <strong>prefixes</strong>
-    </dt>
-    <dd>
-    Contains any prefixes recognized by the parser.
-
-
-    <h3>Fields:</h3>
-    <ul>
-        <li><span class="parameter">[/r]</span>
-
-        </li>
-        <li><span class="parameter">[/t{]</span>
-
-        </li>
-        <li><span class="parameter">[@]</span>
-
-        </li>
-    </ul>
-
-
-
-    <h3>See also:</h3>
-    <ul>
-         <a href="parser.html#processLine">processLine</a>
-    </ul>
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
-    Methods
-    <dl class="function">
-    <dt>
-    <a name = "promptPlayer"></a>
-    <strong>promptPlayer (tbl, process)</strong>
-    </dt>
-    <dd>
-    Prompts the player for input between dialogue options.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">tbl</span>
-         The script
-        </li>
-        <li><span class="parameter">process</span>
-         The coroutine the parser is running from.
-        </li>
-    </ul>
-
-    <h3>Returns:</h3>
-    <ol>
-
-        The choice the player picked.
-    </ol>
-
-
-
-
-</dd>
     <dt>
     <a name = "processLine"></a>
     <strong>processLine (val, tbl)</strong>
@@ -248,9 +136,11 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">val</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The string to process
         </li>
         <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          The table containing the script.
         </li>
     </ul>
@@ -276,9 +166,12 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
          The script.
         </li>
         <li><span class="parameter">process</span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.2">coroutine</a></span>
          The coroutine the parser is being run from.
         </li>
     </ul>
@@ -361,6 +254,7 @@
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">path</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The path to the file to parse.
         </li>
     </ul>
@@ -368,6 +262,7 @@
     <h3>Returns:</h3>
     <ol>
 
+        <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.2">(coroutine,table)/false</a></span>
         A coroutine to the parser and the table it's reading from, or false if it is unsuccessful.
     </ol>
 
@@ -376,13 +271,134 @@
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+        <dt>
+            <a name="commands"></a>
+            <strong>commands</strong>
+        </dt>
+        <dd>
+            Contains all commands recognized by the parser.
+
+
+            <h3>Fields:</h3>
+            <ul>
+                <li><span class="parameter">new</span>
+
+                </li>
+                <li><span class="parameter">sfx</span>
+
+                </li>
+                <li><span class="parameter">[end]</span>
+
+                </li>
+                <li><span class="parameter">scene</span>
+
+                </li>
+                <li><span class="parameter">#</span>
+
+                </li>
+                <li><span class="parameter">store</span>
+
+                </li>
+                <li><span class="parameter">value</span>
+
+                </li>
+                <li><span class="parameter">add</span>
+
+                </li>
+                <li><span class="parameter">value</span>
+
+                </li>
+                <li><span class="parameter">subtract</span>
+
+                </li>
+                <li><span class="parameter">value</span>
+
+                </li>
+            </ul>
+
+
+            <h3>See also:</h3>
+            <ul>
+                <a href="../modules/parser.html#processLine">processLine</a>
+            </ul>
+
+
+        </dd>
+        <dt>
+            <a name="prefixes"></a>
+            <strong>prefixes</strong>
+        </dt>
+        <dd>
+            Contains any prefixes recognized by the parser.
+
+
+            <h3>Fields:</h3>
+            <ul>
+                <li><span class="parameter">[/r]</span>
+
+                </li>
+                <li><span class="parameter">[/t{]</span>
+
+                </li>
+                <li><span class="parameter">[@]</span>
+
+                </li>
+            </ul>
+
+
+            <h3>See also:</h3>
+            <ul>
+                <a href="../modules/parser.html#processLine">processLine</a>
+            </ul>
+
+
+        </dd>
+    </dl>
+    <h2 class="section-header "><a name="Local_Functions"></a>Local Functions</h2>
+    Methods
+    <dl class="function">
+        <dt>
+            <a name="promptPlayer"></a>
+            <strong>promptPlayer (tbl, process)</strong>
+        </dt>
+        <dd>
+            Prompts the player for input between dialogue options.
+
+
+            <h3>Parameters:</h3>
+            <ul>
+                <li><span class="parameter">tbl</span>
+                    <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+                    The script
+                </li>
+                <li><span class="parameter">process</span>
+                    <span class="types"><a class="type"
+                                           href="https://www.lua.org/manual/5.1/manual.html#5.2">coroutine</a></span>
+                    The coroutine the parser is running from.
+                </li>
+            </ul>
+
+            <h3>Returns:</h3>
+            <ol>
+
+                <span class="types"><a class="type"
+                                       href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+                The choice the player picked.
+            </ol>
+
+
+        </dd>
+    </dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-08-17 12:19:22 </i>
+    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

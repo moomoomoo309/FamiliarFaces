@@ -1,5 +1,5 @@
 --- The script containing all of the dialogue and implementing most of the game flow.
--- @module Script
+--- @module Script
 
 
 --TODO: Eye animation, eye asset, figure out how to do animation
@@ -13,9 +13,9 @@
 
 --TODO: Needed assets: Walking to office, faceless woman, office walking to desk, at desk
 
-parser = parser or require "parser"
-scheduler = scheduler or require "scheduler"
-scene = scene or require "scene"
+local parser = require "parser"
+local scheduler = require "scheduler"
+local scene = require "scene"
 
 
 local script
