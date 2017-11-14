@@ -63,7 +63,7 @@ end
 
 --- Plays the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
 ---@tparam string fileName The name of the file to play.
----@tparam function/nil callback (Optional) A callback to run when the file stops playing.
+--- @tparam function|nil callback (Optional) A callback to run when the file stops playing.
 ---@treturn function A function which will cancel the playing of this file. If a truthy value is passed and callback is a function, it will also be run.
 function audioHandler.play(fileName, callback)
     local audioObj = audioHandler.audioObjs[fileName]
@@ -93,7 +93,7 @@ end
 
 --- Loops the audio object with the given name from the audio handler, if it exists. Returns a function to stop playing the audio file.
 ---@tparam string fileName The name of the file to play.
----@tparam function callback (Optional) A callback to run when the file loops.
+--- @tparam function|nil callback (Optional) A callback to run when the file loops.
 ---@treturn function A function which will cancel the playing of this file. If a truthy value is passed and callback is a function, it will also be run.
 function audioHandler.loop(fileName, callback)
     local audioObj = audioHandler.audioObjs[fileName]
@@ -179,7 +179,7 @@ for _, v in pairs(love.filesystem.getDirectoryItems(audioDir)) do
     end
 end
 
- --Add them all
+--Add them all
 for name in pairs(files.names) do
     audioHandler.add(("%s/%s.%s"):format(audioDir, name, files.extensions[name]), name)
 end

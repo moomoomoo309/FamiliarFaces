@@ -1,0 +1,85 @@
+local sprite = require "sprite"
+local spriteOverlay = require "spriteOverlay"
+local scheduler = require "scheduler"
+local parser = require "parser"
+local armWaving
+local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+
+local function clamp(num, min, max)
+    if min > num then
+        return min
+    elseif max < num then
+        return max
+    end
+    return num
+end
+
+armWaving = {
+    {
+        name = "Character",
+        x = w * .15,
+        y = 0,
+        w = w * .6375,
+        h = h * 1.234,
+        imagePath = "assets/mc.png",
+        type = sprite
+    },
+    {
+        name = "arm",
+        x = w * .475,
+        y = h * .5,
+        w = .135,
+        h = .35,
+        ox = .45,
+        oy = .95,
+        imagePath = "assets/SinkBackground.png", --TODO: Switch this with the real asset
+        type = spriteOverlay
+    },
+    onShow = function(self, scene)
+        parser.lock()
+        local rightPressed, leftPressed = false, false
+        player:onPress("moveRight", function()
+            rightPressed = true
+            scheduler._until(function()
+                return not rightPressed
+            end, function()
+                self.arm.rotation = clamp(self.arm.rotation + love.timer.getDelta() * 60, -35, 35)
+            end)
+        end)
+        player:onRelease("moveRight", function()
+            rightPressed = false
+        end)
+        player:onPress("moveLeft", function()
+            leftPressed = true
+            scheduler._until(function()
+                return not leftPressed
+            end, function()
+                self.arm.rotation = clamp(self.arm.rotation - love.timer.getDelta() * 60, -35, 35)
+            end)
+        end)
+        player:onRelease("moveLeft", function()
+            leftPressed = false
+        end)
+        scheduler.after(5, parser.unlock)
+    end,
+    onClear = function(self, scene)
+        --Clear the functions
+        player:onPress "moveLeft"
+        player:onRelease "moveLeft"
+        player:onPress "moveRight"
+        player:onRelease "moveRight"
+    end,
+    init = function(self, scene)
+        local bathroom = scene.load "bathroom"
+        local armWavingScene = scene.get "armWaving"
+        for spriteName, spr in pairs(bathroom) do
+            if spriteName ~= "Character" then
+                armWavingScene:set("armWaving", spriteName)
+            end
+        end
+        armWavingScene.arm:attach(armWavingScene.Character, "arm")
+    end
+}
+
+
+return armWaving

@@ -7,7 +7,9 @@
 ---@tparam number v The value of the color.
 ---@treturn number,number,number The r,g,b values of the new color.
 local function hsv(h, s, v)
-    if s <= 0 then return v, v, v end
+    if s <= 0 then
+        return v, v, v
+    end
     h, s, v = h / 256 * 6, s / 255, v / 255
     local c = v * s
     local x = (1 - math.abs((h % 2) - 1)) * c
@@ -28,4 +30,4 @@ local function hsv(h, s, v)
     return (r + m) * 255, (g + m) * 255, (b + m) * 255
 end
 
-return {hsv=hsv}
+return { hsv = hsv }

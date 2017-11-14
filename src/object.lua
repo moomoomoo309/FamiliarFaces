@@ -96,7 +96,11 @@ end
 --- Gives the object a global callback. This will remove the ability to use normal callbacks!
 --- @tparam function fct The function to run when any property of the object changes.
 function object:setGlobalCallback(fct)
-    self.callbacks = setmetatable(object.globalCallback, { __newindex = function() error "Global callback in use!" end })
+    self.callbacks = setmetatable(object.globalCallback, {
+        __newindex = function()
+            error "Global callback in use!"
+        end
+    })
     getmetatable(self).__newindex = fct
 end
 
@@ -114,10 +118,13 @@ function object:removeGlobalCallback()
 end
 
 --- Returns if an object extends the given class. Can be given the class name as a string, or a reference to the class itself.
---- @tparam string/table className A class's name as a string or a class.
+--- @tparam string|table className A class's name as a string or a class.
 --- @treturn boolean If the object extends the given class.
 function object:extends(className)
+    local originalClassname = self.type
+    local originalExtensionCheck = className
     assert(type(className) == "string" or type(className) == "table", ("String or table expected, got %s."):format(type(className)))
+    local checkedClasses = {}
     local checkExtension
     checkExtension = function(self, className)
         local mt = getmetatable(self)
@@ -128,6 +135,10 @@ function object:extends(className)
         if not parent then
             return false
         end
+        for i = 1, #checkedClasses do
+            assert(checkedClasses[i] ~= parent, ("Circular class dependency checking if %s extends %s."):format(originalClassname, originalExtensionCheck))
+        end
+        checkedClasses[#checkedClasses + 1] = parent
         if type(parent) == "function" then
             assert(self.class, "Self has no class!")
             assert(getmetatable(self.class), "Self.class has no metatable!")

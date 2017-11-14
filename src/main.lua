@@ -2,6 +2,9 @@
 --- @script main
 
 io.stdout:setvbuf "no"
+
+pretty = require "pl.pretty"
+
 local camera = require "camera"
 local cam = camera()
 cam.x = -cam.w / 2
@@ -18,6 +21,7 @@ local GUI = require "GUI"
 local baton = require "baton.baton"
 local scheduler = require "scheduler"
 local shine = require "shine"
+
 
 local lastScene
 local enterLocked = true
@@ -43,6 +47,7 @@ function love.load()
     local bathroom = scene.load "bathroom"
     elevatorScene = scene.load "elevator"
     local museum = scene.load "museum"
+    scene.load "armWaving"
     sceneTbl = { bathroom = bathroom, elevator = elevatorScene, museum = museum }
 
     --Initialize post-processing effects
@@ -78,7 +83,8 @@ local function moveNext()
     --Advance the scene
     lastScene = currentScene
     currentScene = followingScene[currentScene]
-    if not currentScene then --Prevent the game from crashing
+    if not currentScene then
+        --Prevent the game from crashing
         return
     end
 
@@ -156,6 +162,7 @@ function love.draw()
         love.graphics.printf(("%d%%"):format(percentLoaded * 100), 0, h * .375, w * .9, "right")
         love.graphics.setColor(128, 128, 128)
         love.graphics.rectangle("fill", w * .1, h * .45, w * .8, h * .1)
+
         --A scissor is used here so the rectangle could easily be replaced with an image.
         love.graphics.setScissor(w * .11, h * .465, w * .78 * percentLoaded, h * .0725)
 

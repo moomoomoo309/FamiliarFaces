@@ -30,7 +30,7 @@ end
 --- Run fct after seconds has passed. Returns a function which cancels this function.
 --- @tparam number seconds How many seconds to wait before running fct.
 --- @tparam function fct The function to run after the time has passed.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default"
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default"
 --- @treturn function a function which cancels this function.
 function scheduler.after(seconds, fct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
@@ -55,8 +55,8 @@ end
 --- Run fct until seconds has passed. Returns a function which cancels this function.
 --- @tparam number seconds How many seconds to wait until fct should stop being run.
 --- @tparam function fct The function to continuously run before the time has passed.
---- @tparam function/nil cancelFct (Optional) A function to run if this one is cancelled.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default".
+--- @tparam function|nil cancelFct (Optional) A function to run if this one is cancelled.
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default".
 --- @treturn function a function which cancels this function.
 function scheduler.before(seconds, fct, cancelFct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
@@ -86,8 +86,8 @@ end
 --- Runs fct until conditionFct returns a truthy value or the function returned is called.
 --- @tparam function conditionFct A function supplying the condition that will stop fct.
 --- @tparam function fct The function to run continuously while conditionFct returns a truthy value.
---- @tparam function cancelFct (Optional) A function to run if this one is cancelled.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default".
+--- @tparam function|nil cancelFct (Optional) A function to run if this one is cancelled.
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default".
 --- @treturn function a function which cancels this function.
 function scheduler._until(conditionFct, fct, cancelFct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
@@ -117,23 +117,26 @@ end
 
 scheduler["until"] = scheduler._until
 
---- Runs fct when conditionFct returns a truthy value or the function returned is called.
+--- Runs fct when conditionFct returns a truthy value or the function returned is called without a parameter.
 --- @tparam function conditionFct A function supplying the condition that will run fct.
 --- @tparam function fct The function to run when conditionFct returns a truthy value.
---- @tparam function cancelFct (Optional) A function to run if this one is cancelled.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default".
---- @treturn function a function which cancels this function.
+--- @tparam function|nil cancelFct (Optional) A function to run if this one is cancelled.
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default".
+--- @treturn function A function which cancels this function. Takes a parameter specifying if fct should not be run.
 function scheduler.when(conditionFct, fct, cancelFct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     assert(type(conditionFct) == "function", ("Function expected, got %s."):format(type(conditionFct)))
     assert(type(cancelFct) == "function" or not cancelFct, ("Function or nil expected, got %s."):format(type(cancelFct)))
     local done = conditionFct()
+    local skip = false
     group = group or "default"
     scheduler.functions[group] = scheduler.functions[group] or {}
     local index = #scheduler.functions[group] + 1
     scheduler.functions[group][index] = function()
         if done then
-            fct()
+            if not skip then
+                fct()
+            end
             scheduler.groups[scheduler.functions[group][index]] = nil
             scheduler.functions[group][index] = nil
             return
@@ -141,7 +144,8 @@ function scheduler.when(conditionFct, fct, cancelFct, group)
         done = done or conditionFct()
     end
     scheduler.groups[scheduler.functions[group][index]] = group
-    return function()
+    return function(doNotRunFct)
+        skip = doNotRunFct
         done = true
         if type(cancelFct) == "function" then
             cancelFct()
@@ -152,8 +156,8 @@ end
 --- Runs fct every seconds seconds.
 --- @tparam number seconds The number of seconds to wait between running fct.
 --- @tparam function fct The function to run every seconds seconds.
---- @tparam function cancelFct (Optional) A function to run if this one is cancelled.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default".
+--- @tparam function|nil cancelFct (Optional) A function to run if this one is cancelled.
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default".
 --- @treturn function a function which cancels this function.
 function scheduler.every(seconds, fct, cancelFct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
@@ -185,8 +189,8 @@ end
 --- Runs fct every time conditionFct returns a truthy value.
 --- @tparam function conditionFct A function supplying the condition that will run fct.
 --- @tparam function fct The function to run every time conditionFct returns a truthy value.
---- @tparam function cancelFct (Optional) A function to run if this one is cancelled.
---- @tparam string group (Optional) The group the function should be in. Defaults to "default".
+--- @tparam function|nil cancelFct (Optional) A function to run if this one is cancelled.
+--- @tparam string|nil group (Optional) The group the function should be in. Defaults to "default".
 --- @treturn string a function which cancels this function.
 function scheduler.everyCondition(conditionFct, fct, cancelFct, group)
     assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))

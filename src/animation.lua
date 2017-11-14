@@ -1,9 +1,10 @@
 --- A class allowing sprites to be animated.
 --- @classmod animation
 
+local object = require "object"
 local animation
 
---- @see sprite.sprite
+--- @see sprite
 animation = animation or {
     type = "animation",
     class = animation,
@@ -18,36 +19,52 @@ animation = animation or {
 --- colors: (Optional) A table containing all of the colors which will overlay the sprite, or one color which will overlay all of them.
 --- @treturn animation The created animation.
 function animation:new(args)
-    local obj = {
+    local obj = object {
         frames = args.frames or {},
         frameDurations = args.frameDurations or 1 / 60,
         currentFrame = 1,
-        lastTime = 0,
-        remainingTime = 0,
-        frameCount = 1,
+        startTime = 0,
+        loopCount = 0,
+        duration = -1,
+        animTimeElapsed = 0,
         sprite = args.sprite,
         animation = animation,
         colors = args.colors,
         paused = true,
         currentColor = false
     }
-    return setmetatable(obj, { __index = animation })
+    obj.class = animation
+    obj:addCallback("frameDurations", animation.updateDuration)
+    obj:updateDuration()
+    return obj
+end
+
+--- Updates the duration of the animation.
+--- @return nil
+function animation:updateDuration()
+    local t = type(self.frameDurations)
+    if t == "number" then
+        self.duration = self.frameDurations * (type(self.frames) == "table" and #self.frames or 1)
+    elseif t == "table" then
+        local duration = 0
+        local durations = self.frameDurations
+        for i = 1, #durations do
+            duration = duration + durations[i]
+        end
+        self.duration = duration
+    end
 end
 
 --- Starts the animation. Makes the sprite draw using the first frame of this animation.
 --- @return nil
 function animation:start()
     self.animation.runningAnimations[self.sprite] = self
-    self.lastTime = love.timer.getTime()
+    self.startTime = love.timer.getTime()
     self.sprite.animating = self
     self.paused = false
     self.currentColor = false
     if self.colors then
-        if type(self.colors) == "table" then
-            self.currentColor = self.colors[self.currentFrame]
-        elseif type(self.colors) == "function" then
-            self.currentColor = self:colors(self.currentFrame, self.frameCount)
-        end
+        self.currentColor = self:getColor()
     end
 end
 
@@ -70,8 +87,7 @@ end
 --- @return nil
 function animation:resume()
     self.paused = false
-    self.lastTime = love.timer.getTime() --Update the time of the last frame
-    self:animate()
+    self.startTime = love.timer.getTime() --Update the time of the last frame
 end
 
 --- Resets all properties of this animation involving its running state.
@@ -80,7 +96,7 @@ function animation:reset()
     self.currentFrame = 1
     self.paused = true
     self.currentColor = false
-    self.frameCount = 1
+    self.loopCount = 0
 end
 
 --- Makes a copy of this animation, resetting its state in the process.
@@ -90,8 +106,7 @@ function animation:copy()
         frames = self.frames,
         frameDurations = self.frameDurations,
         currentFrame = 1,
-        lastTime = 0,
-        remainingTime = 0,
+        startTime = 0,
         frameCount = 1,
         sprite = self.sprite,
         animation = animation,
@@ -104,80 +119,49 @@ function animation:copy()
     return setmetatable(obj, { __index = animation })
 end
 
---- Animates the sprite, advancing which frame it is on if necessary, or updating the time until the next frame.
---- @return nil
-function animation:animate()
-    if self.paused then --If it's paused, just return. Exists because paused animations will use the current frame,
-        --but if the animation is stopped, the sprite will use its image to draw.
-        return
-    end
-    if not self.sprite.visible then
-        animation.runningAnimations[self.sprite] = nil
-        return
-    end
-    local timePassed = love.timer.getTime() - self.lastTime --Get the delta between the last frame of animation and now.
-    if self.remainingTime > timePassed then --If the leftover time before the next frame is animated is higher than the time passed...
-        self.remainingTime = self.remainingTime - timePassed --Subtract it from the leftover time
-        self.lastTime = love.timer.getTime() --Update the time of the last frame
-        return
-    else
-        timePassed = timePassed - self.remainingTime --Subtract it from the time passed and move to the next frame.
-
-        --Next frame!
-        self.currentFrame = self.currentFrame == #self.frames and 1 or self.currentFrame + 1
-        self.frameCount = self.frameCount + 1
-    end
-    if type(self.frameDurations) == "table" then
-        while timePassed > 0 do
-            if self.frameDurations[self.currentFrame] > timePassed then
-                self.remainingTime = self.frameDurations[self.currentFrame] - timePassed --Set the leftover time, and break
-                break
-            end
-            timePassed = timePassed - self.frameDurations[self.currentFrame] --Subtract the time from one frame
-
-            --Next frame!
-            self.currentFrame = self.currentFrame == #self.frames and 1 or self.currentFrame + 1
-            self.frameCount = self.frameCount + 1
-        end
-    else
-        local duration
-        if type(self.frameDurations) == "number" then
-            duration = self.frameDurations
-        elseif type(self.frameDurations) == "function" then
-            duration = self:frameDurations(self.currentFrame, self.frameCount)
-        end
-        assert(type(duration) == "table" or type(duration) == "number" or type(duration) == "function", ("frameDurations (%s) of animation incorrect! Expected table, number, or function, got %s."):format(self.frameDurations, type(self.frameDurations)))
-        while timePassed > 0 do
-            if duration > timePassed then
-                self.remainingTime = duration - timePassed --Set the leftover time, and break; it's done!
-                break
-            end
-            timePassed = timePassed - duration --Subtract the time from one frame
-
-            --Next frame!
-            self.currentFrame = self.currentFrame == #self.frames and 1 or self.currentFrame + 1
-            self.frameCount = self.frameCount + 1
-        end
-    end
-    self.currentColor = false
-    if self.colors then
-        if type(self.colors) == "table" then
-            self.currentColor = self.colors[self.currentFrame]
-        elseif type(self.colors) == "function" then
-            self.currentColor = self:colors(self.currentFrame, self.frameCount)
-        end
-    end
-    self.lastTime = love.timer.getTime() --Update the time of the last frame
+function animation:getFrame(currentTime)
+    self.currentFrame = self:getIndex(currentTime)
+    return self.frames[self.currentFrame]
 end
 
---- Animates all animations at once.
---- @return nil
-function animation.animateAll()
-    for _, anim in pairs(animation.runningAnimations) do
-        anim:animate()
+function animation:getIndex(currentTime)
+    if self.paused then
+        return self.currentFrame
+    end
+    currentTime = currentTime or love.timer.getTime()
+    local dt = (currentTime - self.startTime)
+    local currentFrame = self.currentFrame
+    if dt / self.duration > self.loopCount then
+        currentFrame = 1
+    end
+    dt = dt % self.duration --Make sure it doesn't have to loop over
+
+    for i = 1, #self.frames do
+        local nextFrame = type(self.frameDurations) == "table" and self.frameDurations[i] or self.frameDurations
+        if dt < nextFrame then
+            currentFrame = i
+            break
+        end
+        dt = dt - nextFrame
+    end
+    return currentFrame
+end
+
+function animation:getColor(currentTime, index)
+    local t = type(self.colors)
+    if t == "number" then
+        return { self.colors, self.colors, self.colors, 255 }
+    elseif t == "table" then
+        if (#self.colors == 3 or #self.colors == 4) and type(self.colors[1]) == "number" then
+            return self.colors
+        end
+        return self.colors[index or self:getIndex(currentTime or love.timer.getTime())]
+    elseif t == "function" then
+        currentTime = currentTime or love.timer.getTime()
+        return self:colors(currentTime - self.startTime)
     end
 end
 
 animation.unpause = animation.resume --Alias
 
-return setmetatable(animation, { __call = animation.new })
+return setmetatable(animation, { __call = animation.new, __index = object })

@@ -2,9 +2,8 @@
 --- @module Script
 
 
---TODO: Eye animation, eye asset, figure out how to do animation
+--TODO: Eye animation
 --TODO: Bathroom wave scene
---TODO: Scene switching command
 --TODO: Scene transitions?
 --TODO: Arm covering eye scene
 --TODO: Walking on street scene
@@ -14,8 +13,8 @@
 --TODO: Needed assets: Walking to office, faceless woman, office walking to desk, at desk
 
 local parser = require "parser"
-local scheduler = require "scheduler"
 local scene = require "scene"
+local scheduler = require "scheduler"
 
 
 local script
@@ -26,9 +25,9 @@ script = {
     "Or maybe more of a wide river that’s moving really slowly",
     "Everything is a little out of focus",
     "@SFX air_raid_siren",
-    --eye opening to white background vignette shadows from edges
+    --"@scene eyeAnimation",
     "I wake up",
-    --bathroom (art scene) give player ability to hinge move arm so they can kinda “ wave hello ”
+    "@scene armWaving",
     "Time to get ready for the day.",
     {
         ["I want to look nice"] = {
@@ -62,11 +61,15 @@ script = {
     "Read yesterdays paper on toilet",
     "@new",
     "Groan. Comb hair. Apply foundation. And of course…",
-    --cut to her in bathroom looking into mirror with eye close no scarf sprite
+    function()
+        --cut to her in bathroom looking into mirror with eye close no scarf sprite
+        --        scene.set("bathroom", "Character", "???")
+        scene.switch "bathroom"
+    end,
     "@SFX gross_blink",
-    --eye flutters open",
+    --"@scene eyeAnimation",
     "I cover the eye protruding from my neck.",
-    --animation arm covers eye on neck with scarf, only rotates as player holds arrow key
+    --"@scene scarfAnimation",
     "The eye undulates slightly under the my scarf.",
     "I groan again.",
     "And so completes my morning routine.",
@@ -81,30 +84,31 @@ script = {
     "I stopped trying to figure out who it belongs a while ago",
     "Cover it up and go about my business.",
     "That's my motto.",
-    --walking on street scene , arrow keys to walk arrive at building, space to enter
+    --"@scene walking",
     "@new",
     "I groan before entering the elevator.",
     "Another day another dollar.",
-    --(elevator sequence arrow key controls to move elevator from point to point on the tower)
+    --"@scene elevator",
     "I groan as I exit the elevator",
     "The eye on my neck pulsates",
     "…presumably in reciprocation",
-    --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
+    --"@scene office",
     "@SFX head_bang",
     function()
-        scene.fadeOut(5)
+        parser.lock()
+        scene.fadeOut(5, parser.unlock)
     end,
     "Again. Again there is a river",
     "Again flowing slowly",
     "I attempt to turn away",
     "@SFX air_raid_siren",
-    --eye opening to white background vignette shadows from edges
+    --"@scene eyeAnimation",
     "Again I wake up.",
     "Again I proceed with my normal routine.",
     "Again I cover the eye protruding from my neck.",
-    --animation arm covers eye on neck with scarf, only rotates as player holds arrow key",
+    --"@scene scarfAnimation"
     "As I walk to work I feel the eye throbbing under my scarf.",
-    --walking on street scene, arrow keys to walk arrive at building, space to enter
+    --"@scene walking"
     "@new",
     "Again I groan before entering the elevator.",
     "Another, another day another, another dollar.",
@@ -113,9 +117,14 @@ script = {
     "The eye on my neck pulsates",
     --"@scene office",
     "…presumably in reciprocation.",
-    --(in office allows player to press arrow keys to walk up to sit in chair.arrow key to bang head on keyboard after sitting down.
+    --"@scene desk",
     "@SFX head_bang",
-    --(5 seconds after sitting down fade to black)
+    function()
+        parser.lock()
+        scheduler.after(5, function()
+            scene.circularFadeOut(1.5, parser.unlock)
+        end)
+    end,
     "Again.",
     "Again there is a river.",
     "Again flowing slowly.",
@@ -125,7 +134,7 @@ script = {
     "Enchanting.",
     "But it its not -",
     "@SFX air_raid_siren",
-    --eye opening shaped transition to white screen
+    --"@scene eyeAnimation",
     "Again I wake up",
     "Again I proceed with my normal routine",
     "But I stop",
@@ -133,11 +142,22 @@ script = {
     "I scratch it without thinking",
     "@SFX Lick",
     "It licks me.",
-    --(show bathroom reflection with sprite that has eye on neck and mouth on forearm for 2 seconds)
+    function()
+        --(show bathroom reflection with sprite that has eye on neck and mouth on forearm for 2 seconds)
+        parser.lock()
+        --scene.set("bathroom", "Character", "???")
+        scene.switch "bathroom"
+        scene.clearAll()
+        scheduler.after(2, parser.unlock)
+    end,
     "I certainly cannot go to work like this.",
     "I find an old glove in my wardrobe.",
     "It smells like cigarettes and the elderly.",
-    --(show bathroom reflection with sprite that has eye on neck and mouth on forearm
+    function()
+        --(show bathroom reflection with sprite that has eye on neck and mouth on forearm
+        --scene.set("bathroom", "Character", "???")
+        scene.switch "bathroom"
+    end,
     "@SFX bap_3",
     --mouth flops, cut to black screen and show text colors as indicated red :red black :white, additionally, the red text should appear on its own [without the player's arrow key prompting] in near immediate response to white text )
     "@SFX bap_2",
@@ -162,7 +182,7 @@ script = {
             "/rI'll scream all day.",
             "I shove cotton balls in their mouth.",
             "I then slide my glove over their writhing lips.",
-            --animation arm covers eye on neck with scarf, only rotates as player holds arrow key
+            --"@scene scarfAnimation",
         },
         ["Ask what they are"] = {
             "Fine, but what are you exactly?",
@@ -183,7 +203,7 @@ script = {
     },
     function(val, tbl)
         return script.vars.good <= 1 and {
-            --walking on street scene, arrow keys to walk arrive at building, space to enter
+            --"@scene walking",
             "@new",
             "I feel a pressure on my arm",
             "My neck feels like it's on fire",
@@ -209,10 +229,11 @@ script = {
         } or {
             "Another, another, another day another, another, another dollar",
             "@scene elevator",
-            --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
+            --"@scene desk"
             "@SFX banging noise",
             function()
-                scene.fadeOut(5)
+                parser.lock()
+                scene.fadeOut(5, parser.unlock())
             end,
         }
     end,
@@ -227,9 +248,11 @@ script = {
             "/rThe lips curl into a smile",
         } or false
     end,
-    --(in office allows player to press arrow keys to walk up to sit in chair. arrow key to bang head on keyboard after sitting down.
+    --"@scene office",
+    --"@scene desk",
     function()
-        scene.fadeOut(5)
+        parser.lock()
+        scene.fadeOut(5, parser.unlock)
     end,
     "Again the river",
     "Again I approach the water",
@@ -240,7 +263,7 @@ script = {
     "It’s someone familiar,",
     "but I can’t seem to make out their face",
     "@SFX air_raid_siren",
-    --eye opening to white background vignette shadows from edges",
+    --"@scene eyeAnimation"
     function()
         return script.vars.good >= 1 and {
             "/rGood morning sleeping beauty",
@@ -250,13 +273,17 @@ script = {
             "I wake up"
         }
     end,
-    --black frame",
+    "@new",
     "I proceed with my “normal” routine",
     "As I’m brushing my teeth I see my reflection",
     "/rSo about that,",
     "/rThe good news is I can hear you now",
     "/rAs for the bad news…",
-    --bathroom scene Show version of sprite with all features for 1 second (have eye blink a few times)",
+    function()
+        --bathroom scene Show version of sprite with all features for 1 second (have eye blink a few times)",
+        scene.set("bathroom", "Character", "???")
+        scene.switch "bathroom"
+    end,
     "@new",
     "/rAll of my remaining facial features have manifested on your body",
     {
@@ -342,7 +369,10 @@ script = {
                 "/r*sigh",
                 "/rAye aye captain",
                 --animate Sprite automatically to walk to work and go up elevator and bang head on keyboard",
-                --fade to black text screen",
+                function()
+                    parser.lock()
+                    scene.fadeOut(5, parser.unlock)
+                end,
                 "Again.",
                 "@end",
             },
@@ -371,7 +401,10 @@ script = {
                 "/r*sigh",
                 "/rAye aye captain",
                 --sprite animates automatically to walk to work and go up elevator and bang head on keyboard
-                --fade to black text screen
+                function()
+                    parser.lock()
+                    scene.fadeOut(5, parser.unlock)
+                end,
                 "Again.",
                 "@end",
             },
@@ -458,10 +491,11 @@ script = {
             "What's that?",
             "/rTurn around.",
             --display faceless woman for 5 seconds",
-            --black text frame",
+            "@new",
             "/rIt’s nice to meet you face to face after all this time.",
-            --fade to black
-            "@end",
+            function()
+                scene.circularFadeOut(5, parser.processLine("@end", script))
+            end
         } or {
             --museum sisyphus painting, show scene for like 3 or 4 seconds
             "I look at the painting at the end of the hall.",
@@ -470,10 +504,9 @@ script = {
             "But it’s transfixing.",
             "I shut my eyes.",
             "@new",
-            --black text frame
             "I turn around.",
             --display faceless woman for 5 seconds
-            --black text frame
+            "@new",
             "/rHello,",
             "/rIt's a pleasure  to finally meet you face to face.",
             "/rWell, I suppose this isn’t quite face to face.",
@@ -482,7 +515,6 @@ script = {
             "/rThats better.",
             "/rI suppose this is goodbye.",
             "@new",
-            --black frame
             "…",
             "They left me.",
             "…",
@@ -490,9 +522,8 @@ script = {
             "…",
             "I feel lonely.",
             function()
-                scene.fadeOut(5)
-            end,
-            "@end",
+                scene.fadeOut(5, parser.processLine("@end", script))
+            end
         }
     end
 }

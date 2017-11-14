@@ -7,7 +7,7 @@ local pretty = require "pl.pretty"
 local object = require "object"
 local loader = require "love-loader.love-loader"
 
-local sprite = sprite or {
+local sprite = {
     type = "sprite",
     currentId = 1,
     sprites = setmetatable({}, { __mode = "v" }), --Make sure the sprites can be garbage collected!
@@ -70,6 +70,8 @@ function sprite:new(args)
         h = args.h or 0,
         ox = args.ox or 0,
         oy = args.oy or 0,
+        sx = 1,
+        sy = 1,
         rotation = args.rotation or 0,
         flipHorizontal = args.flipHorizontal ~= nil and args.flipHorizontal or false,
         flipVertical = args.flipVertical ~= nil and args.flipVertical or false,
@@ -79,19 +81,24 @@ function sprite:new(args)
         filterMax = args.filterMax or "nearest",
         anisotropy = args.anisotropy or 0,
         animPath = args.animPath or (args.imagePath and args.imagePath:find(".", nil, true) and args.imagePath:sub(1, -args.imagePath:reverse():find(".", nil, true)) .. "anim") or false,
-        overlays = args.overlays or {}
+        overlays = args.overlays or {},
+        overlayKeys = {}
     }
     assert(obj, "Object could not be created in sprite.")
     obj.class = sprite --Update the class (This does call the callback in object!)
+
     obj.group = obj.group or "default" --Make sure it has a group
     sprite.groups[obj.group] = sprite.groups[obj.group] or { keys = {} }
+
     if obj.imagePath then
         obj:setImagePath(obj.imagePath) --When the class was changed, so was the metatable, making its __index point to sprite.
     end
+
+    --Give each animation a pointer to its sprite.
     for _, animation in pairs(obj.animations) do
-        --Give each animation a pointer to its sprite.
         animation.sprite = obj
     end
+
     --Insert the sprite into sprite.sprites and into its group's keys.
     --The keys for a given group remains sorted so that draw order is based on a sprite's Id.
     sprite.sprites[obj.Id] = obj
@@ -108,6 +115,13 @@ function sprite:new(args)
     if not inserted then
         keys[#keys + 1] = obj.Id
     end
+
+
+    --Attach any overlays that are present to the sprite.
+    for _, overlay in pairs(obj.overlays) do
+        overlay:attach(obj)
+    end
+
     return obj
 end
 
@@ -120,8 +134,10 @@ function sprite:copy(that, args)
         --Allows you to call sprite.copy or sprite:copy.
         that, args = self, that
     end
+
     assert(type(that) == "table" and that:extends "sprite", ("Sprite expected, got %s."):format(type(that) == "table" and that.type or type(that)))
     assert(type(args) == "table", ("Table expected, got %s."):format(args))
+
     local this = {}
     local reusableFields = { "animations" } --Tables that should be shared amongst copied sprites.
     for k, v in pairs(that) do
@@ -161,7 +177,7 @@ end
 --- Draws the given sprite.
 --- @return nil
 function sprite:draw()
-    self:_draw(self.x, self.y, self.w, self.h, self.rotation, self.flipHorizontal, self.flipVertical, self.ox, self.oy)
+    self:_draw(self.x, self.y, self.w, self.h, self.rotation, self.flipHorizontal, self.flipVertical, type(self.ox) == "function" and self:ox() or self.ox, type(self.oy) == "function" and self:oy() or self.oy)
 end
 
 --- The method which actually draws the sprite internally. Used by sprite and spriteOverlay.
@@ -177,11 +193,16 @@ end
 --- @return nil
 function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy)
     assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
+
     if not self.visible then
         return
     end
-    local img, quad
+
+    local img, quad, currentTime, animIndex
+
     if self.animating then
+        currentTime = love.timer.getTime()
+        self.animating.currentFrame = self.animating:getIndex(currentTime)
         if self.animating.frames[self.animating.currentFrame]:type() ~= "Quad" then
             img = self.animating.frames[self.animating.currentFrame] --If it's not a quad, it's a Drawable.
         else
@@ -191,10 +212,12 @@ function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy
     else
         img = self.image --No animation.
     end
-    local oldColor
+
     --If the current frame being drawn wants to have its color changed, grab the old color then change it.
+    local oldColor
     if self.animating and self.animating.currentColor or self.color then
         oldColor = { love.graphics.getColor() }
+        self.animating.currentColor = self.animating:getColor(currentTime, self.animating.currentFrame)
         love.graphics.setColor(self.animating.currentColor or self.color)
     end
 
@@ -225,14 +248,15 @@ function sprite:_draw(x, y, w, h, rotation, flipHorizontal, flipVertical, ox, oy
         ox,
         oy)
     end
+
     --Don't forget to change the color back if you changed it before!
     if oldColor then
         love.graphics.setColor(oldColor)
     end
 
     --Draw the overlays, if any exist.
-    for _, overlay in pairs(self.overlays) do
-        overlay:draw()
+    for i = 1, #self.overlayKeys do
+        self.overlays[self.overlayKeys[i]]:draw()
     end
 end
 
@@ -250,7 +274,7 @@ end
 function sprite.drawGroup(group)
     local spriteGroup = sprite.groups[group]
     assert(spriteGroup, ("No group with name %s found."):format(pretty.write(group)))
-    for i = 1, #spriteGroup.keys do
+    for i = #spriteGroup.keys, 1, -1 do
         local key = spriteGroup.keys[i]
         if sprite.sprites[key] and sprite.sprites[key].visible then
             sprite.sprites[key]:draw()
@@ -258,20 +282,19 @@ function sprite.drawGroup(group)
     end
 end
 
---- Updates the sprites so they can animate correctly.
---- @return nil
-function sprite.update()
-    animation:animateAll()
-end
-
 --- Sets the imagePath of a sprite, updating its image and animations accordingly.
 --- @tparam string imagePath The path to the image file.
 --- @return nil
 function sprite:setImagePath(imagePath)
     assert(type(imagePath) == "string", ("String expected, got %s."):format(type(imagePath)))
+    if not love.filesystem.exists(imagePath) then
+        return
+    end
     assert(type(self) == "table" and self:extends "sprite", ("Sprite expected, got %s."):format(type(self) == "table" and self.type or type(self)))
     self.imagePath = imagePath
     local spriteSheet
+
+    --This is so it can set a local,
     local fakeSpriteSheet = setmetatable({}, {
         __newindex = function(_, _, v)
             spriteSheet = v
@@ -290,7 +313,6 @@ function sprite:setImagePath(imagePath)
                 spriteSheet:setFilter(self.filterMin, self.filterMax, self.anisotropy) --If for some reason, nearest isn't wanted.
             end
         end
-
     else
         spriteSheet = love.graphics.newImage(self.imagePath)
         if spriteSheet.setFilter then
@@ -300,7 +322,7 @@ function sprite:setImagePath(imagePath)
     self.image = self.image or spriteSheet --If it was user-overridden, keep it!
     local success, metaFile = false, nil
     if self.animPath then
-        if io.open(self.animPath, "r") then
+        if love.filesystem.exists(self.animPath) then
             success, metaFile = pcall(function()
                 return dofile(self.animPath)
             end) --Try to read the file...
@@ -397,7 +419,6 @@ function sprite:setImagePath(imagePath)
                         sprite = sprite
                     }
                 end
-
             else
                 self.animations[name] = animation {
                     frames = frames,

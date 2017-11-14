@@ -6,8 +6,12 @@ local gooi = gooi
 local audioHandler = require "audioHandler"
 local scene = require "scene"
 local scheduler = require "scheduler"
+local parser = require "parser"
+local sprite = require "sprite"
 
 component.style.bgColor = { 140, 145, 145, 170 }
+
+local GUI
 
 --TODO: Settings Menu
 local paused = false
@@ -19,23 +23,22 @@ local btnBack = gooi.newButton("Back", borderX, love.graphics.getHeight() - bord
 end)
 btnBack.visible = false
 
-local GUI
 GUI = GUI or {
     currentMenu = "main",
     menus = {
         main = {
             widgets = {},
-            sprites = {},
+            assets = {},
             init = function(self)
                 if next(GUI.menus.main.widgets) then
                     return
                 end
-                local font = love.graphics.newFont(love.window.toPixels(24))
-                local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+                local font = love.graphics.newFont(love.window.fromPixels(24))
+                local w, h = love.graphics.getDimensions()
                 local btnWidth, btnHeight = 400, 55
                 local oldStyle = component.style
                 gooi.setStyle { font = font }
-                self.sprites.mainTitle = sprite {
+                self.assets.mainTitle = sprite {
                     x = borderX,
                     y = borderY,
                     w = w - 2 * borderX,
@@ -53,8 +56,8 @@ GUI = GUI or {
                     GUI.changeMenu "game"
                     GUI.startGame()
                 end):onHover(function()
-                    self.sprites.guiHand.x = self.widgets.btnStart.x + self.widgets.btnStart.w + borderX
-                    self.sprites.guiHand.y = self.widgets.btnStart.y
+                    self.assets.guiHand.x = self.widgets.btnStart.x + self.widgets.btnStart.w + borderX
+                    self.assets.guiHand.y = self.widgets.btnStart.y
                 end)
 
                 self.widgets.btnSoundboard = gooi.newButton("Soundboard",
@@ -64,8 +67,8 @@ GUI = GUI or {
                     btnHeight):onRelease(function()
                     GUI.changeMenu "soundboard"
                 end):onHover(function()
-                    self.sprites.guiHand.x = self.widgets.btnSoundboard.x + self.widgets.btnSoundboard.w + borderX
-                    self.sprites.guiHand.y = self.widgets.btnSoundboard.y
+                    self.assets.guiHand.x = self.widgets.btnSoundboard.x + self.widgets.btnSoundboard.w + borderX
+                    self.assets.guiHand.y = self.widgets.btnSoundboard.y
                 end)
 
                 self.widgets.btnCredits = gooi.newButton("Credits",
@@ -75,8 +78,8 @@ GUI = GUI or {
                     btnHeight):onRelease(function()
                     GUI.changeMenu "credits"
                 end):onHover(function()
-                    self.sprites.guiHand.x = self.widgets.btnCredits.x + self.widgets.btnCredits.w + borderX
-                    self.sprites.guiHand.y = self.widgets.btnCredits.y
+                    self.assets.guiHand.x = self.widgets.btnCredits.x + self.widgets.btnCredits.w + borderX
+                    self.assets.guiHand.y = self.widgets.btnCredits.y
                 end)
 
                 self.widgets.btnExit = gooi.newButton("Exit",
@@ -84,12 +87,15 @@ GUI = GUI or {
                     h / 2 + btnHeight * 3 + borderY * 5,
                     btnWidth,
                     btnHeight):onRelease(function()
-                    gooi.confirm("Are you sure?", love.event.quit)
+                    gooi.setStyle { font = font }
+                    gooi.confirm("Are you sure?", love.event.quit, function()
+                        gooi.setStyle(oldStyle)
+                    end)
                 end):onHover(function()
-                    self.sprites.guiHand.x = self.widgets.btnExit.x + self.widgets.btnStart.w + borderX
-                    self.sprites.guiHand.y = self.widgets.btnExit.y
+                    self.assets.guiHand.x = self.widgets.btnExit.x + self.widgets.btnStart.w + borderX
+                    self.assets.guiHand.y = self.widgets.btnExit.y
                 end)
-                self.sprites.guiHand = sprite {
+                self.assets.guiHand = sprite {
                     x = self.widgets.btnStart.x + self.widgets.btnStart.w + borderX,
                     y = self.widgets.btnStart.y,
                     w = (w - btnWidth) / 2,
@@ -104,7 +110,7 @@ GUI = GUI or {
         },
         soundboard = {
             widgets = {},
-            sprites = {},
+            assets = {},
             init = function(self)
                 if next(GUI.menus.soundboard.widgets) then
                     return
@@ -142,7 +148,7 @@ GUI = GUI or {
         },
         credits = {
             widgets = {},
-            sprites = {},
+            assets = {},
             init = function(self)
                 if next(GUI.menus.credits.widgets) then
                     return
@@ -154,18 +160,18 @@ GUI = GUI or {
         },
         game = {
             widgets = {},
-            sprites = {},
+            assets = {},
             init = function()
             end
         },
         pause = {
             widgets = {},
-            sprites = {},
+            assets = {},
             init = function(self)
                 if next(GUI.menus.pause.widgets) then
                     return
                 end
-                local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+                local w, h = love.graphics.getDimensions()
                 local btnWidth, btnHeight = w * .8, h * .075
                 local font = love.graphics.newFont(love.window.toPixels(24))
                 local oldStyle = component.style
@@ -183,6 +189,16 @@ GUI = GUI or {
                 end)
                 gooi.setStyle(oldStyle)
             end
+        },
+        settings = {
+            widgets = {},
+            assets = {},
+            init = function(self)
+                if next(GUI.menus.settings.widgets) then
+                    return
+                end
+                local w, h = love.graphics.getDimensions()
+            end
         }
     }
 }
@@ -192,7 +208,7 @@ GUI = GUI or {
 GUI.update = gooi.update
 
 --- Adds a menu with the passed values and the given name.
---- @tparam table menu A table containing an init function, widgets, and any sprites needed by the GUI.
+--- @tparam table menu A table containing an init function, widgets, and any assets needed by the GUI.
 --- @tparam string name The name of the menu.
 --- @return nil
 function GUI.addMenu(menu, name)
@@ -215,8 +231,8 @@ function GUI.showMenu(menuName)
             v.visible = true
         end
     end
-    if next(newMenu.sprites) then
-        for _, v in pairs(newMenu.sprites) do
+    if next(newMenu.assets) then
+        for _, v in pairs(newMenu.assets) do
             v.visible = true
         end
     else
@@ -234,7 +250,7 @@ function GUI.hideMenu(menuName)
     for _, v in pairs(currentMenu.widgets) do
         v.visible = false
     end
-    for _, v in pairs(currentMenu.sprites) do
+    for _, v in pairs(currentMenu.assets) do
         v.visible = false
     end
 end
@@ -249,7 +265,7 @@ function GUI.changeMenu(menuName)
     GUI.showMenu(menuName)
 end
 
---- Initializes the GUI, loading any necessary sprites.
+--- Initializes the GUI, loading any necessary assets.
 --- @return nil
 function GUI.init()
     for k, v in pairs(GUI.menus) do
@@ -326,7 +342,7 @@ function GUI.paused()
     return paused
 end
 
---- Draws all GUI-related sprites, and the GUI itself.
+--- Draws all GUI-related assets, and the GUI itself.
 --- @return nil
 function GUI.draw()
     sprite.drawGroup "GUI"

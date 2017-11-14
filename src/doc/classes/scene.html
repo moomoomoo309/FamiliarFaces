@@ -93,7 +93,7 @@
 	<td class="summary">Creates a new scene.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#scene:set">scene:set (name, sceneName, sprite)</a></td>
+        <td class="name" nowrap><a href="#scene:set">scene:set (sceneName, spriteName, sprite)</a></td>
 	<td class="summary">Adds a sprite to the given scene.</td>
 	</tr>
 	<tr>
@@ -101,9 +101,13 @@
 	<td class="summary">Clears the scene with the given name, or self if called with a scene.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#scene:show">scene:show (sceneName)</a></td>
+        <td class="name" nowrap><a href="#scene.show">scene.show (sceneName)</a></td>
 	<td class="summary">Shows the scene with the given name, or self if called with a scene.</td>
-	</tr>
+    </tr>
+    <tr>
+        <td class="name" nowrap><a href="#scene:switch">scene:switch (sceneName)</a></td>
+        <td class="summary">Switches scenes by running scene.clearAll() and showing the given scene(s).</td>
+    </tr>
 	<tr>
 	<td class="name" nowrap><a href="#scene:clearAll">scene:clearAll ()</a></td>
 	<td class="summary">Clears all scenes.</td>
@@ -172,7 +176,8 @@
          Which row the text should be on (1-however many fit on the screen)
         </li>
         <li><span class="parameter">color</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span
+                    class="type">nil</span></span>
          (Optional) What color the text should be. Defaults to white.
         </li>
     </ul>
@@ -205,11 +210,12 @@
          The text to print on screen
         </li>
         <li><span class="parameter">reset</span>
-            <span class="types"><span class="type">boolean</span></span>
+            <span class="types"><span class="type">boolean</span> or <span class="type">nil</span></span>
          (Optional) If true, will reset the text back to the top of the screen.
         </li>
         <li><span class="parameter">color</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a></span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.5">table</a> or <span
+                    class="type">nil</span></span>
          (Optional) The color to make the text. White by default.
         </li>
     </ul>
@@ -271,7 +277,7 @@
 </dd>
     <dt>
     <a name = "scene:set"></a>
-    <strong>scene:set (name, sceneName, sprite)</strong>
+        <strong>scene:set (sceneName, spriteName, sprite)</strong>
     </dt>
     <dd>
     Adds a sprite to the given scene.
@@ -279,11 +285,11 @@
 
     <h3>Parameters:</h3>
     <ul>
-        <li><span class="parameter">name</span>
+        <li><span class="parameter">sceneName</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The name of the scene to set the sprite to.
         </li>
-        <li><span class="parameter">sceneName</span>
+        <li><span class="parameter">spriteName</span>
             <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
          The name of the sprite within the scene.
         </li>
@@ -315,7 +321,8 @@
     <ul>
         <li><span class="parameter">sceneName</span>
             <span class="types"><a class="type"
-                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string/nil</a></span>
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The name of the scene, if a reference to the scene is not available.
         </li>
     </ul>
@@ -331,8 +338,8 @@
 
 </dd>
     <dt>
-    <a name = "scene:show"></a>
-    <strong>scene:show (sceneName)</strong>
+        <a name="scene.show"></a>
+        <strong>scene.show (sceneName)</strong>
     </dt>
     <dd>
     Shows the scene with the given name, or self if called with a scene.
@@ -342,7 +349,8 @@
     <ul>
         <li><span class="parameter">sceneName</span>
             <span class="types"><a class="type"
-                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string/nil</a></span>
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The name of the scene, if a reference to the scene is not available.
         </li>
     </ul>
@@ -354,9 +362,26 @@
     </ol>
 
 
+    </dd>
+        <dt>
+            <a name="scene:switch"></a>
+            <strong>scene:switch (sceneName)</strong>
+        </dt>
+        <dd>
+            Switches scenes by running scene.clearAll() and showing the given scene(s).
 
 
-</dd>
+            <h3>Parameters:</h3>
+            <ul>
+                <li><span class="parameter">sceneName</span>
+                    <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                            class="type">nil</span></span>
+                    The name of the first scene to show.
+                </li>
+            </ul>
+
+
+        </dd>
     <dt>
     <a name = "scene:clearAll"></a>
     <strong>scene:clearAll ()</strong>
@@ -569,7 +594,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
+    <i style="float:right;">Last updated 2017-09-12 14:17:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

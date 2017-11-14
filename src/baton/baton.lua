@@ -189,16 +189,24 @@ function Player:released(name)
 end
 
 function Player:onPress(name, fct)
-    assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     local c = self._controls[name]
     assert(c, ("No control with the name \"%s\" found."):format(name))
+    if fct == nil then
+        c.pressFunction = nil
+        return
+    end
+    assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     c.pressFunction = fct
 end
 
 function Player:onRelease(name, fct)
-    assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     local c = self._controls[name]
     assert(c, ("No control with the name \"%s\" found."):format(name))
+    if fct == nil then
+        c.releaseFunction = nil
+        return
+    end
+    assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
     c.releaseFunction = fct
 end
 

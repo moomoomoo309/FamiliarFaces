@@ -59,14 +59,14 @@ function math.round(num)
 end
 
 ---Works like math.random(low,high), but returns a float instead of an int.
----@tparam number/nil low (Optional) The lower bound of the number.
----@tparam number/nil high (Optional) The upper bound of the number.
+--- @tparam number|nil low (Optional) The lower bound of the number.
+--- @tparam number|nil high (Optional) The upper bound of the number.
 ---@treturn number A random number in the range (low,high) if low and high are provided, in (0,low) if low is provided, or in (0,1) if neither are.
 function math.frandom(low, high)
     if low and high then
-        return math.random(low, high-1) + math.random() --returns a value in low < value < high
+        return math.random(low, high - 1) + math.random() --returns a value in low < value < high
     elseif low then
-        return math.random(low-1) + math.random() --returns a value in 0 < value < low
+        return math.random(low - 1) + math.random() --returns a value in 0 < value < low
     end
     return math.random() --Not sure why you wouldn't pass arguments, but you can choose not to!
 end

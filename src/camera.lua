@@ -41,6 +41,12 @@ function camera.new(_, args)
         viewport = args.viewport or love.graphics.getDimensions(),
         zoom = args.zoom or 1,
         rotation = args.rotation or 0,
+        rotationPointX = args.rotationPointX or function(self)
+            return self.w / 2
+        end,
+        rotationPointY = args.rotationPointY or function(self)
+            return self.h / 2
+        end,
         followFct = nil,
         inst = nil
     }
@@ -71,10 +77,14 @@ end
 function camera:draw()
     local centerX = self.x + self.w / 2 / self.zoom
     local centerY = self.y + self.h / 2 / self.zoom
+    local rotationPointX = type(self.rotationPointX) == "function" and self:rotationPointX() or self.rotationPointX
+    local rotationPointY = type(self.rotationPointY) == "function" and self:rotationPointY() or self.rotationPointY
     love.graphics.push()
+    love.graphics.translate(rotationPointX, rotationPointY)
+    love.graphics.rotate(math.rad(self.rotation))
+    love.graphics.translate(-rotationPointX, -rotationPointY)
     love.graphics.scale(self.zoom)
     love.graphics.translate(centerX, centerY)
-    love.graphics.rotate(math.rad(self.rotation))
 end
 
 --- Returns a table containing all of the matrix transformations done by the camera.
@@ -201,7 +211,7 @@ end
 --- @tparam table obj The object to pan to. (It does not actually need to be an object, it could be a normal table)
 --- @tparam number time How many seconds it should take to pan completely.
 --- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
---- @tparam function fct A function to run on each movement of the camera.
+--- @tparam function fct (Optional) A function to run on each movement of the camera.
 --- @return A function which will cancel the camera pan right where it is.
 function camera:panTo(obj, time, interpolation, fct)
     return self:pan(-obj.x, -obj.y, time, interpolation, fct)
@@ -211,7 +221,7 @@ end
 --- @tparam number newZoom Where the zoom should end up.
 --- @tparam number time How many seconds it should take to pan completely.
 --- @tparam string interpolation (Optional) The key of the function in camera.interpolations to use to tween the values.
---- @tparam function fct A function to run on each movement of the camera.
+--- @tparam function fct (Optional) A function to run on each movement of the camera.
 --- @treturn function A function which will cancel the camera pan right where it is.
 function camera:zoomTo(newZoom, time, interpolation, fct)
     return self:transition(time, interpolation, { zoom = newZoom }, "zoom", fct)
@@ -230,6 +240,14 @@ end
 --- @return nil
 function camera:unfollow()
     self.followFct = nil
+end
+
+--- Makes sure camera:follow works.
+--- @return nil
+function camera:update()
+    if (self or camera.inst).followFct then
+        (self or camera.inst):followFct()
+    end
 end
 
 return setmetatable(camera, { __call = camera.new, __index = object })

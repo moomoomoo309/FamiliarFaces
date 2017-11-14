@@ -99,7 +99,9 @@
     </tr>
     <tr>
         <td class="name" nowrap><a href="#scheduler:when">scheduler:when (conditionFct, fct, cancelFct, group)</a></td>
-        <td class="summary">Runs fct when conditionFct returns a truthy value or the function returned is called.</td>
+        <td class="summary">Runs fct when conditionFct returns a truthy value or the function returned is called without
+            a parameter.
+        </td>
     </tr>
 	<tr>
 	<td class="name" nowrap><a href="#scheduler:every">scheduler:every (seconds, fct, cancelFct, group)</a></td>
@@ -197,7 +199,9 @@
          The function to run after the time has passed.
         </li>
         <li><span class="parameter">group</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The group the function should be in. Defaults to "default"
         </li>
     </ul>
@@ -232,11 +236,13 @@
          The function to continuously run before the time has passed.
         </li>
         <li><span class="parameter">cancelFct</span>
-            <span class="types"><span class="type">function/nil</span></span>
+            <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
          (Optional) A function to run if this one is cancelled.
         </li>
         <li><span class="parameter">group</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The group the function should be in. Defaults to "default".
         </li>
     </ul>
@@ -269,11 +275,12 @@
                     The function to run continuously while conditionFct returns a truthy value.
                 </li>
                 <li><span class="parameter">cancelFct</span>
-                    <span class="types"><span class="type">function</span></span>
+                    <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
                     (Optional) A function to run if this one is cancelled.
                 </li>
                 <li><span class="parameter">group</span>
-                    <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+                    <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                            class="type">nil</span></span>
                     (Optional) The group the function should be in. Defaults to "default".
                 </li>
             </ul>
@@ -292,7 +299,7 @@
     <strong>scheduler:when (conditionFct, fct, cancelFct, group)</strong>
     </dt>
     <dd>
-    Runs fct when conditionFct returns a truthy value or the function returned is called.
+        Runs fct when conditionFct returns a truthy value or the function returned is called without a parameter.
 
 
     <h3>Parameters:</h3>
@@ -306,11 +313,13 @@
          The function to run when conditionFct returns a truthy value.
         </li>
         <li><span class="parameter">cancelFct</span>
-            <span class="types"><span class="type">function</span></span>
+            <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
          (Optional) A function to run if this one is cancelled.
         </li>
         <li><span class="parameter">group</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The group the function should be in. Defaults to "default".
         </li>
     </ul>
@@ -319,7 +328,7 @@
     <ol>
 
         <span class="types"><span class="type">function</span></span>
-        a function which cancels this function.
+        A function which cancels this function. Takes a parameter specifying if fct should not be run.
     </ol>
 
 
@@ -345,11 +354,13 @@
          The function to run every seconds seconds.
         </li>
         <li><span class="parameter">cancelFct</span>
-            <span class="types"><span class="type">function</span></span>
+            <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
          (Optional) A function to run if this one is cancelled.
         </li>
         <li><span class="parameter">group</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The group the function should be in. Defaults to "default".
         </li>
     </ul>
@@ -384,11 +395,13 @@
          The function to run every time conditionFct returns a truthy value.
         </li>
         <li><span class="parameter">cancelFct</span>
-            <span class="types"><span class="type">function</span></span>
+            <span class="types"><span class="type">function</span> or <span class="type">nil</span></span>
          (Optional) A function to run if this one is cancelled.
         </li>
         <li><span class="parameter">group</span>
-            <span class="types"><a class="type" href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+            <span class="types"><a class="type"
+                                   href="https://www.lua.org/manual/5.1/manual.html#5.4">string</a> or <span
+                    class="type">nil</span></span>
          (Optional) The group the function should be in. Defaults to "default".
         </li>
     </ul>
@@ -489,7 +502,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-    <i style="float:right;">Last updated 2017-08-18 13:04:28 </i>
+    <i style="float:right;">Last updated 2017-09-12 14:17:53 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

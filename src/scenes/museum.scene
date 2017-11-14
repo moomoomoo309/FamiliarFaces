@@ -1,4 +1,5 @@
-audioHandler = audioHandler or require"audioHandler"
+local audioHandler = require "audioHandler"
+local sprite = require "sprite"
 
 local w, h = love.graphics.getDimensions()
 local museum

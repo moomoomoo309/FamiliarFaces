@@ -1729,7 +1729,7 @@ function gooi.dialog(msg, fPositive, fNegative, kind)
         gooi.dialogMsg = msg or ""
         gooi.showingDialog = true
 
-        local w, h = love.graphics.getWidth(), love.graphics.getHeight()
+        local w, h = love.graphics.getDimensions()
 
         local smaller = gooi.smallerSide()
 

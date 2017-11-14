@@ -4,6 +4,7 @@
 local scheduler = require "scheduler"
 local camera = require "camera"
 local parser = parser --Circular dependencies!
+local sprite = require "sprite"
 
 local font = love.graphics.getFont()
 local fontHeight = font:getHeight()
@@ -17,7 +18,7 @@ local lastYOffset = 0
 --- @tparam number paddingX How many pixels from the left/right side should be left by the text.
 --- @tparam number paddingY How many pixels from the top/bottom side should be left by the text.
 --- @tparam number i Which row the text should be on (1-however many fit on the screen)
---- @tparam table color (Optional) What color the text should be. Defaults to white.
+--- @tparam table|nil color (Optional) What color the text should be. Defaults to white.
 local function printText2(text, paddingX, paddingY, i, color)
     assert(type(text) == "string", ("String expected, got %s."):format(type(text)))
     assert(type(paddingX) == "number", ("Number expected, got %s."):format(type(paddingX)))
@@ -32,21 +33,21 @@ local function printText2(text, paddingX, paddingY, i, color)
     if localYOffset > love.graphics.getHeight() then
         yOffset = love.graphics.getHeight() - localYOffset - fontHeight - paddingY
     end
-    local textObj = love.graphics.newText(font, text)
+    local textDrawable = love.graphics.newText(font, text)
     if color then
-        textObj:addf({ color, text }, love.graphics.getWidth() - 2 * paddingX, "left", 0, 0)
+        textDrawable:addf({ color, text }, love.graphics.getWidth() - 2 * paddingX, "left", 0, 0)
     end
-    textObj:setFont(font)
-    local text = sprite {
+    textDrawable:setFont(font)
+    local textSprite = sprite {
         x = paddingX,
         y = localYOffset,
-        w = textObj:getWidth(),
-        h = textObj:getHeight(),
+        w = textDrawable:getWidth(),
+        h = textDrawable:getHeight(),
         group = "GUI",
-        image = textObj,
+        image = textDrawable,
         visible = true
     }
-    visibleText[#visibleText + 1] = text
+    visibleText[#visibleText + 1] = textSprite
     return yOffset
 end
 
@@ -56,8 +57,8 @@ local scene = { scenes = {}, currentScenes = {} }
 --- Make reset true to move the text back to the top of the screen.
 --- @param _ unused
 --- @tparam string text The text to print on screen
---- @tparam boolean reset (Optional) If true, will reset the text back to the top of the screen.
---- @tparam table color (Optional) The color to make the text. White by default.
+--- @tparam boolean|nil reset (Optional) If true, will reset the text back to the top of the screen.
+--- @tparam table|nil color (Optional) The color to make the text. White by default.
 --- @return nil
 function scene.printText(_, text, reset, color)
     local yOffset
@@ -96,26 +97,26 @@ function scene:new(name)
     return setmetatable(scene.scenes[name], { __index = scene.scenes[name].class })
 end
 
---- Adds a sprite to the given scene.
---- @tparam string name The name of the scene to set the sprite to.
---- @tparam string sceneName The name of the sprite within the scene.
---- @tparam sprite sprite The sprite to insert into the scene.
+--- Sets a value to the given scene.
+--- @tparam string sceneName The name of the scene to set the sprite to.
+--- @tparam string spriteName The name of the sprite within the scene.
+--- @tparam any value The value to insert into the scene.
 --- @return nil
-function scene:set(name, sceneName, sprite)
+function scene:set(sceneName, spriteName, value)
     if not sprite then
-        name, sceneName, sprite = self, name, sceneName
+        sceneName, spriteName, value = self, sceneName, spriteName
     end
-    assert(type(name) == "string", ("Name expected, got %s."):format(type(name)))
-    assert(type(sceneName) == "string", ("SceneName expected, got %s."):format(type(sceneName)))
-    assert(type(sprite) == "table" and sprite:extends"sprite", ("Sprite expected, got %s."):format(type(sprite) == "table" and sprite.type or type(sprite)))
-    if not scene.scenes[name] then
-        scene:new(name)
+    sceneName = type(sceneName) == "table" and sceneName.name or sceneName
+    assert(type(sceneName) == "string", ("Name expected, got %s."):format(type(sceneName)))
+    assert(type(spriteName) == "string", ("spriteName expected, got %s."):format(type(spriteName)))
+    if not scene.scenes[sceneName] then
+        scene:new(sceneName)
     end
-    scene.scenes[name][sceneName] = sprite
+    scene.scenes[sceneName][spriteName] = value
 end
 
 --- Clears the scene with the given name, or self if called with a scene.
---- @tparam string/nil sceneName (Optional) The name of the scene, if a reference to the scene is not available.
+--- @tparam string|nil sceneName (Optional) The name of the scene, if a reference to the scene is not available.
 --- @return nil
 function scene:clear(sceneName)
     sceneName = sceneName or self.name
@@ -123,7 +124,7 @@ function scene:clear(sceneName)
     local thisScene = scene.scenes[sceneName]
     assert(thisScene, ("No scene with name %s found."):format(sceneName))
     if thisScene.onClear then
-        thisScene:onClear()
+        thisScene:onClear(scene)
     end
     for k, v in pairs(thisScene) do
         if type(v) == "table" and k ~= "class" then
@@ -139,17 +140,18 @@ function scene:clear(sceneName)
 end
 
 --- Shows the scene with the given name, or self if called with a scene.
---- @tparam string/nil sceneName (Optional) The name of the scene, if a reference to the scene is not available.
+--- @tparam string sceneName The name of the scene, if a reference to the scene is not available.
 --- @return nil
-function scene:show(sceneName)
-    assert(sceneName or self ~= scene, "Name or object expected, got nil.")
-    assert(type(sceneName) == "string" or sceneName == nil, ("Expected string, got %s"):format(type(sceneName)))
-    scene.currentScenes[#scene.currentScenes + 1] = sceneName and scene.scenes[sceneName] or self
+function scene.show(sceneName)
+    assert(type(sceneName) == "string" or type(sceneName) == "table", ("String or table expected, got %s"):format(type(sceneName)))
+    sceneName = type(sceneName) == "string" and sceneName or sceneName.name
+    scene.currentScenes[#scene.currentScenes + 1] = type(sceneName) == "string" and scene.scenes[sceneName] or sceneName
     local foundScene = false
     for i = 1, #scene.currentScenes do
         local currentScene = scene.scenes[scene.currentScenes[i].name]
+        print(scene.currentScenes[i].name)
         if currentScene.onShow then
-            currentScene:onShow()
+            currentScene:onShow(scene)
         end
         for k, v in pairs(currentScene) do
             if type(v) == "table" and k ~= "class" then
@@ -159,6 +161,30 @@ function scene:show(sceneName)
         end
     end
     assert(foundScene, ("No scene with name %s found."):format(sceneName))
+end
+
+--- Returns the scene with the given name, or errors if there is not one.
+--- @tparam string sceneName The name of the scene.
+--- @return table The scene with the given name.
+function scene.get(sceneName)
+    assert(type(sceneName) == "string", ("String expected, got %s."):format(type(sceneName)))
+    assert(scene.scenes[sceneName], ("No scene found with name %s."):format(sceneName))
+    return scene.scenes[sceneName]
+end
+
+--- Switches scenes by running scene.clearAll() and showing the given scene(s).
+--- @tparam string sceneName The name of the first scene to show.
+function scene.switch(sceneName, ...)
+    assert(sceneName, "Name or scene expected, got nil.")
+    if not sceneName then
+        sceneName = self
+    end
+    scene.clearAll()
+    scene.show(sceneName)
+    local scenes = { ... }
+    for i = 1, #scenes do
+        scene.show(scenes[i])
+    end
 end
 
 --- Clears all scenes.
@@ -202,21 +228,28 @@ function scene:load(sceneName)
         local sceneTbl = dofile("scenes/" .. sceneName .. ".scene")
         assert(sceneTbl, ("Could not load scene %s at scenes/%s.scene. Is the file malformed?"):format(sceneName, sceneName))
         local newScene = self:new(sceneName)
-        for k, item in pairs(sceneTbl) do
+        for k = #sceneTbl, 1, -1 do
+            local item = sceneTbl[k]
             if type(item) == "table" then
                 local itemName = item.name
                 local itemConstructor = item.type
-                if itemName and not itemConstructor then
-                    newScene:set(sceneName, itemName, itemName) --Put a placeholder if needed.
-                end
                 item.name = nil
                 item.visible = false
                 local itemSprite = itemConstructor(item)
+                item.name = itemName
                 newScene:set(sceneName, itemName, itemSprite)
-            else
-                newScene[k] = item
             end
         end
+        for k, v in pairs(sceneTbl) do
+            if not tonumber(k) or k < 0 or k > #sceneTbl then
+                newScene[k] = v
+            end
+        end
+        if sceneTbl.init then
+            sceneTbl:init(scene)
+            newScene.init = sceneTbl.init
+        end
+        newScene.name = sceneName
         self.scenes[sceneName] = newScene
     end
     return self.scenes[sceneName]

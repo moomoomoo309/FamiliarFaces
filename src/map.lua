@@ -4,7 +4,8 @@
 --- @param ... The values to apply the function to.
 --- @return The values the function returns each time, unpacked.
 local function map(fct, numArgs, ...)
-    assert(type(fct) == "function" and type(numArgs) == "number")
+    assert(type(fct) == "function", ("Function expected, got %s."):format(type(fct)))
+    assert(type(numArgs) == "number", ("Number expected, got %s"):format(type(numArgs)))
     local results = {}
     local resultsLen = 0
     local function innerWrap(fct, numArgs, results, args, argsLen)
@@ -20,7 +21,8 @@ local function map(fct, numArgs, ...)
         end
         resultsLen = resultsLen + 1
         results[resultsLen] = fct(unpack(returns))
-        if argsLen >= numArgs then --Ordinarily, I'd do a ternary return, but that prevents a tail-recursion here.
+        if argsLen >= numArgs then
+            --Ordinarily, I'd do a ternary return, but that prevents a tail-recursion here.
             return innerWrap(fct, numArgs, results, args, argsLen)
         end
         return results
